@@ -7,8 +7,6 @@ import java.util.ArrayList;
 
 public class BotConfig
 {
-    public static final String OWN_CHANNEL = "aytsan_lex";
-
     private static final File m_CredentialsFile = new File("credentials.txt");
     private static final File m_ChannelsFile = new File("channels.txt");
     private static final ArrayList<String> m_Credentials = new ArrayList<>();
