@@ -11,7 +11,6 @@ public class BotConfig
     private static final File m_ChannelsFile = new File("channels.txt");
     private static final ArrayList<String> m_Credentials = new ArrayList<>();
     private static final ArrayList<String> m_Channels = new ArrayList<>();
-
     private static BotConfig m_Instance = null;
 
     public static synchronized BotConfig instance()

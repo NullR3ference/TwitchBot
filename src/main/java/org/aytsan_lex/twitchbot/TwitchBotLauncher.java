@@ -10,8 +10,10 @@ public class TwitchBotLauncher
         final String access_token = BotConfig.instance().getAccessToken();
         final ArrayList<String> channels = BotConfig.instance().getChannels();
 
+        System.out.println("[*] Initializing twitch bot...");
         TwitchBot bot = new TwitchBot(client_id, access_token, null)
                 .withChannels(channels)
                 .start();
+        System.out.println("[+] Started");
     }
 }
