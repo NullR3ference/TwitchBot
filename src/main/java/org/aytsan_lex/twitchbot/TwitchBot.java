@@ -2,11 +2,12 @@ package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
 import javax.annotation.Nullable;
+
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
-import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
+import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 
 public class TwitchBot
 {
@@ -22,7 +23,7 @@ public class TwitchBot
                 .withEnableHelix(true)
                 .withClientId(client_id)
                 .withChatAccount(new OAuth2Credential("twitch", access_token))
-                .withDefaultEventHandler(ReactorEventHandler.class)
+                .withDefaultEventHandler(SimpleEventHandler.class)
                 .build();
 
         this.m_ManagedChannels = new ArrayList<>();
@@ -39,7 +40,7 @@ public class TwitchBot
     public TwitchBot start()
     {
         this.m_TwitchClient.getEventManager()
-                .getEventHandler(ReactorEventHandler.class)
+                .getEventHandler(SimpleEventHandler.class)
                 .onEvent(ChannelMessageEvent.class, this.m_ChatMessageHandler::handleChatMessage);
 
         this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().joinChannel(name));
@@ -51,7 +52,7 @@ public class TwitchBot
     public void stop()
     {
         this.m_TwitchClient.getEventManager()
-                .getEventHandler(ReactorEventHandler.class)
+                .getEventHandler(SimpleEventHandler.class)
                 .close();
 
         this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().leaveChannel(name));

@@ -9,7 +9,7 @@ repositories {
 dependencies {
     implementation(libs.guava)
     implementation("com.github.twitch4j:twitch4j:1.23.0")
-    implementation("com.github.philippheuer.events4j:events4j-handler-reactor:0.12.2")
+    implementation("com.github.philippheuer.events4j:events4j-handler-simple:0.12.2")
 }
 
 java {
