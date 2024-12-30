@@ -6,11 +6,9 @@ public class TwitchBotLauncher
 {
     public static void main(String[] args)
     {
-        final BotConfig config = BotConfig.instance();
-
-        final String client_id = config.getClientId();
-        final String access_token = config.getAccessToken();
-        final ArrayList<String> channels = config.getChannels();
+        final String client_id = BotConfig.instance().getClientId();
+        final String access_token = BotConfig.instance().getAccessToken();
+        final ArrayList<String> channels = BotConfig.instance().getChannels();
 
         TwitchBot bot = new TwitchBot(client_id, access_token, null)
                 .withChannels(channels)

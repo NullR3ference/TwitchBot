@@ -15,12 +15,10 @@ public class ChatMessageLogger
         m_Channels.forEach(channel_name -> {
             try
             {
-                FileWriter writer = new FileWriter(String.format("%s_log.csv", channel_name));
-                writer.write("Time|Channel|User ID|User name|Message\n");
-
-                this.m_FileWriters.put(channel_name, writer);
+                this.m_FileWriters.put(channel_name, new FileWriter(String.format("%s_chat_log.csv", channel_name)));
             }
-            catch (IOException e) { }
+            catch (IOException e)
+            {}
         });
     }
 
@@ -28,11 +26,7 @@ public class ChatMessageLogger
     {
         final String chat_csv_line = String.format(
                 "%s|%s|%s|%s|%s\n",
-                timestamp,
-                channel,
-                user_id,
-                user_name,
-                message
+                timestamp, channel, user_id, user_name, message
         );
 
         try
@@ -41,6 +35,7 @@ public class ChatMessageLogger
             current_writer.write(chat_csv_line);
             current_writer.flush();
         }
-        catch (IOException e) {}
+        catch (IOException e)
+        {}
     }
 }

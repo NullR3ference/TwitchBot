@@ -1,6 +1,8 @@
 package org.aytsan_lex.twitchbot;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 
 public class ChatMessagesHandler
@@ -18,7 +20,7 @@ public class ChatMessagesHandler
         final String user_id = event.getUser().getId();
         final String user_name = event.getUser().getName();
         final String message = event.getMessage();
-        final String timestamp = new Timestamp(System.currentTimeMillis()).toString();
+        final String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss.SSS"));
 
         final String chat_line = String.format(
                 "[%s] [%s] (%s)[%s]: %s",

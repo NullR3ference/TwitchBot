@@ -13,10 +13,10 @@ public class TwitchBot
     private final TwitchClient m_TwitchClient;
     private final ArrayList<String> m_ManagedChannels;
     private final ChatMessagesHandler m_ChatMessageHandler;
+    private boolean m_IsRunning;
 
     public TwitchBot(String client_id, String access_token, @Nullable String refresh_token)
     {
-        System.out.println("[*] Initializing twitch client...");
         this.m_TwitchClient = TwitchClientBuilder.builder()
                 .withEnableChat(true)
                 .withEnableHelix(true)
@@ -27,6 +27,7 @@ public class TwitchBot
 
         this.m_ManagedChannels = new ArrayList<>();
         this.m_ChatMessageHandler = new ChatMessagesHandler();
+        this.m_IsRunning = false;
     }
 
     public TwitchBot withChannels(ArrayList<String> channels)
@@ -37,14 +38,29 @@ public class TwitchBot
 
     public TwitchBot start()
     {
-        System.out.println("[+] Connecting to channels...");
-        this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().joinChannel(name));
-
-        System.out.println("[+] Registering event handlers...");
         this.m_TwitchClient.getEventManager()
                 .getEventHandler(ReactorEventHandler.class)
                 .onEvent(ChannelMessageEvent.class, this.m_ChatMessageHandler::handleChatMessage);
 
+        this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().joinChannel(name));
+
+        this.m_IsRunning = true;
         return this;
+    }
+
+    public void stop()
+    {
+        this.m_TwitchClient.getEventManager()
+                .getEventHandler(ReactorEventHandler.class)
+                .close();
+
+        this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().leaveChannel(name));
+
+        this.m_IsRunning = false;
+    }
+
+    public boolean isRunning()
+    {
+        return this.m_IsRunning;
     }
 }
