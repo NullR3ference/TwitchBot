@@ -23,7 +23,11 @@ public class ChatMessagesHandler
         m_Channels.forEach(channel_name -> {
             try
             {
-                final File file = new File(String.format("%s_chat_log.csv", channel_name));
+                final File file = new File(String.format(
+                        "%s_chat_log_%s.csv",
+                        channel_name,
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss")))
+                );
                 System.out.printf("[*] Opening (or creating) log file: %s\n", file.getName());
 
                 if (!file.exists())
