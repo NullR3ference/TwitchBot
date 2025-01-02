@@ -11,57 +11,81 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 
 public class TwitchBot
 {
-    private final TwitchClient m_TwitchClient;
-    private final ArrayList<String> m_ManagedChannels;
-    private final ChatMessagesHandler m_ChatMessageHandler;
-    private boolean m_IsRunning;
+    private final ArrayList<String> loggedChannels;
+    private final ChatMessagesHandler chatMessageHandler;
 
-    public TwitchBot(String client_id, String access_token, @Nullable String refresh_token)
+    private TwitchClient twitchClient;
+    private boolean isRunning;
+
+    private static TwitchBot twitchBotInstance = null;
+
+    private TwitchBot()
     {
-        this.m_TwitchClient = TwitchClientBuilder.builder()
+        this.loggedChannels = new ArrayList<>();
+        this.chatMessageHandler = new ChatMessagesHandler();
+        this.isRunning = false;
+    }
+
+    public static synchronized TwitchBot instance()
+    {
+        if (twitchBotInstance == null) { twitchBotInstance = new TwitchBot(); }
+        return twitchBotInstance;
+    }
+
+    public TwitchBot init(String client_id, @Nullable String access_token)
+    {
+        TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
                 .withEnableChat(true)
                 .withEnableHelix(true)
                 .withClientId(client_id)
-                .withChatAccount(new OAuth2Credential("twitch", access_token))
-                .withDefaultEventHandler(SimpleEventHandler.class)
-                .build();
+                .withTimeout(1000)
+                .withDefaultEventHandler(SimpleEventHandler.class);
 
-        this.m_ManagedChannels = new ArrayList<>();
-        this.m_ChatMessageHandler = new ChatMessagesHandler();
-        this.m_IsRunning = false;
+        if (access_token != null)
+        {
+            client_builder = client_builder
+                    .withChatAccount(new OAuth2Credential("twitch", access_token));
+        }
+
+        this.twitchClient = client_builder.build();
+        return this;
     }
 
     public TwitchBot withChannels(ArrayList<String> channels)
     {
-        this.m_ManagedChannels.addAll(channels);
+        this.loggedChannels.addAll(channels);
         return this;
     }
 
-    public TwitchBot start()
+    public void start()
     {
-        this.m_TwitchClient.getEventManager()
+        this.twitchClient.getEventManager()
                 .getEventHandler(SimpleEventHandler.class)
-                .onEvent(ChannelMessageEvent.class, this.m_ChatMessageHandler::handleChatMessage);
+                .onEvent(ChannelMessageEvent.class, this.chatMessageHandler::handleChatMessage);
 
-        this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().joinChannel(name));
+        this.loggedChannels.forEach(name -> this.twitchClient.getChat().joinChannel(name));
 
-        this.m_IsRunning = true;
-        return this;
+        this.isRunning = true;
     }
 
     public void stop()
     {
-        this.m_TwitchClient.getEventManager()
+        this.twitchClient.getEventManager()
                 .getEventHandler(SimpleEventHandler.class)
                 .close();
 
-        this.m_ManagedChannels.forEach(name -> this.m_TwitchClient.getChat().leaveChannel(name));
+        this.loggedChannels.forEach(name -> this.twitchClient.getChat().leaveChannel(name));
 
-        this.m_IsRunning = false;
+        this.isRunning = false;
+    }
+
+    public TwitchClient getTwitchClient()
+    {
+        return this.twitchClient;
     }
 
     public boolean isRunning()
     {
-        return this.m_IsRunning;
+        return this.isRunning;
     }
 }
