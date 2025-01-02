@@ -6,3 +6,6 @@ build
 
 .idea
 *.txt
+
+config/
+chatlogs/
