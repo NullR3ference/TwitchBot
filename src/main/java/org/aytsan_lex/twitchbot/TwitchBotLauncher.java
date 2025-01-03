@@ -1,7 +1,5 @@
 package org.aytsan_lex.twitchbot;
 
-import java.util.ArrayList;
-
 public class TwitchBotLauncher
 {
     public static void main(String[] args)

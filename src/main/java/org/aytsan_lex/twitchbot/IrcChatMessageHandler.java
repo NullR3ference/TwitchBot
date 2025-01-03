@@ -2,21 +2,20 @@ package org.aytsan_lex.twitchbot;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
 
 
 public class IrcChatMessageHandler
 {
-    private final HashMap<String, ChannelMessageLogger> channelLoggers = new HashMap<>();
+    private final HashMap<String, ChannelMessageLogger> channelLoggers;
 
     public IrcChatMessageHandler()
     {
+        this.channelLoggers = new HashMap<>();
+
         BotConfig.instance().getChannels().forEach(channelName -> {
             this.channelLoggers.put(channelName, new ChannelMessageLogger(channelName));
         });
@@ -40,52 +39,14 @@ public class IrcChatMessageHandler
 
                 if (message.startsWith("%") && userId.equals("654681357"))
                 {
-                    final ArrayList<String> cmdArgs = new ArrayList<>(
-                            Arrays.asList(message.replaceFirst("^%", "").split(" "))
+                    CommandHandler.handleCommand(
+                            channelName,
+                            userId,
+                            userName,
+                            message,
+                            event,
+                            this
                     );
-
-                    String replyMessage = "";
-
-                    if (cmdArgs.size() > 1)
-                    {
-                        replyMessage = handleMultiargCommand(cmdArgs);
-                    }
-                    else
-                    {
-                        final String cmd = cmdArgs.get(0);
-
-                        if (cmd.equals("status"))
-                        {
-                            replyMessage = "Active channels: %s".formatted(BotConfig.instance().getChannels().size());
-                        }
-
-                        else if (cmd.equals("lines"))
-                        {
-                            replyMessage = "Current log lines: %d"
-                                    .formatted(this.channelLoggers.get(channelName).getCurrentLines());
-                        }
-
-                        else if (cmd.equals("stop"))
-                        {
-                            TwitchBot.instance().stop();
-                        }
-                    }
-
-                    if (!replyMessage.isEmpty())
-                    {
-                        if (!event.getChannel().getId().equals(userId))
-                        {
-                            try { TimeUnit.MILLISECONDS.sleep(1100); }
-                            catch (InterruptedException e) { }
-                        }
-
-                        event.getTwitchChat().sendMessage(
-                                channelName,
-                                replyMessage,
-                                null,
-                                event.getMessageId().get()
-                        );
-                    }
                 }
                 else
                 {
@@ -107,51 +68,18 @@ public class IrcChatMessageHandler
         }
     }
 
-    private String handleMultiargCommand(ArrayList<String> cmdArgs)
+    public ChannelMessageLogger getLogger(final String channelName)
     {
-        final String cmd = cmdArgs.get(0);
+        return this.channelLoggers.get(channelName);
+    }
 
-        if (cmd.equals("add"))
-        {
-            final String newChannelName = cmdArgs.get(1);
-            if (TwitchBot.instance().joinToChat(newChannelName))
-            {
-                if (BotConfig.instance().addChannel(newChannelName))
-                {
-                    this.channelLoggers.put(newChannelName, new ChannelMessageLogger(newChannelName));
-                    BotConfig.instance().saveChanges();
-                    return "Channel added [%s]".formatted(newChannelName);
-                }
-                else
-                {
-                    return "Channel [%s] already added".formatted(newChannelName);
-                }
-            }
-        }
+    public void addLogger(final String channelName)
+    {
+        this.channelLoggers.put(channelName, new ChannelMessageLogger(channelName));
+    }
 
-        else if (cmd.equals("del"))
-        {
-            final String channelName = cmdArgs.get(1);
-            if (TwitchBot.instance().leaveFromChat(channelName))
-            {
-                if (BotConfig.instance().removeChannel(channelName))
-                {
-                    this.channelLoggers.remove(channelName);
-                    BotConfig.instance().saveChanges();
-                    return "Channel removed [%s]".formatted(channelName);
-                }
-                else
-                {
-                    return "Channel [%s] already removed".formatted(channelName);
-                }
-            }
-        }
-
-        else if (cmd.equals("clear"))
-        {
-            // TODO: Implement log dir clear for specific channel
-        }
-
-        return "";
+    public void removeLogger(final String channelName)
+    {
+        this.channelLoggers.remove(channelName);
     }
 }

@@ -1,8 +1,5 @@
 package org.aytsan_lex.twitchbot;
 
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class ChannelMessageLogger
 {
@@ -54,11 +52,12 @@ public class ChannelMessageLogger
         }
 
         final String line = String.format(
-                "%s|%s|%s|%s\n",
+                "%s|%s|%s|%s|%s\n",
                 messageTimestamp,
                 messageEvent.getUser().getId(),
                 messageEvent.getUser().getName(),
-                messageEvent.getMessage()
+                messageEvent.getMessage().get(),
+                messageEvent.getUserChatColor().orElse("")
         );
         this.writeLine(line);
     }
