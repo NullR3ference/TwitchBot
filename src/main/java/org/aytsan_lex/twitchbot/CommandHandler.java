@@ -2,96 +2,47 @@ package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import org.aytsan_lex.twitchbot.botcommands.BotCommandDispatcher;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class CommandHandler
 {
-    private enum Commands
+    public enum Commands
     {
         STATUS,
         LINES,
+        RESTART,
     };
 
-    private enum MultiargCommands
+    public enum MultiargCommands
     {
         LINES,
         ADD,
         DEL,
-        RAND
+        BEN,
     }
 
-    public static void handleCommand(final String channelName,
-                                     final String userId,
-                                     final String userName,
-                                     final String message,
-                                     final IRCMessageEvent event,
-                                     final IrcChatMessageHandler ircMessageHandler)
+    public static void handleCommand(final String message, final IRCMessageEvent event)
     {
         final ArrayList<String> cmdArgs = new ArrayList<>(
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))
         );
 
-        String replyMessage = "";
+        final String cmd = cmdArgs.get(0).toUpperCase();
 
         if (cmdArgs.size() > 1)
         {
-            replyMessage = handleMultiargCommand(cmdArgs, ircMessageHandler);
+            cmdArgs.remove(0);
+            BotCommandDispatcher.dispatch(cmd, cmdArgs, event);
         }
         else
         {
-            replyMessage = handleSingleargCommand(
-                    cmdArgs.get(0).toUpperCase(),
-                    ircMessageHandler.getLogger(channelName)
-            );
+            BotCommandDispatcher.dispatch(cmd, event);
         }
-
-        if (!replyMessage.isEmpty())
-        {
-            if (!event.getChannel().getId().equals(userId))
-            {
-                try { TimeUnit.MILLISECONDS.sleep(1100); }
-                catch (InterruptedException e) { }
-            }
-
-            event.getTwitchChat().sendMessage(
-                    channelName,
-                    replyMessage,
-                    null,
-                    event.getMessageId().get()
-            );
-        }
-    }
-
-    private static String handleSingleargCommand(final String cmd,
-                                                 final ChannelMessageLogger logger)
-    {
-        try
-        {
-            switch (Commands.valueOf(cmd))
-            {
-                case STATUS -> {
-                    return "Active channels: " + BotConfig.instance().getChannels().size();
-                }
-
-                case LINES -> {
-                    if (logger != null)
-                    {
-                        return "Current log lines: " + logger.getCurrentLines();
-                    }
-                }
-            }
-        }
-        catch (IllegalArgumentException e)
-        {
-            return "Unknown command: '%s'".formatted(cmd.toLowerCase());
-        }
-
-        return "";
     }
 
     private static String handleMultiargCommand(final ArrayList<String> cmdArgs,
+                                                final String userId,
                                                 final IrcChatMessageHandler ircMessageHandler)
     {
         final String cmd = cmdArgs.get(0).toUpperCase();
@@ -112,6 +63,7 @@ public class CommandHandler
                         return "No logs for channel: " + channelName;
                     }
                 }
+
                 case ADD -> {
                     final String newChannelName = cmdArgs.get(1);
                     if (TwitchBot.instance().joinToChat(newChannelName))
@@ -128,6 +80,7 @@ public class CommandHandler
                         }
                     }
                 }
+
                 case DEL -> {
                     final String channelName = cmdArgs.get(1);
                     if (TwitchBot.instance().leaveFromChat(channelName))
@@ -143,23 +96,6 @@ public class CommandHandler
                             return "Channel [%s] already removed".formatted(channelName);
                         }
                     }
-                }
-
-                case RAND -> {
-                    if (cmdArgs.size() < 3)
-                    {
-                        return "Required the second argument: %rand <start> <end>";
-                    }
-
-                    final int start = Integer.parseInt(cmdArgs.get(1));
-                    final int end = Integer.parseInt(cmdArgs.get(2));
-
-                    if (start == end)
-                    {
-                        return "Args required to be '%d' != '%d'".formatted(start, end);
-                    }
-
-                    return "Random: " + new Random().nextInt(start, end);
                 }
             }
         }

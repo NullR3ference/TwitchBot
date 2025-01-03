@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Optional;
+
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
-
 
 public class IrcChatMessageHandler
 {
@@ -25,6 +25,7 @@ public class IrcChatMessageHandler
     {
         final String commandType = event.getCommandType();
 
+        // TODO: Handle other types of command type from Helix API
         if (commandType.equals("PRIVMSG"))
         {
             final EventUser user = event.getUser();
@@ -37,33 +38,29 @@ public class IrcChatMessageHandler
                 final String userName = user.getName();
                 final String message = optionalMessage.get();
 
-                if (message.startsWith("%") && userId.equals("654681357"))
-                {
-                    CommandHandler.handleCommand(
-                            channelName,
-                            userId,
-                            userName,
-                            message,
-                            event,
-                            this
-                    );
-                }
-                else
-                {
-                    final String messageTimestamp =
-                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+                // FIXME: Pass the bot reply message to log
 
-                    System.out.printf(
-                            "[%s] [%s] (%s)[%s]: %s\n",
-                            messageTimestamp,
-                            channelName,
-                            userId,
-                            userName,
-                            message
-                    );
+                // TODO: Handle command via @tag of bot
+                // @bot <command> [args...]
 
-                    this.channelLoggers.get(event.getChannel().getName()).addMessage(event);
+                if (message.startsWith("%"))
+                {
+                    CommandHandler.handleCommand(message, event);
                 }
+
+                final String messageTimestamp =
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+
+                System.out.printf(
+                        "[%s] [%s] (%s)[%s]: %s\n",
+                        messageTimestamp,
+                        channelName,
+                        userId,
+                        userName,
+                        message
+                );
+
+                this.channelLoggers.get(event.getChannel().getName()).addMessage(event);
             }
         }
     }
