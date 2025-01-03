@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class ChannelMessageLogger
         this.openFile();
     }
 
-    public void addMessage(ChannelMessageEvent messageEvent)
+    public void addMessage(IRCMessageEvent messageEvent)
     {
         final String messageDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         final String messageTimestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));

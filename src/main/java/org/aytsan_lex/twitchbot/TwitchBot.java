@@ -1,18 +1,16 @@
 package org.aytsan_lex.twitchbot;
 
-import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class TwitchBot
 {
-    private final ArrayList<String> loggedChannels;
-    private final ChatMessagesHandler chatMessageHandler;
+    private final IrcChatMessageHandler ircChatMessageHandler;
 
     private TwitchClient twitchClient;
     private boolean isRunning;
@@ -21,8 +19,7 @@ public class TwitchBot
 
     private TwitchBot()
     {
-        this.loggedChannels = new ArrayList<>();
-        this.chatMessageHandler = new ChatMessagesHandler();
+        this.ircChatMessageHandler = new IrcChatMessageHandler();
         this.isRunning = false;
     }
 
@@ -51,37 +48,34 @@ public class TwitchBot
         return this;
     }
 
-    public TwitchBot withChannels(ArrayList<String> channels)
-    {
-        this.loggedChannels.addAll(channels);
-        return this;
-    }
-
     public void start()
     {
         this.twitchClient.getEventManager()
                 .getEventHandler(SimpleEventHandler.class)
-                .onEvent(ChannelMessageEvent.class, this.chatMessageHandler::handleChatMessage);
+                .onEvent(IRCMessageEvent.class, this.ircChatMessageHandler::handleIrcMessage);
 
-        this.loggedChannels.forEach(name -> this.twitchClient.getChat().joinChannel(name));
+        BotConfig.instance().getChannels().forEach(this::joinToChat);
+        System.out.println("Channels: " + BotConfig.instance().getChannels());
 
         this.isRunning = true;
     }
 
     public void stop()
     {
-        this.twitchClient.getEventManager()
-                .getEventHandler(SimpleEventHandler.class)
-                .close();
-
-        this.loggedChannels.forEach(name -> this.twitchClient.getChat().leaveChannel(name));
-
+        BotConfig.instance().getChannels().forEach(this::leaveFromChat);
         this.isRunning = false;
     }
 
-    public TwitchClient getTwitchClient()
+    public boolean joinToChat(String channelName)
     {
-        return this.twitchClient;
+        this.twitchClient.getChat().joinChannel(channelName);
+        return this.twitchClient.getChat().isChannelJoined(channelName);
+    }
+
+    public boolean leaveFromChat(String channelName)
+    {
+        this.twitchClient.getChat().leaveChannel(channelName);
+        return !this.twitchClient.getChat().isChannelJoined(channelName);
     }
 
     public boolean isRunning()

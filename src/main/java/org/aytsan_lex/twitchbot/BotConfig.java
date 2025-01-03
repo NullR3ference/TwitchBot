@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class BotConfig
     private final File credentialsFile;
     private final File channelsFile;
     private final ArrayList<String> credentials;
-    private final ArrayList<String> channels;
+    private ArrayList<String> channels;
 
     private BotConfig()
     {
@@ -87,6 +88,37 @@ public class BotConfig
     public String getRefreshToken()
     {
         return this.credentials.get(2);
+    }
+
+    public boolean addChannel(String channelName)
+    {
+        if (!channels.contains(channelName))
+        {
+            channels.add(channelName);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeChannel(String channelName)
+    {
+        final int index = channels.indexOf(channelName);
+        if (index != -1) { channels.remove(index); }
+        return index != -1;
+    }
+
+    public void saveChanges()
+    {
+        try
+        {
+            final FileWriter fileWriter = new FileWriter(this.channelsFile);
+            for (String channel : this.channels) { fileWriter.write(channel + "\n"); }
+            fileWriter.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void readCredentials() throws IOException
