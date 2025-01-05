@@ -1,7 +1,8 @@
 package org.aytsan_lex.twitchbot;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
-
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
@@ -29,19 +30,43 @@ public class TwitchBot
         return twitchBotInstance;
     }
 
-    public TwitchBot init(String client_id, @Nullable String access_token)
+    public TwitchBot init(String clientId)
+    {
+        return this.init(clientId, null, null, null);
+    }
+
+    public TwitchBot init(String clientId, String accessToken)
+    {
+        return this.init(clientId, accessToken, null, null);
+    }
+
+    public TwitchBot init(String clientId,
+                          @Nullable String accessToken,
+                          @Nullable String refreshToken,
+                          @Nullable ArrayList<String> scopes)
     {
         TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
                 .withEnableChat(true)
                 .withEnableHelix(true)
-                .withClientId(client_id)
+                .withClientId(clientId)
                 .withTimeout(1000)
+                .withChatMaxJoinRetries(2)
                 .withDefaultEventHandler(SimpleEventHandler.class);
 
-        if (access_token != null)
+        if (accessToken != null)
         {
             client_builder = client_builder
-                    .withChatAccount(new OAuth2Credential("twitch", access_token));
+                    .withChatAccount(
+                            new OAuth2Credential(
+                                    "twitch",
+                                    accessToken,
+                                    refreshToken,
+                                    null,
+                                    null,
+                                    null,
+                                    scopes
+                            )
+                    );
         }
 
         this.twitchClient = client_builder.build();
@@ -55,8 +80,6 @@ public class TwitchBot
                 .onEvent(IRCMessageEvent.class, this.ircChatMessageHandler::handleIrcMessage);
 
         BotConfig.instance().getChannels().forEach(this::joinToChat);
-        System.out.println("Channels: " + BotConfig.instance().getChannels());
-
         this.isRunning = true;
     }
 
@@ -76,6 +99,11 @@ public class TwitchBot
     {
         this.twitchClient.getChat().leaveChannel(channelName);
         return !this.twitchClient.getChat().isChannelJoined(channelName);
+    }
+
+    public boolean channelExists(String channelName)
+    {
+        return true;
     }
 
     public boolean isRunning()

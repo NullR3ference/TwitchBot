@@ -12,6 +12,7 @@ public class CommandHandler
         STATUS,
         LINES,
         RESTART,
+        EH,
     };
 
     public enum MultiargCommands
@@ -22,22 +23,27 @@ public class CommandHandler
         BEN,
     }
 
-    public static void handleCommand(final String message, final IRCMessageEvent event)
+    public static void handleCommand(final String message,
+                                     final IRCMessageEvent event,
+                                     final IrcChatMessageHandler ircMessageHandler)
     {
         final ArrayList<String> cmdArgs = new ArrayList<>(
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))
         );
+
+        System.out.println("message: " + message);
+        System.out.println("cmdArgs: " + cmdArgs);
 
         final String cmd = cmdArgs.get(0).toUpperCase();
 
         if (cmdArgs.size() > 1)
         {
             cmdArgs.remove(0);
-            BotCommandDispatcher.dispatch(cmd, cmdArgs, event);
+            BotCommandDispatcher.dispatch(cmd, cmdArgs, event, ircMessageHandler);
         }
         else
         {
-            BotCommandDispatcher.dispatch(cmd, event);
+            BotCommandDispatcher.dispatch(cmd, event, ircMessageHandler);
         }
     }
 }

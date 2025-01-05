@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Optional;
-
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
 
@@ -45,7 +44,7 @@ public class IrcChatMessageHandler
 
                 if (message.startsWith("%"))
                 {
-                    CommandHandler.handleCommand(message, event);
+                    CommandHandler.handleCommand(message, event, this);
                 }
 
                 final String messageTimestamp =
@@ -60,7 +59,11 @@ public class IrcChatMessageHandler
                         message
                 );
 
-                this.channelLoggers.get(event.getChannel().getName()).addMessage(event);
+                final ChannelMessageLogger currentLogger = this.channelLoggers.get(event.getChannel().getName());
+                if (currentLogger != null)
+                {
+                    currentLogger.addMessage(event);
+                }
             }
         }
     }

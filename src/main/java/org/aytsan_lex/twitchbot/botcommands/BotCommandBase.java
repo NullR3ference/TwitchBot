@@ -24,6 +24,11 @@ public class BotCommandBase implements IBotCommand
         return this.requiredPermissionLevel;
     }
 
+    public void sendMessage(String channelName, String userId, TwitchChat chat, String message)
+    {
+        this.replyToMessage(channelName, userId, null, chat, message);
+    }
+
     public void replyToMessage(String channelName,
                                String userId,
                                String messageId,

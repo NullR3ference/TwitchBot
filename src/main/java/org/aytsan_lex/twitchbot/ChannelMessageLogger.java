@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class ChannelMessageLogger

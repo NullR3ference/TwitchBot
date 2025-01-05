@@ -1,13 +1,14 @@
 package org.aytsan_lex.twitchbot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Scanner;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
 
 // TODO: Store config in JSON format
 
@@ -17,7 +18,8 @@ public class BotConfig
     {
         CLIEND_ID,
         USER_ACCESS_TOKEN,
-        USER_REFRESH_TOKEN;
+        USER_REFRESH_TOKEN,
+        USER_TOKEN_SCOPES;
 
         public int asInt() { return this.ordinal(); }
     };
@@ -33,8 +35,8 @@ public class BotConfig
     private final File permissionsFile;
 
     private final ArrayList<String> credentials;
-    private final HashMap<String, Integer> permissionLevels;
     private final ArrayList<String> channels;
+    private final HashMap<String, Integer> permissionLevels;
 
     private BotConfig()
     {
@@ -43,8 +45,8 @@ public class BotConfig
         this.permissionsFile = new File(CONFIG_PATH + "/permissions.txt");
 
         this.credentials = new ArrayList<>();
-        this.permissionLevels = new HashMap<>();
         this.channels = new ArrayList<>();
+        this.permissionLevels = new HashMap<>();
 
         try
         {
@@ -107,6 +109,13 @@ public class BotConfig
         return this.credentials.get(CredentialType.USER_REFRESH_TOKEN.asInt());
     }
 
+    public ArrayList<String> getTokenScopes()
+    {
+        return new ArrayList<>(Arrays.asList(
+                this.credentials.get(CredentialType.USER_TOKEN_SCOPES.asInt()).split(" ")
+        ));
+    }
+
     public int getPermissionLevel(String userId)
     {
         if (!this.permissionLevels.containsKey(userId)) { return 0; }
@@ -144,16 +153,21 @@ public class BotConfig
         }
     }
 
-    private void readCredentials() throws IOException
+    private void readCredentials() throws IOException, RuntimeException
     {
         final Scanner scanner = new Scanner(this.credentialsFile);
-        for (int i = 0; (i < 3) && (scanner.hasNext()); i++)
+        for (int i = 0; (i < 4) && (scanner.hasNext()); i++)
         {
             final String line = scanner.nextLine();
             if (!line.isEmpty())
             {
                 this.credentials.add(line);
             }
+        }
+
+        if (this.credentials.size() < 4)
+        {
+            throw new RuntimeException("Invalid (or incomplete) credentials");
         }
     }
 
