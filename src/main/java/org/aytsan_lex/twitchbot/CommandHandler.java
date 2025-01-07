@@ -11,8 +11,7 @@ public class CommandHandler
     {
         STATUS,
         LINES,
-        RESTART,
-        EH,
+        IQ,
     };
 
     public enum MultiargCommands
@@ -20,7 +19,10 @@ public class CommandHandler
         LINES,
         ADD,
         DEL,
+
         BEN,
+        MIRA,
+        IQ,
     }
 
     public static void handleCommand(final String message,
@@ -30,9 +32,6 @@ public class CommandHandler
         final ArrayList<String> cmdArgs = new ArrayList<>(
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))
         );
-
-        System.out.println("message: " + message);
-        System.out.println("cmdArgs: " + cmdArgs);
 
         final String cmd = cmdArgs.get(0).toUpperCase();
 

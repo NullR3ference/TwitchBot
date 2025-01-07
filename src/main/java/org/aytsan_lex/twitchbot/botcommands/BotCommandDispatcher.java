@@ -16,12 +16,14 @@ public class BotCommandDispatcher
     {
         try
         {
-            int returnCode = 0;
             switch (CommandHandler.Commands.valueOf(cmd))
             {
-                case STATUS -> returnCode = new StatusBotCommand().execute(messageEvent);
-                case LINES -> returnCode = new LinesBotCommand().execute(messageEvent, ircMessageHandler);
-                case EH -> returnCode = new EhBotCommand().execute(messageEvent);
+                case STATUS -> new StatusBotCommand().execute(messageEvent);
+                case LINES -> new LinesBotCommand().execute(messageEvent, ircMessageHandler);
+
+                case IQ -> {
+                    new IqBotCommand().execute("", messageEvent);
+                }
             }
         }
         catch (IllegalArgumentException e)
@@ -55,21 +57,25 @@ public class BotCommandDispatcher
     {
         try
         {
-            int returnCode = 0;
             switch (CommandHandler.MultiargCommands.valueOf(cmd))
             {
                 case BEN -> {
                     final String messageText = String.join(" ", args);
-                    returnCode = new BenBotCommand().execute(messageText, messageEvent);
+                    new BenBotCommand().execute(messageText, messageEvent);
                 }
 
-                case ADD -> {
-                    returnCode = new AddBotCommand().execute(messageEvent, args.get(0), ircMessageHandler);
+                case MIRA -> {
+                    final String messageText = String.join(" ", args);
+                    new MiraBotCommand().execute(messageText, messageEvent);
                 }
 
-                case DEL -> {
-                    returnCode = new DelBotCommand().execute(messageEvent, args.get(0), ircMessageHandler);
+                case IQ -> {
+                    final String messageText = String.join(" ", args);
+                    new IqBotCommand().execute(messageText, messageEvent);
                 }
+
+                case ADD -> new AddBotCommand().execute(messageEvent, args.get(0), ircMessageHandler);
+                case DEL -> new DelBotCommand().execute(messageEvent, args.get(0), ircMessageHandler);
             }
         }
         catch (IllegalArgumentException e)

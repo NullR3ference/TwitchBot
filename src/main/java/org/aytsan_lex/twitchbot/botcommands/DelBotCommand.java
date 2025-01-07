@@ -13,7 +13,7 @@ public class DelBotCommand extends BotCommandBase
     }
 
     @Override
-    public int execute(Object... args)
+    public void execute(Object... args)
     {
         if (!(args[0] instanceof IRCMessageEvent event) ||
             !(args[1] instanceof String targetChannelName) ||
@@ -29,24 +29,26 @@ public class DelBotCommand extends BotCommandBase
 
         if (userPermLevel < this.getRequiredPermissionLevel())
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Недостаточно прав SOSI текущий уровень: %d, требуется: %d".formatted(userPermLevel, this.getRequiredPermissionLevel())
+                    "Недостаточно прав SOSI текущий уровень: %d, требуется: %d".formatted(userPermLevel, this.getRequiredPermissionLevel()),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
-            return 1;
+            return;
         }
 
         if (BotConfig.instance().removeChannel(targetChannelName))
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Канал удален: [%s]".formatted(targetChannelName)
+                    "Канал удален: [%s]".formatted(targetChannelName),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
 
             TwitchBot.instance().leaveFromChat(targetChannelName);
@@ -55,15 +57,14 @@ public class DelBotCommand extends BotCommandBase
         }
         else
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Канал уже удален: [%s]".formatted(targetChannelName)
+                    "Канал уже удален: [%s]".formatted(targetChannelName),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
-
-        return 0;
     }
 }

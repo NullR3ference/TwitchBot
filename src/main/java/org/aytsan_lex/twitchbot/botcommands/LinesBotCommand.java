@@ -12,7 +12,7 @@ public class LinesBotCommand extends BotCommandBase
     }
 
     @Override
-    public int execute(Object... args)
+    public void execute(Object... args)
     {
         if (!(args[0] instanceof IRCMessageEvent event) ||
             !(args[1] instanceof IrcChatMessageHandler ircMessageHandler))
@@ -27,38 +27,40 @@ public class LinesBotCommand extends BotCommandBase
 
         if (userPermLevel < this.getRequiredPermissionLevel())
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Недостаточно прав SOSI текущий уровень: %d, требуется: %d".formatted(userPermLevel, this.getRequiredPermissionLevel())
+                    "Недостаточно прав SOSI текущий уровень: %d, требуется: %d"
+                            .formatted(userPermLevel, this.getRequiredPermissionLevel()),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
-            return 1;
+            return;
         }
 
         if (BotConfig.instance().getChannels().contains(channelName))
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
                     "Сообщений в текущем логе: "
-                            + ircMessageHandler.getLogger(channelName).getCurrentLines()
+                            + ircMessageHandler.getLogger(channelName).getCurrentLines(),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
         else
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Канал отключен от логирования: [%s]".formatted(channelName)
+                    "Канал отключен от логирования: [%s]".formatted(channelName),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
-
-        return 0;
     }
 }

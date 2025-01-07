@@ -5,6 +5,8 @@ import com.github.twitch4j.chat.TwitchChat;
 
 public class BotCommandBase implements IBotCommand
 {
+    public static final int DEFAULT_MESSAGE_DELAY = 1100; // ms
+
     private final int requiredPermissionLevel;
 
     public BotCommandBase(int level)
@@ -13,9 +15,8 @@ public class BotCommandBase implements IBotCommand
     }
 
     @Override
-    public int execute(Object... args)
+    public void execute(Object... args)
     {
-        return 0;
     }
 
     @Override
@@ -35,11 +36,21 @@ public class BotCommandBase implements IBotCommand
                                TwitchChat chat,
                                String message)
     {
+        this.replyToMessageWithDelay(channelName, userId, messageId, chat, message, 0);
+    }
+
+    public void replyToMessageWithDelay(String channelName,
+                                        String userId,
+                                        String messageId,
+                                        TwitchChat chat,
+                                        String message,
+                                        int delay)
+    {
         final String channelId = chat.getChannelNameToChannelId().get(channelName);
 
         if (!channelId.equals(userId))
         {
-            try { TimeUnit.MILLISECONDS.sleep(1100); }
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
             catch (InterruptedException e) { }
         }
 

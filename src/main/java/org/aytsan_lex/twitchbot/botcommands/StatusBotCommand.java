@@ -13,7 +13,7 @@ public class StatusBotCommand extends BotCommandBase
     }
 
     @Override
-    public int execute(Object... args)
+    public void execute(Object... args)
     {
         if (!(args[0] instanceof IRCMessageEvent event))
         {
@@ -28,26 +28,24 @@ public class StatusBotCommand extends BotCommandBase
 
         if (userPermLevel < super.getRequiredPermissionLevel())
         {
-            super.replyToMessage(
+            super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     twitchChat,
-                    "Недостаточно прав SOSI"
+                    "Недостаточно прав SOSI",
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
-            return 1;
+            return;
         }
 
-        super.replyToMessage(
+        super.replyToMessageWithDelay(
                 channelName,
                 userId,
                 messageId,
                 twitchChat,
-                "Каналы: %d".formatted(
-                        BotConfig.instance().getChannels().size()
-                )
+                "Каналы: %d".formatted(BotConfig.instance().getChannels().size()),
+                BotCommandBase.DEFAULT_MESSAGE_DELAY
         );
-
-        return 0;
     }
 }

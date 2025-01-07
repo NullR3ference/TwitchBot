@@ -25,6 +25,7 @@ public class IrcChatMessageHandler
         final String commandType = event.getCommandType();
 
         // TODO: Handle other types of command type from Helix API
+        // TODO: Handle timeout and other messages from Helix API
         if (commandType.equals("PRIVMSG"))
         {
             final EventUser user = event.getUser();

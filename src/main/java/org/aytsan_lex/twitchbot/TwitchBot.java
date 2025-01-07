@@ -1,8 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
@@ -89,20 +88,19 @@ public class TwitchBot
         this.isRunning = false;
     }
 
-    public boolean joinToChat(String channelName)
+    public void joinToChat(String channelName)
     {
         this.twitchClient.getChat().joinChannel(channelName);
-        return this.twitchClient.getChat().isChannelJoined(channelName);
     }
 
-    public boolean leaveFromChat(String channelName)
+    public void leaveFromChat(String channelName)
     {
         this.twitchClient.getChat().leaveChannel(channelName);
-        return !this.twitchClient.getChat().isChannelJoined(channelName);
     }
 
     public boolean channelExists(String channelName)
     {
+        // TODO: Implement channel exist checking
         return true;
     }
 

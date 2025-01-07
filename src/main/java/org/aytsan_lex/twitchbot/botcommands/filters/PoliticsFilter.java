@@ -24,7 +24,6 @@ public class PoliticsFilter
             Pattern.compile("([\\W|\\d|\\s]*)зeтников([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)3eтник([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)3eтники([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
-            Pattern.compile("([\\W|\\d|\\s]*)3eтников([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
 
             Pattern.compile("([\\W|\\d|\\s]*)cbo([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)CBO([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
@@ -37,6 +36,9 @@ public class PoliticsFilter
             Pattern.compile("([\\W|\\d|\\s]*)сво([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)специальная военная операция([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)специальную военная операцию([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+
+            Pattern.compile("([\\W|\\d|\\s]*)бандер([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)бaндер([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
 
             Pattern.compile("([\\W|\\d|\\s]*)россия([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)россию([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
