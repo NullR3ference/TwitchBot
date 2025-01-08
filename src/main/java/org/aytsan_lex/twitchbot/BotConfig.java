@@ -1,28 +1,33 @@
 package org.aytsan_lex.twitchbot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
-import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
-
-// TODO: Store config in JSON format
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.FormattingStyle;
 
 public class BotConfig
 {
-    public enum CredentialType
+    private class Config
     {
-        CLIEND_ID,
-        USER_ACCESS_TOKEN,
-        USER_REFRESH_TOKEN,
-        USER_TOKEN_SCOPES;
+        private class Credentials
+        {
+            public String clientId;
+            public String accessToken;
+            public String refreshToken;
+            public ArrayList<String> tokenScopes;
+        }
 
-        public int asInt() { return this.ordinal(); }
-    };
+        public Credentials credentials;
+        public ArrayList<String> channels;
+        public HashMap<String, Integer> permissions;
+    }
 
     private static BotConfig botConfigInstance = null;
     private static final String CURRENT_WORKING_DIR = Path.of("").toAbsolutePath().toString();
@@ -30,23 +35,13 @@ public class BotConfig
     public static final Path LOG_BASE_PATH = Path.of(CURRENT_WORKING_DIR + "/chatlogs");
     public static final Path CONFIG_PATH = Path.of(CURRENT_WORKING_DIR + "/config");
 
-    private final File credentialsFile;
-    private final File channelsFile;
-    private final File permissionsFile;
-
-    private final ArrayList<String> credentials;
-    private final ArrayList<String> channels;
-    private final HashMap<String, Integer> permissionLevels;
+    private final File configFile;
+    private Config config;
 
     private BotConfig()
     {
-        this.credentialsFile = new File(CONFIG_PATH + "/credentials.txt");
-        this.channelsFile = new File(CONFIG_PATH + "/channels.txt");
-        this.permissionsFile = new File(CONFIG_PATH + "/permissions.txt");
-
-        this.credentials = new ArrayList<>();
-        this.channels = new ArrayList<>();
-        this.permissionLevels = new HashMap<>();
+        this.configFile = new File(CONFIG_PATH + "/config.json");
+        this.config = new Config();
 
         try
         {
@@ -60,21 +55,7 @@ public class BotConfig
                 Files.createDirectories(CONFIG_PATH);
             }
 
-            if (!this.credentialsFile.exists())
-            {
-                System.out.println("[-] Credentials file does not exists");
-                System.out.println("[-] Create credentials.txt file and write credentials in this file");
-                System.exit(1);
-            }
-
-            if (!this.channelsFile.exists())
-            {
-                this.channelsFile.createNewFile();
-            }
-
-            this.readCredentials();
-            this.readPermissions();
-            this.readChannels();
+            this.readConfig();
         }
         catch (IOException e)
         {
@@ -91,42 +72,40 @@ public class BotConfig
 
     public ArrayList<String> getChannels()
     {
-        return this.channels;
+        return this.config.channels;
     }
 
     public String getClientId()
     {
-        return this.credentials.get(CredentialType.CLIEND_ID.asInt());
+        return this.config.credentials.clientId;
     }
 
     public String getAccessToken()
     {
-        return this.credentials.get(CredentialType.USER_ACCESS_TOKEN.asInt());
+        return this.config.credentials.accessToken;
     }
 
     public String getRefreshToken()
     {
-        return this.credentials.get(CredentialType.USER_REFRESH_TOKEN.asInt());
+        return this.config.credentials.refreshToken;
     }
 
     public ArrayList<String> getTokenScopes()
     {
-        return new ArrayList<>(Arrays.asList(
-                this.credentials.get(CredentialType.USER_TOKEN_SCOPES.asInt()).split(" ")
-        ));
+        return this.config.credentials.tokenScopes;
     }
 
     public int getPermissionLevel(String userId)
     {
-        if (!this.permissionLevels.containsKey(userId)) { return 0; }
-        return this.permissionLevels.get(userId);
+        if (!this.config.permissions.containsKey(userId)) { return 0; }
+        return this.config.permissions.get(userId);
     }
 
     public boolean addChannel(String channelName)
     {
-        if (!channels.contains(channelName))
+        if (!this.config.channels.contains(channelName))
         {
-            channels.add(channelName);
+            this.config.channels.add(channelName);
             return true;
         }
         return false;
@@ -134,67 +113,31 @@ public class BotConfig
 
     public boolean removeChannel(String channelName)
     {
-        final int index = channels.indexOf(channelName);
-        if (index != -1) { channels.remove(index); }
+        final int index = this.config.channels.indexOf(channelName);
+        if (index != -1) { this.config.channels.remove(index); }
         return index != -1;
     }
 
     public void saveChanges()
     {
+        final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
+        final String jsonData = gson.toJson(this.config);
+
         try
         {
-            final FileWriter fileWriter = new FileWriter(this.channelsFile);
-            for (String channel : this.channels) { fileWriter.write(channel + "\n"); }
+            FileWriter fileWriter = new FileWriter(this.configFile);
+            fileWriter.write(jsonData);
             fileWriter.close();
         }
         catch (IOException e)
         {
-            System.err.println("[-] Failed to save BotConfig changes: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void readCredentials() throws IOException, RuntimeException
+    private void readConfig() throws IOException
     {
-        final Scanner scanner = new Scanner(this.credentialsFile);
-        for (int i = 0; (i < 4) && (scanner.hasNext()); i++)
-        {
-            final String line = scanner.nextLine();
-            if (!line.isEmpty())
-            {
-                this.credentials.add(line);
-            }
-        }
-
-        if (this.credentials.size() < 4)
-        {
-            throw new RuntimeException("Invalid (or incomplete) credentials");
-        }
-    }
-
-    private void readPermissions() throws IOException
-    {
-        final Scanner scanner = new Scanner(this.permissionsFile);
-        while (scanner.hasNext())
-        {
-            final String line = scanner.nextLine();
-            if (!line.isEmpty())
-            {
-                final String[] permissionSet = line.split(":");
-                this.permissionLevels.put(permissionSet[0], Integer.parseInt(permissionSet[1]));
-            }
-        }
-    }
-
-    private void readChannels() throws IOException
-    {
-        final Scanner scanner = new Scanner(this.channelsFile);
-        while (scanner.hasNext())
-        {
-            final String channel = scanner.nextLine();
-            if (!channel.isEmpty())
-            {
-                channels.add(channel);
-            }
-        }
+        final Gson gson = new Gson();
+        this.config = gson.fromJson(new FileReader(this.configFile), Config.class);
     }
 }

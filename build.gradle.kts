@@ -12,6 +12,7 @@ dependencies {
     implementation("com.github.philippheuer.events4j:events4j-handler-simple:0.12.2")
     implementation("ch.qos.logback", "logback-classic","1.3.5")
     implementation("io.github.ollama4j:ollama4j:1.0.79")
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 java {

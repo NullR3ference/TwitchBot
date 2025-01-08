@@ -1,8 +1,8 @@
 package org.aytsan_lex.twitchbot.botcommands;
 
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.IrcChatMessageHandler;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class LinesBotCommand extends BotCommandBase
 {

@@ -1,9 +1,9 @@
 package org.aytsan_lex.twitchbot.ollama;
 
 import io.github.ollama4j.OllamaAPI;
-import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 import io.github.ollama4j.models.chat.OllamaChatRequestBuilder;
 import io.github.ollama4j.models.chat.OllamaChatResult;
+import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 
 public class OllamaMira
 {

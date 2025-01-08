@@ -14,6 +14,11 @@ public class TwitchBotLauncher
         final String refreshToken = BotConfig.instance().getRefreshToken();
         final ArrayList<String> tokenScopes = BotConfig.instance().getTokenScopes();
 
+        System.out.println(clientId);
+        System.out.println(accessToken);
+        System.out.println(refreshToken);
+        System.out.println(tokenScopes);
+
         System.out.println("[*] Initializing twitch bot...");
         TwitchBot.instance().init(clientId, accessToken, refreshToken, tokenScopes).start();
 
