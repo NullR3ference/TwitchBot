@@ -9,26 +9,28 @@ public class OllamaMira
 {
     private final static int REQUEST_TIMEOUT_IN_SECONDS = 60;
 
-    private OllamaAPI ollamaAPI;
-    private OllamaChatRequestBuilder ollamaChatRequestBuilder;
+    private final OllamaAPI ollamaAPI;
+    private final OllamaChatRequestBuilder ollamaChatRequestBuilder;
     private OllamaChatResult chatResult;
 
     private static OllamaMira instance = null;
 
     private OllamaMira()
     {
-        try
-        {
-            this.ollamaAPI = new OllamaAPI("http://localhost:11434");
-            this.ollamaAPI.setRequestTimeoutSeconds(REQUEST_TIMEOUT_IN_SECONDS);
+        this.ollamaAPI = new OllamaAPI("http://localhost:11434");
+        this.ollamaAPI.setRequestTimeoutSeconds(REQUEST_TIMEOUT_IN_SECONDS);
+        this.ollamaAPI.setVerbose(false);
 
-            this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance("gemma2-mira");
-            this.chatResult = null;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance("gemma2-mira");
+        this.chatResult = null;
+    }
+
+    public boolean checkConnection()
+    {
+        boolean result = false;
+        try { result = this.ollamaAPI.ping(); }
+        catch (RuntimeException e) { }
+        return result;
     }
 
     public String question(final String userName, final String message)

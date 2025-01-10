@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.botcommands;
+package org.aytsan_lex.twitchbot.BotCommands;
 
 import java.util.Random;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;

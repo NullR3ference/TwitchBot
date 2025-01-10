@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.botcommands;
+package org.aytsan_lex.twitchbot.BotCommands;
 
 import java.util.concurrent.TimeUnit;
 import com.github.twitch4j.chat.TwitchChat;
@@ -23,11 +23,6 @@ public class BotCommandBase implements IBotCommand
     public int getRequiredPermissionLevel()
     {
         return this.requiredPermissionLevel;
-    }
-
-    public void sendMessage(String channelName, String userId, TwitchChat chat, String message)
-    {
-        this.replyToMessage(channelName, userId, null, chat, message);
     }
 
     public void replyToMessage(String channelName,

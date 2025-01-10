@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -13,6 +14,7 @@ public class TwitchBot
     private final IrcChatMessageHandler ircChatMessageHandler;
 
     private TwitchClient twitchClient;
+    private boolean isInitialized;
     private boolean isRunning;
 
     private static TwitchBot twitchBotInstance = null;
@@ -29,31 +31,21 @@ public class TwitchBot
         return twitchBotInstance;
     }
 
-    public TwitchBot init(String clientId)
-    {
-        return this.init(clientId, null, null, null);
-    }
-
-    public TwitchBot init(String clientId, String accessToken)
-    {
-        return this.init(clientId, accessToken, null, null);
-    }
-
     public TwitchBot init(String clientId,
-                          @Nullable String accessToken,
+                          @NotNull String accessToken,
                           @Nullable String refreshToken,
                           @Nullable ArrayList<String> scopes)
     {
-        TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
-                .withEnableChat(true)
-                .withEnableHelix(true)
-                .withClientId(clientId)
-                .withTimeout(1000)
-                .withChatMaxJoinRetries(2)
-                .withDefaultEventHandler(SimpleEventHandler.class);
-
-        if (accessToken != null)
+        if (!this.isInitialized)
         {
+            TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
+                    .withEnableChat(true)
+                    .withEnableHelix(true)
+                    .withClientId(clientId)
+                    .withTimeout(1000)
+                    .withChatMaxJoinRetries(1)
+                    .withDefaultEventHandler(SimpleEventHandler.class);
+
             client_builder = client_builder
                     .withChatAccount(
                             new OAuth2Credential(
@@ -66,9 +58,10 @@ public class TwitchBot
                                     scopes
                             )
                     );
-        }
 
-        this.twitchClient = client_builder.build();
+            this.twitchClient = client_builder.build();
+            this.isInitialized = true;
+        }
         return this;
     }
 

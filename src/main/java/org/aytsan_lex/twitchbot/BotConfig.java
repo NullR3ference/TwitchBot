@@ -8,6 +8,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
+import java.util.Objects;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.FormattingStyle;
@@ -26,6 +28,7 @@ public class BotConfig
 
         public Credentials credentials;
         public ArrayList<String> channels;
+        public ArrayList<String> owners;
         public HashMap<String, Integer> permissions;
     }
 
@@ -59,7 +62,7 @@ public class BotConfig
         }
         catch (IOException e)
         {
-            System.err.println("[-] BotConfig initialize error: " + e.getMessage());
+            System.err.println("[-] BotConfig error: " + e.getMessage());
             System.exit(1);
         }
     }
@@ -97,8 +100,33 @@ public class BotConfig
 
     public int getPermissionLevel(String userId)
     {
-        if (!this.config.permissions.containsKey(userId)) { return 0; }
-        return this.config.permissions.get(userId);
+        if (this.config.owners.contains(userId)) { return 777; }
+        if (this.config.permissions.containsKey(userId)) { return this.config.permissions.get(userId); }
+        return 0;
+    }
+
+    public void setPermissionLevel(String userId, int level)
+    {
+        if (level == 0)
+        {
+            this.config.owners.removeIf(id -> Objects.equals(id, userId));
+            this.config.permissions.remove(userId);
+        }
+        else if (level >= 100)
+        {
+            if (!this.config.owners.contains(userId)) { this.config.owners.add(userId); }
+            this.config.permissions.remove(userId);
+        }
+        else
+        {
+            this.config.permissions.put(userId, level);
+            this.config.owners.removeIf(id -> Objects.equals(id, userId));
+        }
+    }
+
+    public boolean isOwner(String userId)
+    {
+        return this.config.owners.contains(userId);
     }
 
     public boolean addChannel(String channelName)
@@ -137,7 +165,6 @@ public class BotConfig
 
     private void readConfig() throws IOException
     {
-        final Gson gson = new Gson();
-        this.config = gson.fromJson(new FileReader(this.configFile), Config.class);
+        this.config = new Gson().fromJson(new FileReader(this.configFile), Config.class);
     }
 }

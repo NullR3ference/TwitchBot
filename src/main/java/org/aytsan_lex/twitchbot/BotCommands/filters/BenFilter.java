@@ -1,12 +1,11 @@
-package org.aytsan_lex.twitchbot.botcommands.filters;
+package org.aytsan_lex.twitchbot.BotCommands.filters;
 
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public class PoliticsFilter
+public class BenFilter
 {
-    // TODO: Update politics context filter
     // https://regex101.com/
 
     public static final ArrayList<Pattern> VALUES = new ArrayList<>(Arrays.asList(

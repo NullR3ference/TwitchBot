@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.botcommands;
+package org.aytsan_lex.twitchbot.BotCommands;
 
 public interface IBotCommand
 {

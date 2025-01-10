@@ -1,8 +1,8 @@
-package org.aytsan_lex.twitchbot.botcommands;
+package org.aytsan_lex.twitchbot.BotCommands;
 
 import java.util.Random;
 import java.util.regex.Pattern;
-import org.aytsan_lex.twitchbot.botcommands.filters.PoliticsFilter;
+import org.aytsan_lex.twitchbot.BotCommands.filters.BenFilter;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class BenBotCommand extends BotCommandBase
@@ -24,7 +24,7 @@ public class BenBotCommand extends BotCommandBase
         final String userId = event.getUserId();
         final String messageId = event.getMessageId().get();
 
-        for (final Pattern pattern : PoliticsFilter.VALUES)
+        for (final Pattern pattern : BenFilter.VALUES)
         {
             if (pattern.matcher(messageText).find())
             {
@@ -33,7 +33,7 @@ public class BenBotCommand extends BotCommandBase
                         userId,
                         messageId,
                         event.getTwitchChat(),
-                        "Я не общаюсь на тему политики",
+                        "Я не отвечаю на ткие вопросы",
                         BotCommandBase.DEFAULT_MESSAGE_DELAY
                 );
                 return;
