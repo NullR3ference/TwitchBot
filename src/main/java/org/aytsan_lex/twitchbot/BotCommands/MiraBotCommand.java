@@ -98,7 +98,17 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        this.replyToMessage(channelName, userId, messageId, event.getTwitchChat(), response);
+        final String clearedResponse = MiraPostFilter.URL_PATTERN.matcher(response).replaceAll("(***)");
+        TwitchBot.LOGGER.info("Raw response from model: {}", response);
+        TwitchBot.LOGGER.info("Cleared response from model: {}", clearedResponse);
+
+        this.replyToMessage(
+                channelName,
+                userId,
+                messageId,
+                event.getTwitchChat(),
+                clearedResponse
+        );
     }
 
     private boolean miraPreFilter(String messageText)
@@ -125,7 +135,7 @@ public class MiraBotCommand extends BotCommandBase
 
     private boolean miraPostFilter(String modelResponse)
     {
-        for (final Pattern pattern: MiraPostFilter.VALUES)
+        for (final Pattern pattern : MiraPostFilter.VALUES)
         {
             final Matcher matcher = pattern.matcher(modelResponse);
             if (matcher.find())

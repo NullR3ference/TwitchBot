@@ -57,7 +57,7 @@ public class OllamaMira
             );
             final Instant finish = Instant.now();
 
-            LOGGER.info("Response from model, took: {}ms", Duration.between(start, finish).toMillis());
+            LOGGER.info("Response from model, took: {} ms", Duration.between(start, finish).toMillis());
             return chatResult.getResponse();
         }
         catch (Exception e)
