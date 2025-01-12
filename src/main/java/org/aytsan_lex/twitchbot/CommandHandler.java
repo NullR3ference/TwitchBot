@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.aytsan_lex.twitchbot.BotCommands.*;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommandHandler
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
+
     public enum Commands
     {
         IQ,
@@ -19,15 +23,29 @@ public class CommandHandler
         ADD,
         REMOVE,
 
+        IQMUTE,
         BENMUTE,
         MIRAMUTE,
-        IQMUTE,
 
         PERMIT,
 
         READCFG,
         RESTART,
     }
+
+    private static final IBotCommand iqBotCommand = new IqBotCommand();
+    private static final IBotCommand benBotCommand = new BenBotCommand();
+    private static final IBotCommand miraBotCommand = new MiraBotCommand();
+    private static final IBotCommand joinToChatBotCommand = new JoinToChatBotCommand();
+    private static final IBotCommand leaveFromChatBotCommand = new LeaveFromChatBotCommand();
+    private static final IBotCommand addChannelBotCommand = new AddChannelBotCommand();
+    private static final IBotCommand removeChannelBotCommand = new RemoveChannelBotCommand();
+    private static final IBotCommand iqMuteBotCommand = new IqMuteBotCommand();
+    private static final IBotCommand benMuteBotCommand = new BenMuteBotCommand();
+    private static final IBotCommand miraMuteBotCommand = new MiraMuteBotCommand();
+    private static final IBotCommand permitBotCommand = new SetPermissionBotCommand();
+    private static final IBotCommand readcfgBotCommand = new ReadcfgBotCommand();
+    private static final IBotCommand restartBotCommand = new RestartBotCommand();
 
     public static void handleCommand(final String message,
                                      final IRCMessageEvent event)
@@ -39,8 +57,7 @@ public class CommandHandler
         final String cmd = cmdArgs.get(0).trim().toUpperCase();
         cmdArgs.remove(0);
 
-        System.out.println("Command: " + Arrays.asList(cmd));
-        System.out.println("Args: " + cmdArgs);
+        LOGGER.info("Command: '{}', args: {}", cmd, cmdArgs);
 
         try
         {
@@ -48,31 +65,43 @@ public class CommandHandler
             {
                 case IQ ->
                 {
-                    if (!BotCommandSharedState.iqCommandIsMuted())
+                    if (!BotConfig.instance().commandIsMuted(cmd))
                     {
                         final String messageText = String.join(" ", cmdArgs);
-                        new IqBotCommand().execute(messageText, event);
+                        iqBotCommand.execute(messageText, event);
+                    }
+                    else
+                    {
+                        LOGGER.warn("Iq command is muted");
                     }
                 }
 
                 case BEN ->
                 {
-                    if (!BotCommandSharedState.benCommandIsMuted())
+                    if (!BotConfig.instance().commandIsMuted(cmd))
                     {
                         final String messageText = String.join(" ", cmdArgs);
-                        new BenBotCommand().execute(messageText, event);
+                        benBotCommand.execute(messageText, event);
+                    }
+                    else
+                    {
+                        LOGGER.warn("Ben command is muted");
                     }
                 }
 
                 case MIRA ->
                 {
-                    if (!BotCommandSharedState.miraCommandIsMuted())
+                    if (!BotConfig.instance().commandIsMuted(cmd))
                     {
                         if (!cmdArgs.isEmpty())
                         {
                             final String messageText = String.join(" ", cmdArgs);
-                            new MiraBotCommand().execute(messageText, event);
+                            miraBotCommand.execute(messageText, event);
                         }
+                    }
+                    else
+                    {
+                        LOGGER.warn("Mira command is muted");
                     }
                 }
 
@@ -80,8 +109,8 @@ public class CommandHandler
                 {
                     if (!cmdArgs.isEmpty())
                     {
-                        final String channelName = cmdArgs.get(0);
-                        new JoinToChatCommand().execute(channelName, event);
+                        final String channelName = cmdArgs.get(0).trim();
+                        joinToChatBotCommand.execute(channelName, event);
                     }
                 }
 
@@ -91,22 +120,22 @@ public class CommandHandler
 
                     if (!cmdArgs.isEmpty())
                     {
-                        channelName = cmdArgs.get(0);
+                        channelName = cmdArgs.get(0).trim();
                     }
                     else
                     {
                         channelName = event.getChannel().getName();
                     }
 
-                    new LeaveFromChatCommand().execute(channelName, event);
+                    leaveFromChatBotCommand.execute(channelName, event);
                 }
 
                 case ADD ->
                 {
                     if (!cmdArgs.isEmpty())
                     {
-                        final String channelName = cmdArgs.get(0);
-                        new AddChannelBotCommand().execute(channelName, event);
+                        final String channelName = cmdArgs.get(0).trim();
+                        addChannelBotCommand.execute(channelName, event);
                     }
                 }
 
@@ -114,69 +143,53 @@ public class CommandHandler
                 {
                     if (!cmdArgs.isEmpty())
                     {
-                        final String channelName = cmdArgs.get(0);
-                        new RemoveChannelBotCommand().execute(channelName, event);
+                        final String channelName = cmdArgs.get(0).trim();
+                        removeChannelBotCommand.execute(channelName, event);
                     }
+                }
+
+                case IQMUTE ->
+                {
+                    boolean isMuted = true;
+                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
+                    iqMuteBotCommand.execute(isMuted, event);
                 }
 
                 case BENMUTE ->
                 {
                     boolean isMuted = true;
-                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0)); }
-                    new BenMuteBotCommand().execute(isMuted, event);
+                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
+                    benMuteBotCommand.execute(isMuted, event);
                 }
 
                 case MIRAMUTE ->
                 {
                     boolean isMuted = true;
-                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0)); }
-                    new MiraMuteBotCommand().execute(isMuted, event);
-                }
-
-                case IQMUTE ->
-                {
-                    if (!cmdArgs.isEmpty())
-                    {
-                        final boolean isMuted = Boolean.parseBoolean(cmdArgs.get(0));
-                        BotCommandSharedState.setIqCommandIsMuted(isMuted);
-                    }
-                    else { BotCommandSharedState.setIqCommandIsMuted(true); }
+                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
+                    miraMuteBotCommand.execute(isMuted, event);
                 }
 
                 case PERMIT ->
                 {
-                    if (!cmdArgs.isEmpty() && cmdArgs.size() >= 2)
+                    if (cmdArgs.size() >= 2)
                     {
-                        final String targetUserName = cmdArgs.get(0);
-                        final int permissionLevel = Integer.parseInt(cmdArgs.get(1));
-                        new SetPermissionBotCommand().execute(targetUserName, permissionLevel, event);
+                        final String targetUserName = cmdArgs.get(0).trim();
+                        final int targetPermissionLvl = Integer.parseInt(cmdArgs.get(1));
+                        permitBotCommand.execute(targetUserName, targetPermissionLvl, event);
                     }
                 }
 
-                case READCFG ->
-                {
-                    // TODO: Implement readcfg command
-                }
-
-                case RESTART ->
-                {
-                    // TODO: Implement restart command
-                    // Something like watchdog which handle the return code from process
-                    // https://stackoverflow.com/questions/4159802/how-can-i-restart-a-java-application
-                    // https://stackoverflow.com/questions/27306764/capturing-exit-status-code-of-child-process
-                    // https://www.man7.org/linux/man-pages/man2/fork.2.html
-                    // https://www.man7.org/linux/man-pages/man2/execve.2.html
-                    // https://www.man7.org/linux/man-pages/man2/waitpid.2.html
-                }
+                case READCFG -> readcfgBotCommand.execute(event);
+                case RESTART -> restartBotCommand.execute(event);
             }
         }
         catch (IllegalArgumentException e)
         {
-            System.err.println("Unknown command '%s'".formatted(cmd));
+            LOGGER.info("Invalid (or unknown) command: '{}'", cmd);
         }
         catch (BotCommandError e)
         {
-            System.err.println("Bot command error '%s': %s".formatted(cmd, e.getMessage()));
+            LOGGER.error("Bot command error '{}': {}", cmd, e.getMessage());
         }
     }
 }

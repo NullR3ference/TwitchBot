@@ -1,5 +1,9 @@
 package org.aytsan_lex.twitchbot.ollama;
 
+import java.time.Duration;
+import java.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.github.ollama4j.OllamaAPI;
 import io.github.ollama4j.models.chat.OllamaChatRequestBuilder;
 import io.github.ollama4j.models.chat.OllamaChatResult;
@@ -7,11 +11,11 @@ import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 
 public class OllamaMira
 {
-    private final static int REQUEST_TIMEOUT_IN_SECONDS = 60;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OllamaMira.class);
+    private static final int REQUEST_TIMEOUT_IN_SECONDS = 60;
 
     private final OllamaAPI ollamaAPI;
     private final OllamaChatRequestBuilder ollamaChatRequestBuilder;
-    private OllamaChatResult chatResult;
 
     private static OllamaMira instance = null;
 
@@ -22,14 +26,19 @@ public class OllamaMira
         this.ollamaAPI.setVerbose(false);
 
         this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance("gemma2-mira");
-        this.chatResult = null;
+    }
+
+    public static OllamaMira instance()
+    {
+        if (instance == null) { instance = new OllamaMira(); }
+        return instance;
     }
 
     public boolean checkConnection()
     {
         boolean result = false;
         try { result = this.ollamaAPI.ping(); }
-        catch (RuntimeException e) { }
+        catch (RuntimeException ignored) {  }
         return result;
     }
 
@@ -38,36 +47,24 @@ public class OllamaMira
         try
         {
             final String finalMessage = "'%s' говорит: %s".formatted(userName, message);
+            LOGGER.info("Sending message to model: '{}'", finalMessage);
 
-            if (this.chatResult == null)
-            {
-                this.chatResult = ollamaAPI.chat(
-                        this.ollamaChatRequestBuilder.withMessage(OllamaChatMessageRole.USER, finalMessage).build()
-                );
-            }
-            else
-            {
-                this.chatResult = ollamaAPI.chat(
-                        this.ollamaChatRequestBuilder
-                                .withMessages(this.chatResult.getChatHistory())
-                                .withMessage(OllamaChatMessageRole.USER, finalMessage)
-                                .build()
-                );
-            }
+            final Instant start = Instant.now();
+            final OllamaChatResult chatResult = ollamaAPI.chat(
+                    this.ollamaChatRequestBuilder
+                            .withMessage(OllamaChatMessageRole.USER, finalMessage)
+                            .build()
+            );
+            final Instant finish = Instant.now();
 
-            return this.chatResult.getResponse();
+            LOGGER.info("Response from model, took: {}ms", Duration.between(start, finish).toMillis());
+            return chatResult.getResponse();
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOGGER.error("Error: {}", e.getMessage());
         }
 
         return "";
-    }
-
-    public static OllamaMira instance()
-    {
-        if (instance == null) { instance = new OllamaMira(); }
-        return instance;
     }
 }

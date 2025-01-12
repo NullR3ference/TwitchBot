@@ -1,12 +1,12 @@
 package org.aytsan_lex.twitchbot.BotCommands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
-import org.aytsan_lex.twitchbot.CommandHandler;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class BenMuteBotCommand extends BotCommandBase
+public class JoinToChatBotCommand extends BotCommandBase
 {
-    public BenMuteBotCommand()
+    public JoinToChatBotCommand()
     {
         super(777);
     }
@@ -14,7 +14,7 @@ public class BenMuteBotCommand extends BotCommandBase
     @Override
     public void execute(Object... args)
     {
-        if (!(args[0] instanceof Boolean isMuted) || !(args[1] instanceof IRCMessageEvent event))
+        if (!(args[0] instanceof String channelName) || !(args[1] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
         }
@@ -26,9 +26,15 @@ public class BenMuteBotCommand extends BotCommandBase
 
         if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
         {
-            BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.BEN.name(), isMuted);
-            BotConfig.instance().saveChanges();
-            System.out.println("Ben command muted = %b".formatted(isMuted));
+            TwitchBot.instance().joinToChat(channelName);
+            super.replyToMessageWithDelay(
+                    currentChannelName,
+                    userId,
+                    messageId,
+                    event.getTwitchChat(),
+                    "Подключен к: [%s]".formatted(channelName),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+            );
         }
         else
         {

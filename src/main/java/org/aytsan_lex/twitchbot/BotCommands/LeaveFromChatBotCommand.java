@@ -1,11 +1,13 @@
 package org.aytsan_lex.twitchbot.BotCommands;
 
+import com.github.twitch4j.chat.TwitchChat;
 import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class SetPermissionBotCommand extends BotCommandBase
+public class LeaveFromChatBotCommand extends BotCommandBase
 {
-    public SetPermissionBotCommand()
+    public LeaveFromChatBotCommand()
     {
         super(777);
     }
@@ -13,46 +15,40 @@ public class SetPermissionBotCommand extends BotCommandBase
     @Override
     public void execute(Object... args)
     {
-        if (!(args[0] instanceof String targetUserName) ||
-            !(args[1] instanceof Integer targetLevel) ||
-            !(args[2] instanceof IRCMessageEvent event))
+        if (!(args[0] instanceof String targetChannelName) || !(args[1] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String channelName = event.getChannel().getName();
         final String userId = event.getUser().getId();
         final String messageId = event.getMessageId().get();
+        final String currentChannelName = event.getChannel().getName();
+        final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            // FIXME: Fix targetUserId is null in some cases
-            final String targetUserId = event.getTwitchChat().getChannelNameToChannelId().get(targetUserName);
-            if (targetUserId != null && !userId.equals(targetUserId))
+            final String targetChannelId = chat.getChannelNameToChannelId().get(targetChannelName);
+            if ((targetChannelId != null) && !BotConfig.instance().isOwner(targetChannelId))
             {
-                BotConfig.instance().setPermissionLevel(targetUserId, targetLevel);
-                BotConfig.instance().saveChanges();
-
                 super.replyToMessageWithDelay(
-                        channelName,
+                        currentChannelName,
                         userId,
                         messageId,
-                        event.getTwitchChat(),
-                        "Уровень доступа для '%s' установлен -> %d".formatted(targetUserName, targetLevel),
+                        chat,
+                        "Отключен от: [%s]".formatted(targetChannelName),
                         BotCommandBase.DEFAULT_MESSAGE_DELAY
                 );
-
-                System.out.println("Set permission level of '%s' -> %d".formatted(targetUserName, targetLevel));
+                TwitchBot.instance().leaveFromChat(targetChannelName);
             }
         }
         else
         {
             super.replyToMessageWithDelay(
-                    channelName,
+                    currentChannelName,
                     userId,
                     messageId,
-                    event.getTwitchChat(),
+                    chat,
                     "Требуется %d+ уровень доступа, у тебя: %d SOSI"
                             .formatted(this.getRequiredPermissionLevel(), permissionLevel),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY

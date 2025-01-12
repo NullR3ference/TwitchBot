@@ -1,7 +1,9 @@
 package org.aytsan_lex.twitchbot.BotCommands;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.ollama.OllamaMira;
 import org.aytsan_lex.twitchbot.BotCommands.filters.MiraPreFilter;
 import org.aytsan_lex.twitchbot.BotCommands.filters.MiraPostFilter;
@@ -39,7 +41,7 @@ public class MiraBotCommand extends BotCommandBase
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Я Мирочка, мой создатель отключил меня, пока я не обучусь. Прости зайка <3",
+                    "Мой создатель отключил меня, пока я не обучусь. Прости зайка <3",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
             return;
@@ -52,7 +54,7 @@ public class MiraBotCommand extends BotCommandBase
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Ой, прости зайка, я пока не могу общаться с тобой, создателю надо выдать разрешение, прежде чем я смогу тебе отвечать (("
+                    "Прости зайка, я пока не могу общаться с тобой, создателю надо выдать разрешение, прежде чем я смогу тебе отвечать (("
             );
             return;
         }
@@ -72,7 +74,7 @@ public class MiraBotCommand extends BotCommandBase
 
         final String response = OllamaMira.instance().question(userName, message);
 
-        if (response.length() >= MAX_TWITCH_MESSAGE_LEN)
+        if (!this.miraResponseLengthFilter(response))
         {
             this.replyToMessage(
                     channelName,
@@ -105,18 +107,30 @@ public class MiraBotCommand extends BotCommandBase
         {
             if (pattern.matcher(messageText).find())
             {
+                TwitchBot.LOGGER.warn("Mira pre-filter failed: {}", messageText);
                 return false;
             }
         }
         return true;
     }
 
+    private boolean miraResponseLengthFilter(String modelResponse)
+    {
+        if (modelResponse.length() > MAX_TWITCH_MESSAGE_LEN)
+        {
+            TwitchBot.LOGGER.warn("Mira length filter failed: {}", modelResponse);
+        }
+        return modelResponse.length() <= MAX_TWITCH_MESSAGE_LEN;
+    }
+
     private boolean miraPostFilter(String modelResponse)
     {
         for (final Pattern pattern: MiraPostFilter.VALUES)
         {
-            if (pattern.matcher(modelResponse).find())
+            final Matcher matcher = pattern.matcher(modelResponse);
+            if (matcher.find())
             {
+                TwitchBot.LOGGER.warn("Mira post-filter failed: '{}': {}", matcher.pattern(), modelResponse);
                 return false;
             }
         }

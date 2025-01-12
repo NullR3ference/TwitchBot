@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.util.Objects;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.FormattingStyle;
@@ -30,6 +29,7 @@ public class BotConfig
         public ArrayList<String> channels;
         public ArrayList<String> owners;
         public HashMap<String, Integer> permissions;
+        public ArrayList<String> mutedCommands;
     }
 
     private static BotConfig botConfigInstance = null;
@@ -60,9 +60,9 @@ public class BotConfig
 
             this.readConfig();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            System.err.println("[-] BotConfig error: " + e.getMessage());
+            TwitchBot.LOGGER.error("BotConfig error: {}", e.getMessage());
             System.exit(1);
         }
     }
@@ -146,6 +146,26 @@ public class BotConfig
         return index != -1;
     }
 
+    public boolean commandIsMuted(String cmd)
+    {
+        return this.config.mutedCommands.contains(cmd);
+    }
+
+    public void setCommandIsMuted(String cmd, boolean isMuted)
+    {
+        if (isMuted)
+        {
+            if (!this.config.mutedCommands.contains(cmd))
+            {
+                this.config.mutedCommands.add(cmd);
+            }
+        }
+        else
+        {
+            this.config.mutedCommands.removeIf(c -> Objects.equals(c, cmd));
+        }
+    }
+
     public void saveChanges()
     {
         final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
@@ -153,13 +173,25 @@ public class BotConfig
 
         try
         {
-            FileWriter fileWriter = new FileWriter(this.configFile);
+            final FileWriter fileWriter = new FileWriter(this.configFile);
             fileWriter.write(jsonData);
             fileWriter.close();
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            TwitchBot.LOGGER.error("Failed to save config: {}", e.getMessage());
+        }
+    }
+
+    public void updateConfig()
+    {
+        try
+        {
+            this.readConfig();
+        }
+        catch (IOException e)
+        {
+            TwitchBot.LOGGER.error("Failed to update config: {}", e.getMessage());
         }
     }
 

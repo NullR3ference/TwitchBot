@@ -8,9 +8,13 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TwitchBot
 {
+    public static final Logger LOGGER = LoggerFactory.getLogger(TwitchBot.class);
+
     private final IrcChatMessageHandler ircChatMessageHandler;
 
     private TwitchClient twitchClient;
@@ -38,6 +42,8 @@ public class TwitchBot
     {
         if (!this.isInitialized)
         {
+            LOGGER.info("Initializing TwitchBot...");
+
             TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
                     .withEnableChat(true)
                     .withEnableHelix(true)
@@ -67,6 +73,8 @@ public class TwitchBot
 
     public void start()
     {
+        LOGGER.info("Connecting TwitchBot to channels: {}", BotConfig.instance().getChannels());
+
         this.twitchClient.getEventManager()
                 .getEventHandler(SimpleEventHandler.class)
                 .onEvent(IRCMessageEvent.class, this.ircChatMessageHandler::handleIrcMessage);

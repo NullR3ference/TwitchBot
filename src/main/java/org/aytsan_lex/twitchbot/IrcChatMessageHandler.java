@@ -8,7 +8,8 @@ public class IrcChatMessageHandler
 {
     private enum IrcCommandType
     {
-        PRIVMSG
+        PRIVMSG,
+        CLEARCHAT
     }
 
     public IrcChatMessageHandler()
@@ -26,15 +27,16 @@ public class IrcChatMessageHandler
         {
             switch (IrcCommandType.valueOf(commandType))
             {
-                case PRIVMSG -> handlePrivmsg(event);
+                case PRIVMSG -> handlePrivmsgIrcCommand(event);
+                case CLEARCHAT -> handleClearchatIrcCommand(event);
             }
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException ignored)
         {
         }
     }
 
-    private void handlePrivmsg(IRCMessageEvent event)
+    private void handlePrivmsgIrcCommand(IRCMessageEvent event)
     {
         final EventUser user = event.getUser();
         final Optional<String> optionalMessage = event.getMessage();
@@ -53,18 +55,10 @@ public class IrcChatMessageHandler
             {
                 CommandHandler.handleCommand(message, event);
             }
-
-//                final String messageTimestamp =
-//                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
-//
-//                System.out.printf(
-//                        "[%s] [%s] (%s)[%s]: %s\n",
-//                        messageTimestamp,
-//                        channelName,
-//                        userId,
-//                        userName,
-//                        message
-//                );
         }
+    }
+
+    public void handleClearchatIrcCommand(IRCMessageEvent event)
+    {
     }
 }

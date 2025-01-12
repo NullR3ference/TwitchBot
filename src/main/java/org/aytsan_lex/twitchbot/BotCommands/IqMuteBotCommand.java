@@ -4,9 +4,9 @@ import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.CommandHandler;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class BenMuteBotCommand extends BotCommandBase
+public class IqMuteBotCommand extends BotCommandBase
 {
-    public BenMuteBotCommand()
+    public IqMuteBotCommand()
     {
         super(777);
     }
@@ -24,11 +24,11 @@ public class BenMuteBotCommand extends BotCommandBase
         final String currentChannelName = event.getChannel().getName();
         final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
 
-        if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
+        if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.BEN.name(), isMuted);
+            BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
             BotConfig.instance().saveChanges();
-            System.out.println("Ben command muted = %b".formatted(isMuted));
+            System.out.println("IQ command muted = %b".formatted(isMuted));
         }
         else
         {

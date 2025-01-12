@@ -1,45 +1,44 @@
 package org.aytsan_lex.twitchbot.BotCommands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
-import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class JoinToChatCommand extends BotCommandBase
+public class ReadcfgBotCommand extends BotCommandBase
 {
-    public JoinToChatCommand()
+    public ReadcfgBotCommand()
     {
-        super(4);
+        super(777);
     }
 
     @Override
     public void execute(Object... args)
     {
-        if (!(args[0] instanceof String channelName) || !(args[1] instanceof IRCMessageEvent event))
+        if (!(args[0] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
         }
 
         final String userId = event.getUser().getId();
         final String messageId = event.getMessageId().get();
-        final String currentChannelName = event.getChannel().getName();
+        final String channelName = event.getChannel().getName();
         final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
 
-        if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
+        if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            TwitchBot.instance().joinToChat(channelName);
+            BotConfig.instance().updateConfig();
             super.replyToMessageWithDelay(
-                    currentChannelName,
+                    channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Подключен к: [%s]".formatted(channelName),
+                    "Конфиг обновлен",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
         else
         {
             super.replyToMessageWithDelay(
-                    currentChannelName,
+                    channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
