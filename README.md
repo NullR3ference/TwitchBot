@@ -1,3 +1,3 @@
-# TwitchLoggerBot
+# TwitchBot
 
-Simple & Configurable chat logger bot for Twitch
+Simple & Configurable chat bot for Twitch with AI via Ollama
