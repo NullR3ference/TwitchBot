@@ -1,12 +1,12 @@
 package org.aytsan_lex.twitchbot.BotCommands;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-
 import org.aytsan_lex.twitchbot.BotConfig;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.TwitchBotLauncher;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class StatusBotCommand extends BotCommandBase
 {
@@ -30,17 +30,14 @@ public class StatusBotCommand extends BotCommandBase
 
         if (userPermLevel >= this.getRequiredPermissionLevel())
         {
-            final Duration uptime = Duration.between(TwitchBotLauncher.getStartTime(), Instant.now());
-
-            final String reply = "Uptime: %02d:%02d:%02d"
-                    .formatted(uptime.toHoursPart(), uptime.toMinutesPart(), uptime.toSecondsPart());
+            final String message = this.createStatusMessage();
 
             super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    reply,
+                    message,
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
@@ -56,5 +53,21 @@ public class StatusBotCommand extends BotCommandBase
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
+    }
+
+    private String createStatusMessage()
+    {
+        final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        final Duration uptime = Duration.between(TwitchBotLauncher.getStartTime(), Instant.now());
+        final float heapUsedMib = (float)memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
+        final float nonHeapUsedMib = (float)memoryMXBean.getNonHeapMemoryUsage().getUsed() / (1024 * 1024);
+
+        return "Uptime: %02d:%02d:%02d | Heap: %.2f MiB | Non-Heap: %.2f MiB".formatted(
+                uptime.toHoursPart(),
+                uptime.toMinutesPart(),
+                uptime.toSecondsPart(),
+                heapUsedMib,
+                nonHeapUsedMib
+        );
     }
 }

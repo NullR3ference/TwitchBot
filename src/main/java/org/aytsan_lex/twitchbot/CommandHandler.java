@@ -57,7 +57,7 @@ public class CommandHandler
         final String cmd = cmdArgs.get(0).trim().toUpperCase();
         cmdArgs.remove(0);
 
-        LOGGER.info("Command: '{}', args: {}", cmd, cmdArgs);
+        LOGGER.info("[{}] Command: '{}', args: {}", event.getUser().getName(), cmd, cmdArgs);
 
         try
         {
