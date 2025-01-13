@@ -49,17 +49,5 @@ public class RemoveChannelBotCommand extends BotCommandBase
                 }
             }
         }
-        else
-        {
-            super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
-                    chat,
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), permissionLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
-        }
     }
 }

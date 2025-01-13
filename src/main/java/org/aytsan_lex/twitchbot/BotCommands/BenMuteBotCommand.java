@@ -3,6 +3,7 @@ package org.aytsan_lex.twitchbot.BotCommands;
 import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.CommandHandler;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class BenMuteBotCommand extends BotCommandBase
 {
@@ -20,27 +21,13 @@ public class BenMuteBotCommand extends BotCommandBase
         }
 
         final String userId = event.getUser().getId();
-        final String messageId = event.getMessageId().get();
-        final String currentChannelName = event.getChannel().getName();
         final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
 
         if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
         {
             BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.BEN.name(), isMuted);
             BotConfig.instance().saveChanges();
-            System.out.println("Ben command muted = %b".formatted(isMuted));
-        }
-        else
-        {
-            super.replyToMessageWithDelay(
-                    currentChannelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), permissionLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
+            TwitchBot.LOGGER.info("Ben command muted = {}", isMuted);
         }
     }
 }

@@ -36,17 +36,5 @@ public class JoinToChatBotCommand extends BotCommandBase
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
-        else
-        {
-            super.replyToMessageWithDelay(
-                    currentChannelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), permissionLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
-        }
     }
 }

@@ -41,18 +41,6 @@ public class StatusBotCommand extends BotCommandBase
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }
-        else
-        {
-            super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), userPermLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
-        }
     }
 
     private String createStatusMessage()

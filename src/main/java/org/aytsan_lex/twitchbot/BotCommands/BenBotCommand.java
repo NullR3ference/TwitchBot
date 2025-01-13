@@ -33,7 +33,7 @@ public class BenBotCommand extends BotCommandBase
                         userId,
                         messageId,
                         event.getTwitchChat(),
-                        "Я не отвечаю на ткие вопросы",
+                        "Я не отвечаю на такие вопросы",
                         BotCommandBase.DEFAULT_MESSAGE_DELAY
                 );
                 return;

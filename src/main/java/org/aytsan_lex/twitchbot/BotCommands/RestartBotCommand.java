@@ -18,27 +18,14 @@ public class RestartBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String channelName = event.getChannel().getName();
         final String userId = event.getUser().getId();
-        final String messageId = event.getMessageId().get();
         final int userPermLevel = BotConfig.instance().getPermissionLevel(userId);
 
-        if (userPermLevel < this.getRequiredPermissionLevel())
+        if (userPermLevel >= this.getRequiredPermissionLevel())
         {
-            super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), userPermLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
-            return;
+            // Assumes that user runs this code via JVM and not over Gradle
+            // Because Gradle returns 1
+            System.exit(10);
         }
-
-        // Assumes that user runs this code via JVM and not over Gradle
-        // Because Gradle returns 1
-        System.exit(10);
     }
 }

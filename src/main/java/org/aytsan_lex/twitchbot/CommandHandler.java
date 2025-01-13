@@ -3,14 +3,12 @@ package org.aytsan_lex.twitchbot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.aytsan_lex.twitchbot.BotCommands.*;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class CommandHandler
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
-
     public enum Commands
     {
         IQ,
@@ -32,6 +30,8 @@ public class CommandHandler
         STATUS,
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
+
     private static final IBotCommand iqBotCommand = new IqBotCommand();
     private static final IBotCommand benBotCommand = new BenBotCommand();
     private static final IBotCommand miraBotCommand = new MiraBotCommand();
@@ -47,8 +47,7 @@ public class CommandHandler
     private static final IBotCommand restartBotCommand = new RestartBotCommand();
     private static final IBotCommand statusBotCommand = new StatusBotCommand();
 
-    public static void handleCommand(final String message,
-                                     final IRCMessageEvent event)
+    public static void handleCommand(final String message, final IRCMessageEvent event)
     {
         final ArrayList<String> cmdArgs = new ArrayList<>(
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))

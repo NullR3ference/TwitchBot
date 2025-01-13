@@ -46,17 +46,5 @@ public class SetPermissionBotCommand extends BotCommandBase
                 System.out.println("Set permission level of '%s' -> %d".formatted(targetUserName, targetLevel));
             }
         }
-        else
-        {
-            super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), permissionLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
-        }
     }
 }

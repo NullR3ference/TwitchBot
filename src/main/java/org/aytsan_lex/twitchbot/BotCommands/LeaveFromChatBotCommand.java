@@ -42,17 +42,5 @@ public class LeaveFromChatBotCommand extends BotCommandBase
                 TwitchBot.instance().leaveFromChat(targetChannelName);
             }
         }
-        else
-        {
-            super.replyToMessageWithDelay(
-                    currentChannelName,
-                    userId,
-                    messageId,
-                    chat,
-                    "Требуется %d+ уровень доступа, у тебя: %d SOSI"
-                            .formatted(this.getRequiredPermissionLevel(), permissionLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
-        }
     }
 }
