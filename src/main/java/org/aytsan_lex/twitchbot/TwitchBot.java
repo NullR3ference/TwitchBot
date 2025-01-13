@@ -35,7 +35,8 @@ public class TwitchBot
         return twitchBotInstance;
     }
 
-    public TwitchBot init(String clientId,
+    public TwitchBot init(@NotNull String clientId,
+                          @NotNull String clientSecret,
                           @NotNull String accessToken,
                           @Nullable String refreshToken,
                           @Nullable ArrayList<String> scopes)
@@ -45,9 +46,10 @@ public class TwitchBot
             LOGGER.info("Initializing TwitchBot...");
 
             TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
+                    .withClientId(clientId)
+                    .withClientSecret(clientSecret)
                     .withEnableChat(true)
                     .withEnableHelix(true)
-                    .withClientId(clientId)
                     .withTimeout(1000)
                     .withChatMaxJoinRetries(1)
                     .withDefaultEventHandler(SimpleEventHandler.class);
@@ -81,6 +83,8 @@ public class TwitchBot
 
         BotConfig.instance().getChannels().forEach(this::joinToChat);
         this.isRunning = true;
+
+        LOGGER.info("Started");
     }
 
     public void stop()

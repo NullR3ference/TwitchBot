@@ -19,7 +19,6 @@ public class CommandHandler
 
         JOIN,
         LEAVE,
-
         ADD,
         REMOVE,
 
@@ -28,9 +27,9 @@ public class CommandHandler
         MIRAMUTE,
 
         PERMIT,
-
         READCFG,
         RESTART,
+        STATUS,
     }
 
     private static final IBotCommand iqBotCommand = new IqBotCommand();
@@ -46,6 +45,7 @@ public class CommandHandler
     private static final IBotCommand permitBotCommand = new SetPermissionBotCommand();
     private static final IBotCommand readcfgBotCommand = new ReadcfgBotCommand();
     private static final IBotCommand restartBotCommand = new RestartBotCommand();
+    private static final IBotCommand statusBotCommand = new StatusBotCommand();
 
     public static void handleCommand(final String message,
                                      final IRCMessageEvent event)
@@ -181,6 +181,7 @@ public class CommandHandler
 
                 case READCFG -> readcfgBotCommand.execute(event);
                 case RESTART -> restartBotCommand.execute(event);
+                case STATUS -> statusBotCommand.execute(event);
             }
         }
         catch (IllegalArgumentException e)

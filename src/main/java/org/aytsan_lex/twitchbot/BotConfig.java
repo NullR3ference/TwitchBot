@@ -20,6 +20,7 @@ public class BotConfig
         private class Credentials
         {
             public String clientId;
+            public String clientSecret;
             public String accessToken;
             public String refreshToken;
             public ArrayList<String> tokenScopes;
@@ -58,7 +59,17 @@ public class BotConfig
                 Files.createDirectories(CONFIG_PATH);
             }
 
-            this.readConfig();
+            if (!this.configFile.exists())
+            {
+                TwitchBot.LOGGER.error("Config file is empty or does`nt exists. Creating new config file");
+                this.configFile.createNewFile();
+                this.writeConfigTemplate();
+                System.exit(1);
+            }
+            else
+            {
+                this.readConfig();
+            }
         }
         catch (Exception e)
         {
@@ -81,6 +92,11 @@ public class BotConfig
     public String getClientId()
     {
         return this.config.credentials.clientId;
+    }
+
+    public String getClientSecret()
+    {
+        return this.config.credentials.clientSecret;
     }
 
     public String getAccessToken()
@@ -198,5 +214,28 @@ public class BotConfig
     private void readConfig() throws IOException
     {
         this.config = new Gson().fromJson(new FileReader(this.configFile), Config.class);
+    }
+
+    private void writeConfigTemplate() throws IOException
+    {
+        final String template = """
+                {
+                  "credentials": {
+                      "clientId": "",
+                      "clientSecret": "",
+                      "accessToken": "",
+                      "refreshToken": "",
+                      "tokenScopes": []
+                  },
+                  "channels": [],
+                  "owners": [],
+                  "permissions": {},
+                  "mutedCommands": []
+                }
+                """;
+
+        FileWriter fileWriter = new FileWriter(this.configFile);
+        fileWriter.write(template);
+        fileWriter.close();
     }
 }
