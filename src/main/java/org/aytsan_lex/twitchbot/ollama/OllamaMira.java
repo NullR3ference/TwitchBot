@@ -25,7 +25,7 @@ public class OllamaMira
         this.ollamaAPI.setRequestTimeoutSeconds(REQUEST_TIMEOUT_IN_SECONDS);
         this.ollamaAPI.setVerbose(false);
 
-        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance("gemma2-mira");
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance("gemma2-mira2");
     }
 
     public static OllamaMira instance()

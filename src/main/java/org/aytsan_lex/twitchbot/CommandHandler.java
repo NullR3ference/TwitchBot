@@ -49,6 +49,8 @@ public class CommandHandler
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
+        // TODO: Handle commands asynchronously
+
         final ArrayList<String> cmdArgs = new ArrayList<>(
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))
         );
