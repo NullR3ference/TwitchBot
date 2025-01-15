@@ -1,11 +1,11 @@
-package org.aytsan_lex.twitchbot.BotCommands;
+package org.aytsan_lex.twitchbot.commands;
 
 import java.util.Random;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class IqBotCommand extends BotCommandBase
+public class BenBotCommand extends BotCommandBase
 {
-    public IqBotCommand()
+    public BenBotCommand()
     {
         super(0);
     }
@@ -20,17 +20,16 @@ public class IqBotCommand extends BotCommandBase
 
         final String channelName = event.getChannel().getName();
         final String userId = event.getUserId();
-        final String userName = event.getUserName();
         final String messageId = event.getMessageId().get();
 
-        final int iqValue = new Random().nextInt(0, 250);
+        final boolean result = new Random().nextBoolean();
 
         super.replyToMessageWithDelay(
                 channelName,
                 userId,
                 messageId,
                 event.getTwitchChat(),
-                "@%s у тебя %d IQ".formatted(userName, iqValue),
+                (result) ? "yes" : "no",
                 BotCommandBase.DEFAULT_MESSAGE_DELAY
         );
     }

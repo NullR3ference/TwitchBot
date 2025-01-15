@@ -2,7 +2,8 @@ package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.aytsan_lex.twitchbot.BotCommands.*;
+
+import org.aytsan_lex.twitchbot.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;

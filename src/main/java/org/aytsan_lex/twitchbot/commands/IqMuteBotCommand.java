@@ -1,15 +1,15 @@
-package org.aytsan_lex.twitchbot.BotCommands;
+package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.CommandHandler;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
-public class MiraMuteBotCommand extends BotCommandBase
+public class IqMuteBotCommand extends BotCommandBase
 {
-    public MiraMuteBotCommand()
+    public IqMuteBotCommand()
     {
-        super(4);
+        super(777);
     }
 
     @Override
@@ -25,9 +25,9 @@ public class MiraMuteBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.MIRA.name(), isMuted);
+            BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
             BotConfig.instance().saveChanges();
-            TwitchBot.LOGGER.info("Mira command muted = {}", isMuted);
+            TwitchBot.LOGGER.info("IQ command muted = {}", isMuted);
         }
     }
 }

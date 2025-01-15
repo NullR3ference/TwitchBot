@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.BotCommands;
+package org.aytsan_lex.twitchbot.commands;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;

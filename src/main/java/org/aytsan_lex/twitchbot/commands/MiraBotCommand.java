@@ -1,12 +1,12 @@
-package org.aytsan_lex.twitchbot.BotCommands;
+package org.aytsan_lex.twitchbot.commands;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.ollama.OllamaMira;
-import org.aytsan_lex.twitchbot.BotCommands.filters.MiraPreFilter;
-import org.aytsan_lex.twitchbot.BotCommands.filters.MiraPostFilter;
+import org.aytsan_lex.twitchbot.filters.MiraPreFilter;
+import org.aytsan_lex.twitchbot.filters.MiraPostFilter;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class MiraBotCommand extends BotCommandBase

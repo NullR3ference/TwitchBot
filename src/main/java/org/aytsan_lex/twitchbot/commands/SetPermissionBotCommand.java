@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.BotCommands;
+package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;

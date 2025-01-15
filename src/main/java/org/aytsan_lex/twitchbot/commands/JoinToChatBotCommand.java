@@ -1,11 +1,12 @@
-package org.aytsan_lex.twitchbot.BotCommands;
+package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class ReadcfgBotCommand extends BotCommandBase
+public class JoinToChatBotCommand extends BotCommandBase
 {
-    public ReadcfgBotCommand()
+    public JoinToChatBotCommand()
     {
         super(777);
     }
@@ -13,25 +14,25 @@ public class ReadcfgBotCommand extends BotCommandBase
     @Override
     public void execute(Object... args)
     {
-        if (!(args[0] instanceof IRCMessageEvent event))
+        if (!(args[0] instanceof String channelName) || !(args[1] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
         }
 
         final String userId = event.getUser().getId();
         final String messageId = event.getMessageId().get();
-        final String channelName = event.getChannel().getName();
+        final String currentChannelName = event.getChannel().getName();
         final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
 
-        if (permissionLevel >= super.getRequiredPermissionLevel())
+        if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
         {
-            BotConfig.instance().updateConfig();
+            TwitchBot.instance().joinToChat(channelName);
             super.replyToMessageWithDelay(
-                    channelName,
+                    currentChannelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Конфиг обновлен",
+                    "Подключен к: [%s]".formatted(channelName),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }

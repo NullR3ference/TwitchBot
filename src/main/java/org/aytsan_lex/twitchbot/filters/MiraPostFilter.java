@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.BotCommands.filters;
+package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
