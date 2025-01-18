@@ -41,7 +41,7 @@ public class MiraBotCommand extends BotCommandBase
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    "Мой создатель отключил меня, пока я не обучусь. Прости зайка <3",
+                    "Ошибка сети. Возможно я отключена. Прости зайка <3",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
             return;
@@ -72,42 +72,18 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        final String response = OllamaMira.instance().chatWithModel(userName, message);
+        final String response = OllamaMira.instance().chatWithModel(userName, message).trim();
+        final String filteredResponse = truncateResponseLength(miraPostFilter(response));
 
-        if (!this.miraResponseLengthFilter(response))
-        {
-            this.replyToMessage(
-                    channelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Ой, прости зайка, я слишком много букв написала (( Не буду так много говорить"
-            );
-            return;
-        }
-
-        if (!miraPostFilter(response))
-        {
-            this.replyToMessage(
-                    channelName,
-                    userId,
-                    messageId,
-                    event.getTwitchChat(),
-                    "Ой, прости зайка, кажется я написала бредик (( Мне запретили такое говорить"
-            );
-            return;
-        }
-
-        final String clearedResponse = MiraPostFilter.URL_PATTERN.matcher(response).replaceAll("(***)");
-        TwitchBot.LOGGER.info("Raw response from model: {}", response);
-        TwitchBot.LOGGER.info("Cleared response from model: {}", clearedResponse);
+        TwitchBot.LOGGER.info("Raw model response: {}", response);
+        TwitchBot.LOGGER.info("Filtered model response: {}", filteredResponse);
 
         this.replyToMessage(
                 channelName,
                 userId,
                 messageId,
                 event.getTwitchChat(),
-                clearedResponse
+                filteredResponse
         );
     }
 
@@ -124,26 +100,29 @@ public class MiraBotCommand extends BotCommandBase
         return true;
     }
 
-    private boolean miraResponseLengthFilter(String modelResponse)
+    private String miraPostFilter(final String response)
     {
-        if (modelResponse.length() > MAX_TWITCH_MESSAGE_LEN)
-        {
-            TwitchBot.LOGGER.warn("Mira length filter failed: {}", modelResponse);
-        }
-        return modelResponse.length() <= MAX_TWITCH_MESSAGE_LEN;
-    }
+        String filtered = MiraPostFilter.URL_PATTERN.matcher(response).replaceAll("**");
 
-    private boolean miraPostFilter(String modelResponse)
-    {
         for (final Pattern pattern : MiraPostFilter.VALUES)
         {
-            final Matcher matcher = pattern.matcher(modelResponse);
+            final Matcher matcher = pattern.matcher(filtered);
             if (matcher.find())
             {
-                TwitchBot.LOGGER.warn("Mira post-filter failed: '{}': {}", matcher.pattern(), modelResponse);
-                return false;
+                filtered = matcher.replaceAll("**");
+                TwitchBot.LOGGER.warn("Mira post-filter triggered: '{}'", matcher.pattern());
             }
         }
-        return true;
+
+        return filtered;
+    }
+
+    private String truncateResponseLength(final String response)
+    {
+        if (response.length() <= MAX_TWITCH_MESSAGE_LEN)
+        {
+            return response;
+        }
+        return response.substring(0, MAX_TWITCH_MESSAGE_LEN - 1);
     }
 }

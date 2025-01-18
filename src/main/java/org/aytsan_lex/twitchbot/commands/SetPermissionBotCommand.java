@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class SetPermissionBotCommand extends BotCommandBase
@@ -39,11 +40,11 @@ public class SetPermissionBotCommand extends BotCommandBase
                         userId,
                         messageId,
                         event.getTwitchChat(),
-                        "Уровень доступа для '%s' установлен -> %d".formatted(targetUserName, targetLevel),
+                        "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
                         BotCommandBase.DEFAULT_MESSAGE_DELAY
                 );
 
-                System.out.println("Set permission level of '%s' -> %d".formatted(targetUserName, targetLevel));
+                TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
             }
         }
     }

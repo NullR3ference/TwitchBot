@@ -2,8 +2,8 @@ package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.CommandHandler;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.TwitchBot;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class IqMuteBotCommand extends BotCommandBase
 {

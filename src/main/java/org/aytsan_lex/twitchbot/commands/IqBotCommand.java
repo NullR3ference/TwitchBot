@@ -13,7 +13,7 @@ public class IqBotCommand extends BotCommandBase
     @Override
     public void execute(Object... args)
     {
-        if ((!(args[0] instanceof String messageText)) || (!(args[1] instanceof IRCMessageEvent event)))
+        if ((!(args[0] instanceof String)) || (!(args[1] instanceof IRCMessageEvent event)))
         {
             throw new BotCommandError("Invalid args classes");
         }
