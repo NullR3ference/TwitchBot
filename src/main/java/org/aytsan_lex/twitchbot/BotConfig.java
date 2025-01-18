@@ -31,6 +31,8 @@ public class BotConfig
         public ArrayList<String> owners;
         public HashMap<String, Integer> permissions;
         public ArrayList<String> mutedCommands;
+        public String ollamaHost;
+        public String modelName;
     }
 
     private static BotConfig botConfigInstance = null;
@@ -182,6 +184,16 @@ public class BotConfig
         }
     }
 
+    public String getOllamaHost()
+    {
+        return this.config.ollamaHost;
+    }
+
+    public String getModelName()
+    {
+        return this.config.modelName;
+    }
+
     public void saveChanges()
     {
         final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
@@ -230,7 +242,9 @@ public class BotConfig
                   "channels": [],
                   "owners": [],
                   "permissions": {},
-                  "mutedCommands": []
+                  "mutedCommands": [],
+                  "ollamaHost": "http://localhost:11434",
+                  "modelName": "gemma2-mira"
                 }
                 """;
 

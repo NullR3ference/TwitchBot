@@ -72,7 +72,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        final String response = OllamaMira.instance().question(userName, message);
+        final String response = OllamaMira.instance().chatWithModel(userName, message);
 
         if (!this.miraResponseLengthFilter(response))
         {

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.aytsan_lex.twitchbot.BotConfig;
 import io.github.ollama4j.OllamaAPI;
 import io.github.ollama4j.models.chat.OllamaChatRequestBuilder;
 import io.github.ollama4j.models.chat.OllamaChatResult;
@@ -21,11 +22,11 @@ public class OllamaMira
 
     private OllamaMira()
     {
-        this.ollamaAPI = new OllamaAPI("http://localhost:11434");
+        this.ollamaAPI = new OllamaAPI(BotConfig.instance().getOllamaHost());
         this.ollamaAPI.setRequestTimeoutSeconds(REQUEST_TIMEOUT_IN_SECONDS);
         this.ollamaAPI.setVerbose(false);
 
-        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance("gemma2-mira2");
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfig.instance().getModelName());
     }
 
     public static OllamaMira instance()
@@ -42,7 +43,7 @@ public class OllamaMira
         return result;
     }
 
-    public String question(final String userName, final String message)
+    public String chatWithModel(final String userName, final String message)
     {
         try
         {
