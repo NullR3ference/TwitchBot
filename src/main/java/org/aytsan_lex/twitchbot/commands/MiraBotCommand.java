@@ -11,7 +11,7 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class MiraBotCommand extends BotCommandBase
 {
-    private static final int MAX_TWITCH_MESSAGE_LEN = 400;
+    private static final int MAX_TWITCH_MESSAGE_LEN = 300;
 
     public MiraBotCommand()
     {
@@ -87,7 +87,7 @@ public class MiraBotCommand extends BotCommandBase
         );
     }
 
-    private boolean miraPreFilter(String messageText)
+    private boolean miraPreFilter(final String messageText)
     {
         for (final Pattern pattern : MiraPreFilter.VALUES)
         {
