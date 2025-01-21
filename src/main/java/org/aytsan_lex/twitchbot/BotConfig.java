@@ -123,6 +123,13 @@ public class BotConfig
         return 0;
     }
 
+    public int getPermissionLevelByName(String name)
+    {
+        if (isOwner(name)) { return 777; }
+        if (this.config.permissions.containsKey(name)) { return this.config.permissions.get(name); }
+        return 0;
+    }
+
     public void setPermissionLevel(String userId, int level)
     {
         if (level == 0)

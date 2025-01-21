@@ -32,7 +32,8 @@ public class MiraBotCommand extends BotCommandBase
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-        final int userPermLevel = BotConfig.instance().getPermissionLevel(userId);
+//        final int userPermLevel = BotConfig.instance().getPermissionLevel(userId);
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
         if (!OllamaMira.instance().checkConnection())
         {
@@ -47,7 +48,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        if (userPermLevel < this.getRequiredPermissionLevel())
+        if (permissionLevel < this.getRequiredPermissionLevel())
         {
             super.replyToMessage(
                     channelName,

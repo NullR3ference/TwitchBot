@@ -25,10 +25,12 @@ public class StatusBotCommand extends BotCommandBase
 
         final String channelName = event.getChannel().getName();
         final String userId = event.getUser().getId();
+        final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-        final int userPermLevel = BotConfig.instance().getPermissionLevel(userId);
+//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
-        if (userPermLevel >= this.getRequiredPermissionLevel())
+        if (permissionLevel >= this.getRequiredPermissionLevel())
         {
             final String message = this.createStatusMessage();
 

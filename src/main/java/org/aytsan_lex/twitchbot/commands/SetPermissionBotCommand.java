@@ -23,29 +23,46 @@ public class SetPermissionBotCommand extends BotCommandBase
 
         final String channelName = event.getChannel().getName();
         final String userId = event.getUser().getId();
+        final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             // FIXME: Fix targetUserId is null in some cases
-            final String targetUserId = event.getTwitchChat().getChannelNameToChannelId().get(targetUserName);
-            if (targetUserId != null && !userId.equals(targetUserId))
-            {
-                BotConfig.instance().setPermissionLevel(targetUserId, targetLevel);
-                BotConfig.instance().saveChanges();
+//            final String targetUserId = event.getTwitchChat().getChannelNameToChannelId().get(targetUserName);
+//
+//            if (targetUserId != null && !userId.equals(targetUserId))
+//            {
+//                BotConfig.instance().setPermissionLevel(targetUserId, targetLevel);
+//                BotConfig.instance().saveChanges();
+//
+//                super.replyToMessageWithDelay(
+//                        channelName,
+//                        userId,
+//                        messageId,
+//                        event.getTwitchChat(),
+//                        "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
+//                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+//                );
+//
+//                TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
+//            }
 
-                super.replyToMessageWithDelay(
-                        channelName,
-                        userId,
-                        messageId,
-                        event.getTwitchChat(),
-                        "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
-                );
+            BotConfig.instance().setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
+            BotConfig.instance().saveChanges();
 
-                TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
-            }
+            super.replyToMessageWithDelay(
+                    channelName,
+                    userId,
+                    messageId,
+                    event.getTwitchChat(),
+                    "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+            );
+
+            TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
         }
     }
 }

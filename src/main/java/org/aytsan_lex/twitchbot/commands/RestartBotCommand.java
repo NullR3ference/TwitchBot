@@ -19,9 +19,11 @@ public class RestartBotCommand extends BotCommandBase
         }
 
         final String userId = event.getUser().getId();
-        final int userPermLevel = BotConfig.instance().getPermissionLevel(userId);
+        final String userName = event.getUser().getName();
+//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
-        if (userPermLevel >= this.getRequiredPermissionLevel())
+        if (permissionLevel >= this.getRequiredPermissionLevel())
         {
             // Assumes that user runs this code via JVM and not over Gradle
             // Because Gradle returns 1

@@ -20,9 +20,11 @@ public class JoinToChatBotCommand extends BotCommandBase
         }
 
         final String userId = event.getUser().getId();
+        final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final String currentChannelName = event.getChannel().getName();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
         if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
         {

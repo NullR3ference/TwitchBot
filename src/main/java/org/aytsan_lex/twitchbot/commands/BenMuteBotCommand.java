@@ -20,10 +20,12 @@ public class BenMuteBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String userId = event.getUser().getId();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+//        final String userId = event.getUser().getId();
+//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final String userName = event.getUser().getName();
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
-        if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
+        if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.BEN.name(), isMuted);
             BotConfig.instance().saveChanges();

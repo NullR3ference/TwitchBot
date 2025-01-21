@@ -20,8 +20,10 @@ public class MiraMuteBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String userId = event.getUser().getId();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+//        final String userId = event.getUser().getId();
+//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final String userName = event.getUser().getName();
+        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {

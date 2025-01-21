@@ -43,6 +43,9 @@ public class MiraPostFilter
             Pattern.compile("([\\W|\\d|\\s]*)чинг-чон([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
 
             Pattern.compile("([\\W|\\d|\\s]*)faggot([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)fagot([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)фагот([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)фаггот([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)cuckold([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)cuckоld([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)cuckоld([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
@@ -62,6 +65,7 @@ public class MiraPostFilter
             Pattern.compile("([\\W|\\d|\\s]*)xecyc([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)хeсус([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)хесyс([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)орешн([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
 
             Pattern.compile("([\\W|\\d|\\s]*)зeтник([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)3eтник([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
@@ -90,6 +94,7 @@ public class MiraPostFilter
             Pattern.compile("([\\W|\\d|\\s]*)анархия([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)соя([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)соевый([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
-            Pattern.compile("([\\W|\\d|\\s]*)террор([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE)
+            Pattern.compile("([\\W|\\d|\\s]*)террор([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)дивиз([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE)
     ));
 }
