@@ -23,8 +23,7 @@ public class JoinToChatBotCommand extends BotCommandBase
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final String currentChannelName = event.getChannel().getName();
-//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
-        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
         if (BotConfig.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
         {
@@ -37,6 +36,10 @@ public class JoinToChatBotCommand extends BotCommandBase
                     "Подключен к: [%s]".formatted(channelName),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

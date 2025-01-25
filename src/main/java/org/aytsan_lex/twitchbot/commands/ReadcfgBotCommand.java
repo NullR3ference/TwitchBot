@@ -2,6 +2,7 @@ package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfig;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class ReadcfgBotCommand extends BotCommandBase
 {
@@ -22,8 +23,7 @@ public class ReadcfgBotCommand extends BotCommandBase
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final String channelName = event.getChannel().getName();
-//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
-        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
@@ -36,6 +36,10 @@ public class ReadcfgBotCommand extends BotCommandBase
                     "Конфиг обновлен",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

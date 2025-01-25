@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.aytsan_lex.twitchbot.BotConfig;
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.ollama.OllamaMira;
+import org.aytsan_lex.twitchbot.ollama.OllamaModels;
 import org.aytsan_lex.twitchbot.filters.MiraPreFilter;
 import org.aytsan_lex.twitchbot.filters.MiraPostFilter;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
@@ -32,11 +32,11 @@ public class MiraBotCommand extends BotCommandBase
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-//        final int userPermLevel = BotConfig.instance().getPermissionLevel(userId);
-        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
-        if (!OllamaMira.instance().checkConnection())
+        if (!OllamaModels.GEMMA2_MIRA.checkConnection())
         {
+            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfig.instance().getOllamaHost());
             super.replyToMessageWithDelay(
                     channelName,
                     userId,
@@ -57,6 +57,7 @@ public class MiraBotCommand extends BotCommandBase
                     event.getTwitchChat(),
                     "Прости зайка, я пока не могу общаться с тобой, создателю надо выдать разрешение, прежде чем я смогу тебе отвечать (("
             );
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
             return;
         }
 
@@ -73,7 +74,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        final String response = OllamaMira.instance().chatWithModel(userName, message).trim();
+        final String response = OllamaModels.GEMMA2_MIRA.chatWithModel(userName, message).trim();
         final String filteredResponse = truncateResponseLength(miraPostFilter(response));
 
         TwitchBot.LOGGER.info("Raw model response: {}", response);

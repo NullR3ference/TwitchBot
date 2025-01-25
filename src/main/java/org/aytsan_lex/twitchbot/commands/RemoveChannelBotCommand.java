@@ -20,11 +20,12 @@ public class RemoveChannelBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
+        final String userName = event.getUser().getName();
         final String userId = event.getUser().getId();
         final String messageId = event.getMessageId().get();
         final String channelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
@@ -48,6 +49,10 @@ public class RemoveChannelBotCommand extends BotCommandBase
                     }
                 }
             }
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

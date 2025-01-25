@@ -25,8 +25,7 @@ public class LeaveFromChatBotCommand extends BotCommandBase
         final String messageId = event.getMessageId().get();
         final String currentChannelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
-//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
-        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
@@ -43,6 +42,10 @@ public class LeaveFromChatBotCommand extends BotCommandBase
                 );
                 TwitchBot.instance().leaveFromChat(targetChannelName);
             }
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

@@ -1,44 +1,29 @@
 package org.aytsan_lex.twitchbot.ollama;
 
-import java.time.Duration;
-import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.aytsan_lex.twitchbot.BotConfig;
-import io.github.ollama4j.OllamaAPI;
+import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 import io.github.ollama4j.models.chat.OllamaChatRequestBuilder;
 import io.github.ollama4j.models.chat.OllamaChatResult;
-import io.github.ollama4j.models.chat.OllamaChatMessageRole;
+import org.aytsan_lex.twitchbot.BotConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OllamaMira
+import java.time.Duration;
+import java.time.Instant;
+
+public class Gemma2MiraOllamaModel implements IOllamaModel
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OllamaMira.class);
-    private static final int REQUEST_TIMEOUT_IN_SECONDS = 60;
-
-    private final OllamaAPI ollamaAPI;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Gemma2MiraOllamaModel.class);
     private final OllamaChatRequestBuilder ollamaChatRequestBuilder;
 
-    private static OllamaMira instance = null;
-
-    private OllamaMira()
+    public Gemma2MiraOllamaModel()
     {
-        this.ollamaAPI = new OllamaAPI(BotConfig.instance().getOllamaHost());
-        this.ollamaAPI.setRequestTimeoutSeconds(REQUEST_TIMEOUT_IN_SECONDS);
-        this.ollamaAPI.setVerbose(false);
-
-        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfig.instance().getModelName());
-    }
-
-    public static OllamaMira instance()
-    {
-        if (instance == null) { instance = new OllamaMira(); }
-        return instance;
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfig.instance().getMiraModelName());
     }
 
     public boolean checkConnection()
     {
         boolean result = false;
-        try { result = this.ollamaAPI.ping(); }
+        try { result = OllamaModels.API.ping(); }
         catch (RuntimeException ignored) {  }
         return result;
     }
@@ -51,7 +36,7 @@ public class OllamaMira
             LOGGER.info("Sending message to model: '{}'", finalMessage);
 
             final Instant start = Instant.now();
-            final OllamaChatResult chatResult = ollamaAPI.chat(
+            final OllamaChatResult chatResult = OllamaModels.API.chat(
                     this.ollamaChatRequestBuilder
                             .withMessage(OllamaChatMessageRole.USER, finalMessage)
                             .build()

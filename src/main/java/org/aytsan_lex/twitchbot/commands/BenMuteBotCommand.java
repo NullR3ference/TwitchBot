@@ -20,16 +20,18 @@ public class BenMuteBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-//        final String userId = event.getUser().getId();
-//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.BEN.name(), isMuted);
             BotConfig.instance().saveChanges();
             TwitchBot.LOGGER.info("Ben command muted = {}", isMuted);
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

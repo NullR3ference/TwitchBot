@@ -12,9 +12,13 @@ import java.util.Objects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.FormattingStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BotConfig
 {
+    private final Logger LOGGER = LoggerFactory.getLogger(BotConfig.class);
+
     private class Config
     {
         private class Credentials
@@ -32,7 +36,8 @@ public class BotConfig
         public HashMap<String, Integer> permissions;
         public ArrayList<String> mutedCommands;
         public String ollamaHost;
-        public String modelName;
+        public String miraModelName;
+        public String milaModelName;
     }
 
     private static BotConfig botConfigInstance = null;
@@ -63,7 +68,7 @@ public class BotConfig
 
             if (!this.configFile.exists())
             {
-                TwitchBot.LOGGER.error("Config file is empty or does`nt exists. Creating new config file");
+                LOGGER.error("Config file is empty or does`nt exists. Creating new config file");
                 this.configFile.createNewFile();
                 this.writeConfigTemplate();
                 System.exit(1);
@@ -75,7 +80,7 @@ public class BotConfig
         }
         catch (Exception e)
         {
-            TwitchBot.LOGGER.error("BotConfig error: {}", e.getMessage());
+            LOGGER.error("BotConfig error: {}", e.getMessage());
             System.exit(1);
         }
     }
@@ -116,14 +121,7 @@ public class BotConfig
         return this.config.credentials.tokenScopes;
     }
 
-    public int getPermissionLevel(String userId)
-    {
-        if (this.config.owners.contains(userId)) { return 777; }
-        if (this.config.permissions.containsKey(userId)) { return this.config.permissions.get(userId); }
-        return 0;
-    }
-
-    public int getPermissionLevelByName(String name)
+    public int getPermissionLevel(String name)
     {
         if (isOwner(name)) { return 777; }
         if (this.config.permissions.containsKey(name)) { return this.config.permissions.get(name); }
@@ -196,9 +194,14 @@ public class BotConfig
         return this.config.ollamaHost;
     }
 
-    public String getModelName()
+    public String getMiraModelName()
     {
-        return this.config.modelName;
+        return this.config.miraModelName;
+    }
+
+    public String getMilaModelName()
+    {
+        return this.config.milaModelName;
     }
 
     public void saveChanges()
@@ -214,7 +217,7 @@ public class BotConfig
         }
         catch (IOException e)
         {
-            TwitchBot.LOGGER.error("Failed to save config: {}", e.getMessage());
+            LOGGER.error("Failed to save config: {}", e.getMessage());
         }
     }
 
@@ -226,7 +229,7 @@ public class BotConfig
         }
         catch (IOException e)
         {
-            TwitchBot.LOGGER.error("Failed to update config: {}", e.getMessage());
+            LOGGER.error("Failed to update config: {}", e.getMessage());
         }
     }
 
@@ -251,7 +254,8 @@ public class BotConfig
                   "permissions": {},
                   "mutedCommands": [],
                   "ollamaHost": "http://localhost:11434",
-                  "modelName": "gemma2-mira"
+                  "miraModelName": "gemma2-mira",
+                  "milaModelName": ""
                 }
                 """;
 

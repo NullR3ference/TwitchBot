@@ -5,6 +5,7 @@ import java.lang.management.MemoryMXBean;
 import java.time.Duration;
 import java.time.Instant;
 import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.TwitchBotLauncher;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -27,21 +28,22 @@ public class StatusBotCommand extends BotCommandBase
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-//        final int permissionLevel = BotConfig.instance().getPermissionLevel(userId);
-        final int permissionLevel = BotConfig.instance().getPermissionLevelByName(userName);
+        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            final String message = this.createStatusMessage();
-
             super.replyToMessageWithDelay(
                     channelName,
                     userId,
                     messageId,
                     event.getTwitchChat(),
-                    message,
+                    this.createStatusMessage(),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 
