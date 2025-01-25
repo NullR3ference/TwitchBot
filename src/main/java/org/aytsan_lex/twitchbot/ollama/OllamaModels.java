@@ -5,7 +5,7 @@ import org.aytsan_lex.twitchbot.BotConfig;
 
 public class OllamaModels
 {
-    public static final int REQUEST_TIMEOUT = 60;
+    public static final int REQUEST_TIMEOUT = 240;
     public static final OllamaAPI API = new OllamaAPI(BotConfig.instance().getOllamaHost());
 
     static
