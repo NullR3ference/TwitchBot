@@ -2,7 +2,7 @@ package org.aytsan_lex.twitchbot.commands;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.ollama.OllamaModels;
 import org.aytsan_lex.twitchbot.filters.MiraPreFilter;
@@ -32,11 +32,11 @@ public class MiraBotCommand extends BotCommandBase
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (!OllamaModels.GEMMA2_MIRA.checkConnection())
         {
-            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfig.instance().getOllamaHost());
+            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.instance().getOllamaHost());
             super.replyToMessageWithDelay(
                     channelName,
                     userId,

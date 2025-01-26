@@ -1,6 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
@@ -25,16 +25,16 @@ public class AddChannelBotCommand extends BotCommandBase
         final String messageId = event.getMessageId().get();
         final String channelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             if (TwitchBot.instance().channelExists(targetChannelName))
             {
-                if (BotConfig.instance().addChannel(targetChannelName))
+                if (BotConfigManager.instance().addChannel(targetChannelName))
                 {
                     TwitchBot.instance().joinToChat(targetChannelName);
-                    BotConfig.instance().saveChanges();
+                    BotConfigManager.instance().saveChanges();
 
                     super.replyToMessageWithDelay(
                             channelName,

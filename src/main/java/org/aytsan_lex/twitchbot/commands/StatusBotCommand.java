@@ -4,7 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.time.Duration;
 import java.time.Instant;
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.TwitchBotLauncher;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
@@ -28,7 +28,7 @@ public class StatusBotCommand extends BotCommandBase
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {

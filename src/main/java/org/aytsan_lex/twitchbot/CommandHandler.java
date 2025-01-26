@@ -66,7 +66,7 @@ public class CommandHandler
             {
                 case IQ ->
                 {
-                    if (!BotConfig.instance().commandIsMuted(cmd))
+                    if (!BotConfigManager.instance().commandIsMuted(cmd))
                     {
                         final String messageText = String.join(" ", cmdArgs);
                         iqBotCommand.execute(messageText, event);
@@ -79,7 +79,7 @@ public class CommandHandler
 
                 case BEN ->
                 {
-                    if (!BotConfig.instance().commandIsMuted(cmd))
+                    if (!BotConfigManager.instance().commandIsMuted(cmd))
                     {
                         final String messageText = String.join(" ", cmdArgs);
                         benBotCommand.execute(messageText, event);
@@ -92,7 +92,7 @@ public class CommandHandler
 
                 case MIRA ->
                 {
-                    if (!BotConfig.instance().commandIsMuted(cmd))
+                    if (!BotConfigManager.instance().commandIsMuted(cmd))
                     {
                         if (!cmdArgs.isEmpty())
                         {

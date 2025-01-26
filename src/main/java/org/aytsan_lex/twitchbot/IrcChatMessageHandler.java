@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
 import java.util.Optional;
+import java.time.LocalDateTime;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
 
@@ -44,8 +45,6 @@ public class IrcChatMessageHandler
         if (user != null && optionalMessage.isPresent())
         {
             final String channelName = event.getChannel().getName();
-            final String userId = user.getId();
-            final String userName = user.getName();
             final String message = optionalMessage.get();
 
             // TODO: Handle command via @tag of bot
@@ -53,12 +52,55 @@ public class IrcChatMessageHandler
 
             if (message.startsWith("%"))
             {
+                if (BotConfigManager.instance().isTimedOutChannel(channelName))
+                {
+                    final LocalDateTime currentDateTime = LocalDateTime.now();
+                    final LocalDateTime expiredIn = BotConfigManager.instance().getTimeoutExpiredIn(channelName);
+
+                    if (currentDateTime.isBefore(expiredIn))
+                    {
+                        TwitchBot.LOGGER.warn("Failed to handle command on '{}': timed out", channelName);
+                        return;
+                    }
+
+                    BotConfigManager.instance().removeTimedOutChannel(channelName);
+                    BotConfigManager.instance().saveChanges();
+                }
+
                 CommandHandler.handleCommand(message, event);
             }
         }
     }
 
-    public void handleClearchatIrcCommand(IRCMessageEvent event)
+    private void handleClearchatIrcCommand(IRCMessageEvent event)
     {
+        final String rawMessage = event.getRawMessage();
+        if (rawMessage.contains("@ban-duration"))
+        {
+            final String targetId = parseRawMessageAndGetTargetId(rawMessage);
+            if (targetId.equals(BotConfigManager.instance().getRunningChannelId()))
+            {
+                final String channelName = event.getChannel().getName();
+                final int seconds = parseRawMessageAndGetBanDuration(rawMessage);
+
+                final LocalDateTime expiredIn = LocalDateTime.now().plusSeconds(seconds);
+                BotConfigManager.instance().setChannelIsTimedOut(channelName, expiredIn);
+                BotConfigManager.instance().saveChanges();
+
+                TwitchBot.LOGGER.warn("You`ve been timed out for {} seconds on channel: '{}'", seconds, channelName);
+            }
+        }
+    }
+
+    private int parseRawMessageAndGetBanDuration(String rawMessage)
+    {
+        // TODO: Implement parseRawMessageAndGetBanDuration()
+        return 0;
+    }
+
+    private String parseRawMessageAndGetTargetId(String rawMessage)
+    {
+        // TODO: Implement parseRawMessageAndGetTargetId()
+        return "";
     }
 }

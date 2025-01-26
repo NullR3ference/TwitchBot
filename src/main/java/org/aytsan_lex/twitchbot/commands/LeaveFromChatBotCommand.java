@@ -1,7 +1,7 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import com.github.twitch4j.chat.TwitchChat;
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -25,12 +25,12 @@ public class LeaveFromChatBotCommand extends BotCommandBase
         final String messageId = event.getMessageId().get();
         final String currentChannelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             final String targetChannelId = chat.getChannelNameToChannelId().get(targetChannelName);
-            if ((targetChannelId != null) && !BotConfig.instance().isOwner(targetChannelId))
+            if ((targetChannelId != null) && !BotConfigManager.instance().isOwner(targetChannelId))
             {
                 super.replyToMessageWithDelay(
                         currentChannelName,

@@ -1,6 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
@@ -25,16 +25,16 @@ public class RemoveChannelBotCommand extends BotCommandBase
         final String messageId = event.getMessageId().get();
         final String channelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             final String targetChannelId = chat.getChannelNameToChannelId().get(targetChannelName);
-            if ((targetChannelId != null) && !BotConfig.instance().isOwner(targetChannelId))
+            if ((targetChannelId != null) && !BotConfigManager.instance().isOwner(targetChannelId))
             {
                 if (TwitchBot.instance().channelExists(targetChannelName))
                 {
-                    if (BotConfig.instance().removeChannel(targetChannelName))
+                    if (BotConfigManager.instance().removeChannel(targetChannelName))
                     {
                         super.replyToMessageWithDelay(
                                 channelName,
@@ -45,7 +45,7 @@ public class RemoveChannelBotCommand extends BotCommandBase
                                 BotCommandBase.DEFAULT_MESSAGE_DELAY
                         );
                         TwitchBot.instance().leaveFromChat(targetChannelName);
-                        BotConfig.instance().saveChanges();
+                        BotConfigManager.instance().saveChanges();
                     }
                 }
             }

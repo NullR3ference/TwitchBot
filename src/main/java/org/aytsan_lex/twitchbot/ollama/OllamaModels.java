@@ -1,12 +1,12 @@
 package org.aytsan_lex.twitchbot.ollama;
 
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import io.github.ollama4j.OllamaAPI;
-import org.aytsan_lex.twitchbot.BotConfig;
 
 public class OllamaModels
 {
     public static final int REQUEST_TIMEOUT = 240;
-    public static final OllamaAPI API = new OllamaAPI(BotConfig.instance().getOllamaHost());
+    public static final OllamaAPI API = new OllamaAPI(BotConfigManager.instance().getOllamaHost());
 
     static
     {

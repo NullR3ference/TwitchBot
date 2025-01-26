@@ -1,6 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -20,7 +20,7 @@ public class RestartBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {

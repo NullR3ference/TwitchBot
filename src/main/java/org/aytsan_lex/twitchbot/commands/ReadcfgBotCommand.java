@@ -1,6 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
@@ -23,11 +23,11 @@ public class ReadcfgBotCommand extends BotCommandBase
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final String channelName = event.getChannel().getName();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfig.instance().updateConfig();
+            BotConfigManager.instance().updateConfig();
             super.replyToMessageWithDelay(
                     channelName,
                     userId,

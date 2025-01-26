@@ -1,6 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.CommandHandler;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
@@ -21,12 +21,12 @@ public class IqMuteBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfig.instance().setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
-            BotConfig.instance().saveChanges();
+            BotConfigManager.instance().setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
+            BotConfigManager.instance().saveChanges();
             TwitchBot.LOGGER.info("IQ command muted = {}", isMuted);
         }
         else

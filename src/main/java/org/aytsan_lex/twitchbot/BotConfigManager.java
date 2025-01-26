@@ -2,6 +2,8 @@ package org.aytsan_lex.twitchbot;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.File;
@@ -15,23 +17,23 @@ import com.google.gson.FormattingStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BotConfig
+public class BotConfigManager
 {
-    private final Logger LOGGER = LoggerFactory.getLogger(BotConfig.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
 
-    private class Config
+    private static class Config
     {
-        private class Credentials
+        private static class Credentials
         {
             public String clientId;
-            public String clientSecret;
             public String accessToken;
             public String refreshToken;
-            public ArrayList<String> tokenScopes;
         }
 
         public Credentials credentials;
+        public String runningOnChannelId;
         public ArrayList<String> channels;
+        public HashMap<String, String> timedOutOnChannels;
         public ArrayList<String> owners;
         public HashMap<String, Integer> permissions;
         public ArrayList<String> mutedCommands;
@@ -40,7 +42,7 @@ public class BotConfig
         public String milaModelName;
     }
 
-    private static BotConfig botConfigInstance = null;
+    private static BotConfigManager botConfigInstance = null;
     private static final String CURRENT_WORKING_DIR = Path.of("").toAbsolutePath().toString();
 
     public static final Path LOG_BASE_PATH = Path.of(CURRENT_WORKING_DIR + "/chatlogs");
@@ -49,7 +51,7 @@ public class BotConfig
     private final File configFile;
     private Config config;
 
-    private BotConfig()
+    private BotConfigManager()
     {
         this.configFile = new File(CONFIG_PATH + "/config.json");
         this.config = new Config();
@@ -85,9 +87,9 @@ public class BotConfig
         }
     }
 
-    public static synchronized BotConfig instance()
+    public static synchronized BotConfigManager instance()
     {
-        if (botConfigInstance == null) { botConfigInstance = new BotConfig(); }
+        if (botConfigInstance == null) { botConfigInstance = new BotConfigManager(); }
         return botConfigInstance;
     }
 
@@ -101,11 +103,6 @@ public class BotConfig
         return this.config.credentials.clientId;
     }
 
-    public String getClientSecret()
-    {
-        return this.config.credentials.clientSecret;
-    }
-
     public String getAccessToken()
     {
         return this.config.credentials.accessToken;
@@ -116,9 +113,9 @@ public class BotConfig
         return this.config.credentials.refreshToken;
     }
 
-    public ArrayList<String> getTokenScopes()
+    public String getRunningChannelId()
     {
-        return this.config.credentials.tokenScopes;
+        return this.config.runningOnChannelId;
     }
 
     public int getPermissionLevel(String name)
@@ -172,6 +169,32 @@ public class BotConfig
     public boolean commandIsMuted(String cmd)
     {
         return this.config.mutedCommands.contains(cmd);
+    }
+
+    public boolean isTimedOutChannel(String channelName)
+    {
+        return this.config.timedOutOnChannels.containsKey(channelName);
+    }
+
+    public LocalDateTime getTimeoutExpiredIn(String channelName)
+    {
+        return LocalDateTime.parse(
+                this.config.timedOutOnChannels.get(channelName),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        );
+    }
+
+    public void removeTimedOutChannel(String channelName)
+    {
+        this.config.timedOutOnChannels.remove(channelName);
+    }
+
+    public void setChannelIsTimedOut(String channelName, LocalDateTime expiredIn)
+    {
+        this.config.timedOutOnChannels.put(
+                channelName,
+                expiredIn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+        );
     }
 
     public void setCommandIsMuted(String cmd, boolean isMuted)
@@ -244,12 +267,12 @@ public class BotConfig
                 {
                   "credentials": {
                       "clientId": "",
-                      "clientSecret": "",
                       "accessToken": "",
-                      "refreshToken": "",
-                      "tokenScopes": []
+                      "refreshToken": ""
                   },
+                  "runningOnChannelId": "",
                   "channels": [],
+                  "timedOutOnChannels": {},
                   "owners": [],
                   "permissions": {},
                   "mutedCommands": [],

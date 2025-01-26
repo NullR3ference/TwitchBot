@@ -1,6 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import org.aytsan_lex.twitchbot.BotConfig;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -25,12 +25,12 @@ public class SetPermissionBotCommand extends BotCommandBase
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
-        final int permissionLevel = BotConfig.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfig.instance().setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
-            BotConfig.instance().saveChanges();
+            BotConfigManager.instance().setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
+            BotConfigManager.instance().saveChanges();
 
             super.replyToMessageWithDelay(
                     channelName,

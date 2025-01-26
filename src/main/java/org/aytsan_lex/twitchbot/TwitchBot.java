@@ -2,14 +2,13 @@ package org.aytsan_lex.twitchbot;
 
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TwitchBot
 {
@@ -36,10 +35,8 @@ public class TwitchBot
     }
 
     public TwitchBot init(@NotNull String clientId,
-                          @NotNull String clientSecret,
                           @NotNull String accessToken,
-                          @Nullable String refreshToken,
-                          @Nullable ArrayList<String> scopes)
+                          @Nullable String refreshToken)
     {
         if (!this.isInitialized)
         {
@@ -47,7 +44,6 @@ public class TwitchBot
 
             TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
                     .withClientId(clientId)
-                    .withClientSecret(clientSecret)
                     .withEnableChat(true)
                     .withEnableHelix(true)
                     .withTimeout(1000)
@@ -63,7 +59,7 @@ public class TwitchBot
                                     null,
                                     null,
                                     null,
-                                    scopes
+                                    null
                             )
                     );
 
@@ -75,13 +71,13 @@ public class TwitchBot
 
     public void start()
     {
-        LOGGER.info("Connecting TwitchBot to channels: {}", BotConfig.instance().getChannels());
+        LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.instance().getChannels());
 
         this.twitchClient.getEventManager()
                 .getEventHandler(SimpleEventHandler.class)
                 .onEvent(IRCMessageEvent.class, this.ircChatMessageHandler::handleIrcMessage);
 
-        BotConfig.instance().getChannels().forEach(this::joinToChat);
+        BotConfigManager.instance().getChannels().forEach(this::joinToChat);
         this.isRunning = true;
 
         LOGGER.info("Started");
@@ -89,7 +85,7 @@ public class TwitchBot
 
     public void stop()
     {
-        BotConfig.instance().getChannels().forEach(this::leaveFromChat);
+        BotConfigManager.instance().getChannels().forEach(this::leaveFromChat);
         this.isRunning = false;
     }
 

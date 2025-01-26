@@ -1,14 +1,13 @@
 package org.aytsan_lex.twitchbot.ollama;
 
+import java.time.Duration;
+import java.time.Instant;
+import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 import io.github.ollama4j.models.chat.OllamaChatRequestBuilder;
 import io.github.ollama4j.models.chat.OllamaChatResult;
-import org.aytsan_lex.twitchbot.BotConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.time.Instant;
 
 public class Gemma2MiraOllamaModel implements IOllamaModel
 {
@@ -17,7 +16,7 @@ public class Gemma2MiraOllamaModel implements IOllamaModel
 
     public Gemma2MiraOllamaModel()
     {
-        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfig.instance().getMiraModelName());
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfigManager.instance().getMiraModelName());
     }
 
     public boolean checkConnection()
