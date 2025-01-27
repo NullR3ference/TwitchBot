@@ -36,7 +36,7 @@ public class MiraBotCommand extends BotCommandBase
 
         if (!OllamaModels.GEMMA2_MIRA.checkConnection())
         {
-            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.instance().getOllamaHost());
+            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.instance().getConfig().getOllamaHost());
             super.replyToMessageWithDelay(
                     channelName,
                     userId,

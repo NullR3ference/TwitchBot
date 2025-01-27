@@ -16,7 +16,7 @@ public class Gemma2MiraOllamaModel implements IOllamaModel
 
     public Gemma2MiraOllamaModel()
     {
-        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfigManager.instance().getMiraModelName());
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfigManager.instance().getConfig().getMiraModelName());
     }
 
     public boolean checkConnection()

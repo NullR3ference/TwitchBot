@@ -9,9 +9,9 @@ public class TwitchBotLauncher
     public static void main(String[] args)
     {
         TwitchBot.instance().init(
-                BotConfigManager.instance().getClientId(),
-                BotConfigManager.instance().getAccessToken(),
-                BotConfigManager.instance().getRefreshToken()
+                BotConfigManager.instance().getConfig().getCredentials().getClientId(),
+                BotConfigManager.instance().getConfig().getCredentials().getAccessToken(),
+                BotConfigManager.instance().getConfig().getCredentials().getRefreshToken()
         );
 
         TwitchBot.instance().start();

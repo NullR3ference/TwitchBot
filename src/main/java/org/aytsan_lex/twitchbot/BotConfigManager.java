@@ -4,8 +4,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,27 +19,6 @@ public class BotConfigManager
 {
     private final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
 
-    private static class Config
-    {
-        private static class Credentials
-        {
-            public String clientId;
-            public String accessToken;
-            public String refreshToken;
-        }
-
-        public Credentials credentials;
-        public String runningOnChannelId;
-        public ArrayList<String> channels;
-        public HashMap<String, String> timedOutOnChannels;
-        public ArrayList<String> owners;
-        public HashMap<String, Integer> permissions;
-        public ArrayList<String> mutedCommands;
-        public String ollamaHost;
-        public String miraModelName;
-        public String milaModelName;
-    }
-
     private static BotConfigManager botConfigInstance = null;
     private static final String CURRENT_WORKING_DIR = Path.of("").toAbsolutePath().toString();
 
@@ -49,12 +26,12 @@ public class BotConfigManager
     public static final Path CONFIG_PATH = Path.of(CURRENT_WORKING_DIR + "/config");
 
     private final File configFile;
-    private Config config;
+    private BotConfig config;
 
     private BotConfigManager()
     {
         this.configFile = new File(CONFIG_PATH + "/config.json");
-        this.config = new Config();
+        this.config = new BotConfig();
 
         try
         {
@@ -78,11 +55,12 @@ public class BotConfigManager
             else
             {
                 this.readConfig();
+                this.checkConfig();
             }
         }
         catch (Exception e)
         {
-            LOGGER.error("BotConfig error: {}", e.getMessage());
+            LOGGER.error("Error: {}", e.getMessage());
             System.exit(1);
         }
     }
@@ -93,35 +71,15 @@ public class BotConfigManager
         return botConfigInstance;
     }
 
-    public ArrayList<String> getChannels()
+    public BotConfig getConfig()
     {
-        return this.config.channels;
-    }
-
-    public String getClientId()
-    {
-        return this.config.credentials.clientId;
-    }
-
-    public String getAccessToken()
-    {
-        return this.config.credentials.accessToken;
-    }
-
-    public String getRefreshToken()
-    {
-        return this.config.credentials.refreshToken;
-    }
-
-    public String getRunningChannelId()
-    {
-        return this.config.runningOnChannelId;
+        return this.config;
     }
 
     public int getPermissionLevel(String name)
     {
         if (isOwner(name)) { return 777; }
-        if (this.config.permissions.containsKey(name)) { return this.config.permissions.get(name); }
+        if (this.config.getPermissions().containsKey(name)) { return this.config.getPermissions().get(name); }
         return 0;
     }
 
@@ -129,31 +87,31 @@ public class BotConfigManager
     {
         if (level == 0)
         {
-            this.config.owners.removeIf(id -> Objects.equals(id, userId));
-            this.config.permissions.remove(userId);
+            this.config.getOwners().removeIf(id -> Objects.equals(id, userId));
+            this.config.getPermissions().remove(userId);
         }
         else if (level >= 100)
         {
-            if (!this.config.owners.contains(userId)) { this.config.owners.add(userId); }
-            this.config.permissions.remove(userId);
+            if (!this.config.getOwners().contains(userId)) { this.config.getOwners().add(userId); }
+            this.config.getPermissions().remove(userId);
         }
         else
         {
-            this.config.permissions.put(userId, level);
-            this.config.owners.removeIf(id -> Objects.equals(id, userId));
+            this.config.getPermissions().put(userId, level);
+            this.config.getOwners().removeIf(id -> Objects.equals(id, userId));
         }
     }
 
     public boolean isOwner(String userId)
     {
-        return this.config.owners.contains(userId);
+        return this.config.getOwners().contains(userId);
     }
 
     public boolean addChannel(String channelName)
     {
-        if (!this.config.channels.contains(channelName))
+        if (!this.config.getChannels().contains(channelName))
         {
-            this.config.channels.add(channelName);
+            this.config.getChannels().add(channelName);
             return true;
         }
         return false;
@@ -161,37 +119,37 @@ public class BotConfigManager
 
     public boolean removeChannel(String channelName)
     {
-        final int index = this.config.channels.indexOf(channelName);
-        if (index != -1) { this.config.channels.remove(index); }
+        final int index = this.config.getChannels().indexOf(channelName);
+        if (index != -1) { this.config.getChannels().remove(index); }
         return index != -1;
     }
 
     public boolean commandIsMuted(String cmd)
     {
-        return this.config.mutedCommands.contains(cmd);
+        return this.config.getMutedCommands().contains(cmd);
     }
 
     public boolean isTimedOutChannel(String channelName)
     {
-        return this.config.timedOutOnChannels.containsKey(channelName);
+        return this.config.getTimedOutOnChannels().containsKey(channelName);
     }
 
     public LocalDateTime getTimeoutExpiredIn(String channelName)
     {
         return LocalDateTime.parse(
-                this.config.timedOutOnChannels.get(channelName),
+                this.config.getTimedOutOnChannels().get(channelName),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
         );
     }
 
     public void removeTimedOutChannel(String channelName)
     {
-        this.config.timedOutOnChannels.remove(channelName);
+        this.config.getTimedOutOnChannels().remove(channelName);
     }
 
     public void setChannelIsTimedOut(String channelName, LocalDateTime expiredIn)
     {
-        this.config.timedOutOnChannels.put(
+        this.config.getTimedOutOnChannels().put(
                 channelName,
                 expiredIn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
         );
@@ -201,30 +159,15 @@ public class BotConfigManager
     {
         if (isMuted)
         {
-            if (!this.config.mutedCommands.contains(cmd))
+            if (!this.config.getMutedCommands().contains(cmd))
             {
-                this.config.mutedCommands.add(cmd);
+                this.config.getMutedCommands().add(cmd);
             }
         }
         else
         {
-            this.config.mutedCommands.removeIf(c -> Objects.equals(c, cmd));
+            this.config.getMutedCommands().removeIf(c -> Objects.equals(c, cmd));
         }
-    }
-
-    public String getOllamaHost()
-    {
-        return this.config.ollamaHost;
-    }
-
-    public String getMiraModelName()
-    {
-        return this.config.miraModelName;
-    }
-
-    public String getMilaModelName()
-    {
-        return this.config.milaModelName;
     }
 
     public void saveChanges()
@@ -258,7 +201,22 @@ public class BotConfigManager
 
     private void readConfig() throws IOException
     {
-        this.config = new Gson().fromJson(new FileReader(this.configFile), Config.class);
+        this.config = new Gson().fromJson(new FileReader(this.configFile), BotConfig.class);
+    }
+
+    private void checkConfig()
+    {
+        if (this.config.getCredentials().isEmpty())
+        {
+            LOGGER.error("Credentials are empty!");
+            System.exit(1);
+        }
+
+        if (this.config.getRunningOnChannelId().isEmpty())
+        {
+            LOGGER.error("runningOnChannelId is empty!");
+            System.exit(1);
+        }
     }
 
     private void writeConfigTemplate() throws IOException

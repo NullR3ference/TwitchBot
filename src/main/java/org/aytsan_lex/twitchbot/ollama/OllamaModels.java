@@ -6,7 +6,7 @@ import io.github.ollama4j.OllamaAPI;
 public class OllamaModels
 {
     public static final int REQUEST_TIMEOUT = 240;
-    public static final OllamaAPI API = new OllamaAPI(BotConfigManager.instance().getOllamaHost());
+    public static final OllamaAPI API = new OllamaAPI(BotConfigManager.instance().getConfig().getOllamaHost());
 
     static
     {

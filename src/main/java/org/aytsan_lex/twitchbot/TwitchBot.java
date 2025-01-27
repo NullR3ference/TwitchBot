@@ -71,13 +71,13 @@ public class TwitchBot
 
     public void start()
     {
-        LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.instance().getChannels());
+        LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.instance().getConfig().getChannels());
 
         this.twitchClient.getEventManager()
                 .getEventHandler(SimpleEventHandler.class)
                 .onEvent(IRCMessageEvent.class, this.ircChatMessageHandler::handleIrcMessage);
 
-        BotConfigManager.instance().getChannels().forEach(this::joinToChat);
+        BotConfigManager.instance().getConfig().getChannels().forEach(this::joinToChat);
         this.isRunning = true;
 
         LOGGER.info("Started");
@@ -85,7 +85,7 @@ public class TwitchBot
 
     public void stop()
     {
-        BotConfigManager.instance().getChannels().forEach(this::leaveFromChat);
+        BotConfigManager.instance().getConfig().getChannels().forEach(this::leaveFromChat);
         this.isRunning = false;
     }
 

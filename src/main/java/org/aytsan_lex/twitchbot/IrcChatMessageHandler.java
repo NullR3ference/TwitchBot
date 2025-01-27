@@ -1,5 +1,6 @@
 package org.aytsan_lex.twitchbot;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.time.LocalDateTime;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
@@ -77,11 +78,12 @@ public class IrcChatMessageHandler
         final String rawMessage = event.getRawMessage();
         if (rawMessage.contains("@ban-duration"))
         {
-            final String targetId = parseRawMessageAndGetTargetId(rawMessage);
-            if (targetId.equals(BotConfigManager.instance().getRunningChannelId()))
+            final HashMap<String, String> values = this.parseRawMessageForClearchatCommand(rawMessage);
+            final String targetId = values.get("target-id");
+            if (targetId.equals(BotConfigManager.instance().getConfig().getRunningOnChannelId()))
             {
                 final String channelName = event.getChannel().getName();
-                final int seconds = parseRawMessageAndGetBanDuration(rawMessage);
+                final int seconds = Integer.parseInt(values.get("ban-duration"));
 
                 final LocalDateTime expiredIn = LocalDateTime.now().plusSeconds(seconds);
                 BotConfigManager.instance().setChannelIsTimedOut(channelName, expiredIn);
@@ -92,15 +94,9 @@ public class IrcChatMessageHandler
         }
     }
 
-    private int parseRawMessageAndGetBanDuration(String rawMessage)
+    private HashMap<String, String> parseRawMessageForClearchatCommand(final String rawMessage)
     {
-        // TODO: Implement parseRawMessageAndGetBanDuration()
-        return 0;
-    }
-
-    private String parseRawMessageAndGetTargetId(String rawMessage)
-    {
-        // TODO: Implement parseRawMessageAndGetTargetId()
-        return "";
+        // TODO: Implement parseRawMessageForClearchatCommand()
+        return new HashMap<>();
     }
 }
