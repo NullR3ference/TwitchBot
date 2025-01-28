@@ -18,16 +18,12 @@ public class BenBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String channelName = event.getChannel().getName();
-        final String userId = event.getUserId();
-        final String messageId = event.getMessageId().get();
-
         final boolean result = new Random().nextBoolean();
 
         super.replyToMessageWithDelay(
-                channelName,
-                userId,
-                messageId,
+                event.getChannel(),
+                event.getUser().getId(),
+                event.getMessageId().get(),
                 event.getTwitchChat(),
                 (result) ? "yes" : "no",
                 BotCommandBase.DEFAULT_MESSAGE_DELAY

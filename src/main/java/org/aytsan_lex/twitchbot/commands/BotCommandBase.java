@@ -2,6 +2,7 @@ package org.aytsan_lex.twitchbot.commands;
 
 import java.util.concurrent.TimeUnit;
 import com.github.twitch4j.chat.TwitchChat;
+import com.github.twitch4j.common.events.domain.EventChannel;
 
 public class BotCommandBase implements IBotCommand
 {
@@ -25,33 +26,34 @@ public class BotCommandBase implements IBotCommand
         return this.requiredPermissionLevel;
     }
 
-    public void replyToMessage(String channelName,
+    public void replyToMessage(EventChannel channel,
                                String userId,
                                String messageId,
                                TwitchChat chat,
                                String message)
     {
-        this.replyToMessageWithDelay(channelName, userId, messageId, chat, message, 0);
+        this.replyToMessageWithDelay(channel, userId, messageId, chat, message, 0);
     }
 
-    public void replyToMessageWithDelay(String channelName,
+    public void replyToMessageWithDelay(EventChannel channel,
                                         String userId,
                                         String messageId,
                                         TwitchChat chat,
                                         String message,
                                         int delay)
     {
-        this.sendMessage(channelName, userId, messageId, chat, message, delay);
+        this.sendMessage(channel, userId, messageId, chat, message, delay);
     }
 
-    public void sendMessage(String channelName,
+    public void sendMessage(EventChannel channel,
                             String userId,
                             String messageId,
                             TwitchChat chat,
                             String message,
                             int delay)
     {
-        final String channelId = chat.getChannelNameToChannelId().get(channelName);
+        final String channelName = channel.getName();
+        final String channelId = channel.getId();
 
         if (!channelId.equals(userId))
         {

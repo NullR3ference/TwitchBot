@@ -80,7 +80,8 @@ public class IrcChatMessageHandler
         {
             final HashMap<String, String> values = this.parseRawMessageForClearchatCommand(rawMessage);
             final String targetId = values.get("target-id");
-            if (targetId.equals(BotConfigManager.instance().getConfig().getRunningOnChannelId()))
+
+            if (BotConfigManager.instance().getConfig().getRunningOnChannelId().equals(targetId))
             {
                 final String channelName = event.getChannel().getName();
                 final int seconds = Integer.parseInt(values.get("ban-duration"));
@@ -91,6 +92,7 @@ public class IrcChatMessageHandler
 
                 TwitchBot.LOGGER.warn("You`ve been timed out for {} seconds on channel: '{}'", seconds, channelName);
             }
+            // targetId == null ~ banned
         }
     }
 

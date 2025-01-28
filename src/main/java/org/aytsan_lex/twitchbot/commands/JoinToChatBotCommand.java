@@ -19,23 +19,21 @@ public class JoinToChatBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
-        final String messageId = event.getMessageId().get();
-        final String currentChannelName = event.getChannel().getName();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
-        if (BotConfigManager.instance().isOwner(userId) || (permissionLevel >= super.getRequiredPermissionLevel()))
+        if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             TwitchBot.instance().joinToChat(channelName);
             super.replyToMessageWithDelay(
-                    currentChannelName,
-                    userId,
-                    messageId,
+                    event.getChannel(),
+                    event.getUser().getId(),
+                    event.getMessageId().get(),
                     event.getTwitchChat(),
                     "Подключен к: [%s]".formatted(channelName),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
+            TwitchBot.LOGGER.info("Joined to: [{}]", channelName);
         }
         else
         {

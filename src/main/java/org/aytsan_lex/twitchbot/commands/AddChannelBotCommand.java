@@ -2,7 +2,6 @@ package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
-import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class AddChannelBotCommand extends BotCommandBase
@@ -20,11 +19,7 @@ public class AddChannelBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
-        final String messageId = event.getMessageId().get();
-        final String channelName = event.getChannel().getName();
-        final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
@@ -37,15 +32,21 @@ public class AddChannelBotCommand extends BotCommandBase
                     BotConfigManager.instance().saveChanges();
 
                     super.replyToMessageWithDelay(
-                            channelName,
-                            userId,
-                            messageId,
-                            chat,
+                            event.getChannel(),
+                            event.getUser().getId(),
+                            event.getMessageId().get(),
+                            event.getTwitchChat(),
                             "Канал добавлен: [%s]".formatted(targetChannelName),
                             BotCommandBase.DEFAULT_MESSAGE_DELAY
                     );
+
+                    TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);
                 }
             }
+        }
+        else
+        {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

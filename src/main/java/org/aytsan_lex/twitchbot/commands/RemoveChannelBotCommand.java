@@ -21,9 +21,6 @@ public class RemoveChannelBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final String userId = event.getUser().getId();
-        final String messageId = event.getMessageId().get();
-        final String channelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
@@ -37,9 +34,9 @@ public class RemoveChannelBotCommand extends BotCommandBase
                     if (BotConfigManager.instance().removeChannel(targetChannelName))
                     {
                         super.replyToMessageWithDelay(
-                                channelName,
-                                userId,
-                                messageId,
+                                event.getChannel(),
+                                event.getUser().getId(),
+                                event.getMessageId().get(),
                                 chat,
                                 "Канал удален: [%s]".formatted(targetChannelName),
                                 BotCommandBase.DEFAULT_MESSAGE_DELAY

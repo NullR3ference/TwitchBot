@@ -22,20 +22,18 @@ public class StatusBotCommand extends BotCommandBase
         if (!(args[0] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
+
         }
 
-        final String channelName = event.getChannel().getName();
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
-        final String messageId = event.getMessageId().get();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
             super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
+                    event.getChannel(),
+                    event.getUser().getId(),
+                    event.getMessageId().get(),
                     event.getTwitchChat(),
                     this.createStatusMessage(),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY

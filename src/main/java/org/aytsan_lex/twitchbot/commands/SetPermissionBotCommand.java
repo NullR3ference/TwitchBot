@@ -21,10 +21,7 @@ public class SetPermissionBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String channelName = event.getChannel().getName();
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
-        final String messageId = event.getMessageId().get();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
@@ -33,9 +30,9 @@ public class SetPermissionBotCommand extends BotCommandBase
             BotConfigManager.instance().saveChanges();
 
             super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
+                    event.getChannel(),
+                    event.getUser().getId(),
+                    event.getMessageId().get(),
                     event.getTwitchChat(),
                     "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY

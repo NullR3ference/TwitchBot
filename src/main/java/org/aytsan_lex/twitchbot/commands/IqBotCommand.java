@@ -18,19 +18,14 @@ public class IqBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String channelName = event.getChannel().getName();
-        final String userId = event.getUserId();
-        final String userName = event.getUserName();
-        final String messageId = event.getMessageId().get();
-
-        final int iqValue = new Random().nextInt(0, 250);
+        final int iqValue = new Random().nextInt(1, 250);
 
         super.replyToMessageWithDelay(
-                channelName,
-                userId,
-                messageId,
+                event.getChannel(),
+                event.getUser().getId(),
+                event.getMessageId().get(),
                 event.getTwitchChat(),
-                "@%s у тебя %d IQ".formatted(userName, iqValue),
+                "@%s у тебя %d IQ".formatted(event.getUserName(), iqValue),
                 BotCommandBase.DEFAULT_MESSAGE_DELAY
         );
     }

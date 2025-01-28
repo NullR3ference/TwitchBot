@@ -1,8 +1,8 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfigManager;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.TwitchBot;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class ReadcfgBotCommand extends BotCommandBase
 {
@@ -19,19 +19,16 @@ public class ReadcfgBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
-        final String messageId = event.getMessageId().get();
-        final String channelName = event.getChannel().getName();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             BotConfigManager.instance().updateConfig();
             super.replyToMessageWithDelay(
-                    channelName,
-                    userId,
-                    messageId,
+                    event.getChannel(),
+                    event.getUser().getId(),
+                    event.getMessageId().get(),
                     event.getTwitchChat(),
                     "Конфиг обновлен",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY

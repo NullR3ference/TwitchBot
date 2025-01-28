@@ -2,11 +2,14 @@ package org.aytsan_lex.twitchbot.commands;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.github.twitch4j.chat.TwitchChat;
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.ollama.OllamaModels;
 import org.aytsan_lex.twitchbot.filters.MiraPreFilter;
 import org.aytsan_lex.twitchbot.filters.MiraPostFilter;
+import com.github.twitch4j.common.events.domain.EventChannel;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class MiraBotCommand extends BotCommandBase
@@ -28,20 +31,21 @@ public class MiraBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String channelName = event.getChannel().getName();
+        final EventChannel channel = event.getChannel();
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
+        final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
         if (!OllamaModels.GEMMA2_MIRA.checkConnection())
         {
             TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.instance().getConfig().getOllamaHost());
             super.replyToMessageWithDelay(
-                    channelName,
+                    channel,
                     userId,
                     messageId,
-                    event.getTwitchChat(),
+                    chat,
                     "Ошибка сети. Возможно я отключена. Прости зайка <3",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
@@ -50,24 +54,24 @@ public class MiraBotCommand extends BotCommandBase
 
         if (permissionLevel < this.getRequiredPermissionLevel())
         {
+            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
             super.replyToMessage(
-                    channelName,
+                    channel,
                     userId,
                     messageId,
-                    event.getTwitchChat(),
+                    chat,
                     "Прости зайка, я пока не могу общаться с тобой, создателю надо выдать разрешение, прежде чем я смогу тебе отвечать (("
             );
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
             return;
         }
 
         if (!miraPreFilter(message))
         {
             super.replyToMessageWithDelay(
-                    channelName,
+                    channel,
                     userId,
                     messageId,
-                    event.getTwitchChat(),
+                    chat,
                     "Даже не пытайся ))",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
@@ -81,10 +85,10 @@ public class MiraBotCommand extends BotCommandBase
         TwitchBot.LOGGER.info("Filtered model response: {}", filteredResponse);
 
         this.replyToMessage(
-                channelName,
+                channel,
                 userId,
                 messageId,
-                event.getTwitchChat(),
+                chat,
                 filteredResponse
         );
     }

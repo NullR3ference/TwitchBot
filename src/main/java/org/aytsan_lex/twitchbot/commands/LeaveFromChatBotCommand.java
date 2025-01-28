@@ -20,10 +20,7 @@ public class LeaveFromChatBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
-        final String messageId = event.getMessageId().get();
-        final String currentChannelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
 
@@ -33,14 +30,15 @@ public class LeaveFromChatBotCommand extends BotCommandBase
             if ((targetChannelId != null) && !BotConfigManager.instance().isOwner(targetChannelId))
             {
                 super.replyToMessageWithDelay(
-                        currentChannelName,
-                        userId,
-                        messageId,
+                        event.getChannel(),
+                        event.getUser().getId(),
+                        event.getMessageId().get(),
                         chat,
                         "Отключен от: [%s]".formatted(targetChannelName),
                         BotCommandBase.DEFAULT_MESSAGE_DELAY
                 );
                 TwitchBot.instance().leaveFromChat(targetChannelName);
+                TwitchBot.LOGGER.info("Leaved from: [{}]", targetChannelName);
             }
         }
         else
