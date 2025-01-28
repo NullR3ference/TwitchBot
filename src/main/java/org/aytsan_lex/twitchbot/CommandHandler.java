@@ -28,6 +28,7 @@ public class CommandHandler
         READCFG,
         RESTART,
         STATUS,
+        UPDATEFILTERS
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
@@ -46,6 +47,7 @@ public class CommandHandler
     private static final IBotCommand readcfgBotCommand = new ReadcfgBotCommand();
     private static final IBotCommand restartBotCommand = new RestartBotCommand();
     private static final IBotCommand statusBotCommand = new StatusBotCommand();
+    private static final IBotCommand updateFiltersBotCommand = new UpdateFiltersBotCommand();
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
@@ -183,6 +185,7 @@ public class CommandHandler
                 case READCFG -> readcfgBotCommand.execute(event);
                 case RESTART -> restartBotCommand.execute(event);
                 case STATUS -> statusBotCommand.execute(event);
+                case UPDATEFILTERS -> updateFiltersBotCommand.execute(event);
             }
         }
         catch (IllegalArgumentException e)

@@ -17,13 +17,9 @@ import org.slf4j.LoggerFactory;
 
 public class BotConfigManager
 {
-    private final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
+    private static final Path CONFIG_PATH = Path.of(Utils.getCurrentWorkingPath() + "/config");
     private static BotConfigManager botConfigInstance = null;
-    private static final String CURRENT_WORKING_DIR = Path.of("").toAbsolutePath().toString();
-
-    public static final Path LOG_BASE_PATH = Path.of(CURRENT_WORKING_DIR + "/chatlogs");
-    public static final Path CONFIG_PATH = Path.of(CURRENT_WORKING_DIR + "/config");
 
     private final File configFile;
     private BotConfig config;
@@ -35,11 +31,6 @@ public class BotConfigManager
 
         try
         {
-            if (!Files.exists(LOG_BASE_PATH))
-            {
-                Files.createDirectories(LOG_BASE_PATH);
-            }
-
             if (!Files.exists(CONFIG_PATH))
             {
                 Files.createDirectories(CONFIG_PATH);
@@ -202,6 +193,11 @@ public class BotConfigManager
     private void readConfig() throws IOException
     {
         this.config = new Gson().fromJson(new FileReader(this.configFile), BotConfig.class);
+    }
+
+    private void readMiraFilters()
+    {
+
     }
 
     private void checkConfig()

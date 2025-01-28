@@ -22,7 +22,6 @@ public class StatusBotCommand extends BotCommandBase
         if (!(args[0] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
-
         }
 
         final String userName = event.getUser().getName();

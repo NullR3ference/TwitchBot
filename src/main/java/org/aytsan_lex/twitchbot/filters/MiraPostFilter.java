@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+// TODO: Remove this
+
 public class MiraPostFilter
 {
     public static final Pattern URL_PATTERN = Pattern.compile(
@@ -48,8 +50,10 @@ public class MiraPostFilter
             Pattern.compile("([\\W|\\d|\\s]*)negr([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)девственник([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)пидор([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)пидар([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)пидр([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)pidr([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)pidar([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)нацист([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)нацизм([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)фашист([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
@@ -108,6 +112,12 @@ public class MiraPostFilter
             Pattern.compile("([\\W|\\d|\\s]*)3 рейх([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)3-й рейх([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)3й рейх([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)путин([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)зеленский([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)putin([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)zelenskiy([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)zelensky([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+            Pattern.compile("([\\W|\\d|\\s]*)zelensij([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)террор([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
             Pattern.compile("([\\W|\\d|\\s]*)дивиз([\\W|\\d|\\s]*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE)
     ));
