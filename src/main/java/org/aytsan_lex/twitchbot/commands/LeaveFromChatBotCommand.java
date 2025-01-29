@@ -22,12 +22,12 @@ public class LeaveFromChatBotCommand extends BotCommandBase
 
         final String userName = event.getUser().getName();
         final TwitchChat chat = event.getTwitchChat();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             final String targetChannelId = chat.getChannelNameToChannelId().get(targetChannelName);
-            if ((targetChannelId != null) && !BotConfigManager.instance().isOwner(targetChannelId))
+            if ((targetChannelId != null) && !BotConfigManager.isOwner(targetChannelId))
             {
                 super.replyToMessageWithDelay(
                         event.getChannel(),

@@ -3,8 +3,8 @@ package org.aytsan_lex.twitchbot;
 import java.util.HashMap;
 import java.util.Optional;
 import java.time.LocalDateTime;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class IrcChatMessageHandler
 {
@@ -14,11 +14,7 @@ public class IrcChatMessageHandler
         CLEARCHAT
     }
 
-    public IrcChatMessageHandler()
-    {
-    }
-
-    public void handleIrcMessage(IRCMessageEvent event)
+    public static void handleIrcMessage(IRCMessageEvent event)
     {
         final String commandType = event.getCommandType();
 
@@ -38,7 +34,7 @@ public class IrcChatMessageHandler
         }
     }
 
-    private void handlePrivmsgIrcCommand(IRCMessageEvent event)
+    private static void handlePrivmsgIrcCommand(IRCMessageEvent event)
     {
         final EventUser user = event.getUser();
         final Optional<String> optionalMessage = event.getMessage();
@@ -53,10 +49,10 @@ public class IrcChatMessageHandler
 
             if (message.startsWith("%"))
             {
-                if (BotConfigManager.instance().isTimedOutChannel(channelName))
+                if (BotConfigManager.isTimedOutChannel(channelName))
                 {
                     final LocalDateTime currentDateTime = LocalDateTime.now();
-                    final LocalDateTime expiredIn = BotConfigManager.instance().getTimeoutExpiredIn(channelName);
+                    final LocalDateTime expiredIn = BotConfigManager.getTimeoutExpiredIn(channelName);
 
                     if (currentDateTime.isBefore(expiredIn))
                     {
@@ -64,8 +60,8 @@ public class IrcChatMessageHandler
                         return;
                     }
 
-                    BotConfigManager.instance().removeTimedOutChannel(channelName);
-                    BotConfigManager.instance().saveChanges();
+                    BotConfigManager.removeTimedOutChannel(channelName);
+                    BotConfigManager.writeConfig();
                 }
 
                 CommandHandler.handleCommand(message, event);
@@ -73,22 +69,22 @@ public class IrcChatMessageHandler
         }
     }
 
-    private void handleClearchatIrcCommand(IRCMessageEvent event)
+    private static void handleClearchatIrcCommand(IRCMessageEvent event)
     {
         final String rawMessage = event.getRawMessage();
         if (rawMessage.contains("@ban-duration"))
         {
-            final HashMap<String, String> values = this.parseRawMessageForClearchatCommand(rawMessage);
+            final HashMap<String, String> values = parseRawMessageForClearchatCommand(rawMessage);
             final String targetId = values.get("target-id");
 
-            if (BotConfigManager.instance().getConfig().getRunningOnChannelId().equals(targetId))
+            if (BotConfigManager.getConfig().getRunningOnChannelId().equals(targetId))
             {
                 final String channelName = event.getChannel().getName();
                 final int seconds = Integer.parseInt(values.get("ban-duration"));
 
                 final LocalDateTime expiredIn = LocalDateTime.now().plusSeconds(seconds);
-                BotConfigManager.instance().setChannelIsTimedOut(channelName, expiredIn);
-                BotConfigManager.instance().saveChanges();
+                BotConfigManager.setChannelIsTimedOut(channelName, expiredIn);
+                BotConfigManager.writeConfig();
 
                 TwitchBot.LOGGER.warn("You`ve been timed out for {} seconds on channel: '{}'", seconds, channelName);
             }
@@ -96,7 +92,7 @@ public class IrcChatMessageHandler
         }
     }
 
-    private HashMap<String, String> parseRawMessageForClearchatCommand(final String rawMessage)
+    private static HashMap<String, String> parseRawMessageForClearchatCommand(final String rawMessage)
     {
         // TODO: Implement parseRawMessageForClearchatCommand()
         return new HashMap<>();

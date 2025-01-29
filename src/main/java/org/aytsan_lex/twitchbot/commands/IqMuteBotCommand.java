@@ -21,12 +21,12 @@ public class IqMuteBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfigManager.instance().setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
-            BotConfigManager.instance().saveChanges();
+            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
+            BotConfigManager.writeConfig();
             TwitchBot.LOGGER.info("IQ command muted = {}", isMuted);
         }
         else

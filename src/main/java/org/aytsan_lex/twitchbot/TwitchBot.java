@@ -1,30 +1,24 @@
 package org.aytsan_lex.twitchbot;
 
-import javax.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class TwitchBot
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(TwitchBot.class);
-
-    private final IrcChatMessageHandler ircChatMessageHandler;
+    private static TwitchBot twitchBotInstance = null;
 
     private TwitchClient twitchClient;
     private boolean isInitialized;
     private boolean isRunning;
 
-    private static TwitchBot twitchBotInstance = null;
-
     private TwitchBot()
     {
-        this.ircChatMessageHandler = new IrcChatMessageHandler();
         this.isRunning = false;
     }
 
@@ -34,20 +28,18 @@ public class TwitchBot
         return twitchBotInstance;
     }
 
-    public TwitchBot init(@NotNull String clientId,
-                          @NotNull String accessToken,
-                          @Nullable String refreshToken)
+    public TwitchBot initialize(String clientId, String accessToken)
     {
         if (!this.isInitialized)
         {
-            LOGGER.info("Initializing TwitchBot...");
+            LOGGER.info("Initializing...");
 
             TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
                     .withClientId(clientId)
                     .withEnableChat(true)
                     .withEnableHelix(true)
                     .withTimeout(1000)
-                    .withChatMaxJoinRetries(1)
+                    .withChatMaxJoinRetries(2)
                     .withDefaultEventHandler(SimpleEventHandler.class);
 
             client_builder = client_builder
@@ -55,7 +47,7 @@ public class TwitchBot
                             new OAuth2Credential(
                                     "twitch",
                                     accessToken,
-                                    refreshToken,
+                                    null,
                                     null,
                                     null,
                                     null,
@@ -66,27 +58,44 @@ public class TwitchBot
             this.twitchClient = client_builder.build();
             this.isInitialized = true;
         }
+        else
+        {
+            LOGGER.warn("Cannot initialize, already initialized!");
+        }
         return this;
     }
 
     public void start()
     {
-        LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.instance().getConfig().getChannels());
+        if (!isRunning)
+        {
+            LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.getConfig().getChannels());
 
-        this.twitchClient.getEventManager()
-                .getEventHandler(SimpleEventHandler.class)
-                .onEvent(IRCMessageEvent.class, this.ircChatMessageHandler::handleIrcMessage);
+            this.twitchClient.getEventManager()
+                    .getEventHandler(SimpleEventHandler.class)
+                    .onEvent(IRCMessageEvent.class, IrcChatMessageHandler::handleIrcMessage);
 
-        BotConfigManager.instance().getConfig().getChannels().forEach(this::joinToChat);
-        this.isRunning = true;
+            BotConfigManager.getConfig().getChannels().forEach(this::joinToChat);
+            this.isRunning = true;
 
-        LOGGER.info("Started");
+            LOGGER.info("Started");
+        }
+        else
+        {
+            LOGGER.warn("Cannot start, already running!");
+        }
     }
 
     public void stop()
     {
-        BotConfigManager.instance().getConfig().getChannels().forEach(this::leaveFromChat);
-        this.isRunning = false;
+        if (this.isRunning)
+        {
+            this.isRunning = false;
+        }
+        else
+        {
+            LOGGER.warn("Cannot stop, already stopped!");
+        }
     }
 
     public void joinToChat(String channelName)
@@ -103,10 +112,5 @@ public class TwitchBot
     {
         // TODO: Implement channel exist checking
         return true;
-    }
-
-    public boolean isRunning()
-    {
-        return this.isRunning;
     }
 }

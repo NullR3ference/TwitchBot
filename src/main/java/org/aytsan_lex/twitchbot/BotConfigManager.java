@@ -1,5 +1,6 @@
 package org.aytsan_lex.twitchbot;
 
+import java.util.Objects;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
@@ -8,216 +9,184 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.FormattingStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BotConfigManager
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
     private static final Path CONFIG_PATH = Path.of(Utils.getCurrentWorkingPath() + "/config");
-    private static BotConfigManager botConfigInstance = null;
+    private static final File configFile = new File(CONFIG_PATH + "/config.json");
+    private static BotConfig config = BotConfig.empty();
 
-    private final File configFile;
-    private BotConfig config;
-
-    private BotConfigManager()
+    public static void initialize()
     {
-        this.configFile = new File(CONFIG_PATH + "/config.json");
-        this.config = new BotConfig();
-
+        LOGGER.info("Initializing...");
         try
         {
             if (!Files.exists(CONFIG_PATH))
             {
+                LOGGER.info("Creating filters folder");
                 Files.createDirectories(CONFIG_PATH);
             }
 
-            if (!this.configFile.exists())
+            if (!configFile.exists())
             {
-                LOGGER.error("Config file is empty or does`nt exists. Creating new config file");
-                this.configFile.createNewFile();
-                this.writeConfigTemplate();
-                System.exit(1);
-            }
-            else
-            {
-                this.readConfig();
-                this.checkConfig();
+                LOGGER.warn("Config file does`nt exists, creating new, config will be EMPTY!");
+                configFile.createNewFile();
+                writeConfigTemplate();
             }
         }
         catch (Exception e)
         {
-            LOGGER.error("Error: {}", e.getMessage());
-            System.exit(1);
+            LOGGER.error("Initialization failed: {}", e.getMessage());
         }
     }
 
-    public static synchronized BotConfigManager instance()
+    public static void readConfig()
     {
-        if (botConfigInstance == null) { botConfigInstance = new BotConfigManager(); }
-        return botConfigInstance;
-    }
-
-    public BotConfig getConfig()
-    {
-        return this.config;
-    }
-
-    public int getPermissionLevel(String name)
-    {
-        if (isOwner(name)) { return 777; }
-        if (this.config.getPermissions().containsKey(name)) { return this.config.getPermissions().get(name); }
-        return 0;
-    }
-
-    public void setPermissionLevel(String userId, int level)
-    {
-        if (level == 0)
-        {
-            this.config.getOwners().removeIf(id -> Objects.equals(id, userId));
-            this.config.getPermissions().remove(userId);
-        }
-        else if (level >= 100)
-        {
-            if (!this.config.getOwners().contains(userId)) { this.config.getOwners().add(userId); }
-            this.config.getPermissions().remove(userId);
-        }
-        else
-        {
-            this.config.getPermissions().put(userId, level);
-            this.config.getOwners().removeIf(id -> Objects.equals(id, userId));
-        }
-    }
-
-    public boolean isOwner(String userId)
-    {
-        return this.config.getOwners().contains(userId);
-    }
-
-    public boolean addChannel(String channelName)
-    {
-        if (!this.config.getChannels().contains(channelName))
-        {
-            this.config.getChannels().add(channelName);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean removeChannel(String channelName)
-    {
-        final int index = this.config.getChannels().indexOf(channelName);
-        if (index != -1) { this.config.getChannels().remove(index); }
-        return index != -1;
-    }
-
-    public boolean commandIsMuted(String cmd)
-    {
-        return this.config.getMutedCommands().contains(cmd);
-    }
-
-    public boolean isTimedOutChannel(String channelName)
-    {
-        return this.config.getTimedOutOnChannels().containsKey(channelName);
-    }
-
-    public LocalDateTime getTimeoutExpiredIn(String channelName)
-    {
-        return LocalDateTime.parse(
-                this.config.getTimedOutOnChannels().get(channelName),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
-        );
-    }
-
-    public void removeTimedOutChannel(String channelName)
-    {
-        this.config.getTimedOutOnChannels().remove(channelName);
-    }
-
-    public void setChannelIsTimedOut(String channelName, LocalDateTime expiredIn)
-    {
-        this.config.getTimedOutOnChannels().put(
-                channelName,
-                expiredIn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
-        );
-    }
-
-    public void setCommandIsMuted(String cmd, boolean isMuted)
-    {
-        if (isMuted)
-        {
-            if (!this.config.getMutedCommands().contains(cmd))
-            {
-                this.config.getMutedCommands().add(cmd);
-            }
-        }
-        else
-        {
-            this.config.getMutedCommands().removeIf(c -> Objects.equals(c, cmd));
-        }
-    }
-
-    public void saveChanges()
-    {
-        final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
-        final String jsonData = gson.toJson(this.config);
-
         try
         {
-            final FileWriter fileWriter = new FileWriter(this.configFile);
+            config = new Gson().fromJson(new FileReader(configFile), BotConfig.class);
+        }
+        catch (IOException e)
+        {
+            LOGGER.error("Failed to read config from file: {}", e.getMessage());
+        }
+    }
+
+    public static void writeConfig()
+    {
+        try
+        {
+            final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
+            final String jsonData = gson.toJson(config);
+            final FileWriter fileWriter = new FileWriter(configFile);
+
             fileWriter.write(jsonData);
             fileWriter.close();
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to save config: {}", e.getMessage());
+            LOGGER.error("Failed to write config: {}", e.getMessage());
         }
     }
 
-    public void updateConfig()
+    public static boolean credentialsIsEmpty()
+    {
+        final String clientId = config.getClientId();
+        final String accessToken = config.getAccessToken();
+        if (clientId == null || accessToken == null) { return false; }
+        return clientId.isEmpty() || accessToken.isEmpty();
+    }
+
+    public static BotConfig getConfig()
+    {
+        return config;
+    }
+
+    public static int getPermissionLevel(String name)
+    {
+        if (isOwner(name)) { return 777; }
+        if (config.getPermissions().containsKey(name)) { return config.getPermissions().get(name); }
+        return 0;
+    }
+
+    public static void setPermissionLevel(String userId, int level)
+    {
+        if (level == 0)
+        {
+            config.getOwners().removeIf(id -> Objects.equals(id, userId));
+            config.getPermissions().remove(userId);
+        }
+        else if (level >= 100)
+        {
+            if (!config.getOwners().contains(userId)) { config.getOwners().add(userId); }
+            config.getPermissions().remove(userId);
+        }
+        else
+        {
+            config.getPermissions().put(userId, level);
+            config.getOwners().removeIf(id -> Objects.equals(id, userId));
+        }
+    }
+
+    public static boolean isOwner(String userId)
+    {
+        return config.getOwners().contains(userId);
+    }
+
+    public static boolean addChannel(String channelName)
+    {
+        if (!config.getChannels().contains(channelName))
+        {
+            config.getChannels().add(channelName);
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeChannel(String channelName)
+    {
+        final int index = config.getChannels().indexOf(channelName);
+        if (index != -1) { config.getChannels().remove(index); }
+        return index != -1;
+    }
+
+    public static boolean commandIsMuted(String cmd)
+    {
+        return config.getMutedCommands().contains(cmd);
+    }
+
+    public static boolean isTimedOutChannel(String channelName)
+    {
+        return config.getTimedOutOnChannels().containsKey(channelName);
+    }
+
+    public static LocalDateTime getTimeoutExpiredIn(String channelName)
+    {
+        return LocalDateTime.parse(
+                config.getTimedOutOnChannels().get(channelName),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        );
+    }
+
+    public static void removeTimedOutChannel(String channelName)
+    {
+        config.getTimedOutOnChannels().remove(channelName);
+    }
+
+    public static void setChannelIsTimedOut(String channelName, LocalDateTime expiredIn)
+    {
+        config.getTimedOutOnChannels().put(
+                channelName,
+                expiredIn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+        );
+    }
+
+    public static void setCommandIsMuted(String cmd, boolean isMuted)
+    {
+        if (isMuted)
+        {
+            if (!config.getMutedCommands().contains(cmd))
+            {
+                config.getMutedCommands().add(cmd);
+            }
+        }
+        else
+        {
+            config.getMutedCommands().removeIf(c -> Objects.equals(c, cmd));
+        }
+    }
+
+    private static void writeConfigTemplate()
     {
         try
         {
-            this.readConfig();
-        }
-        catch (IOException e)
-        {
-            LOGGER.error("Failed to update config: {}", e.getMessage());
-        }
-    }
-
-    private void readConfig() throws IOException
-    {
-        this.config = new Gson().fromJson(new FileReader(this.configFile), BotConfig.class);
-    }
-
-    private void readMiraFilters()
-    {
-
-    }
-
-    private void checkConfig()
-    {
-        if (this.config.getCredentials().isEmpty())
-        {
-            LOGGER.error("Credentials are empty!");
-            System.exit(1);
-        }
-
-        if (this.config.getRunningOnChannelId().isEmpty())
-        {
-            LOGGER.error("runningOnChannelId is empty!");
-            System.exit(1);
-        }
-    }
-
-    private void writeConfigTemplate() throws IOException
-    {
-        final String template = """
+            final String template = """
                 {
                   "credentials": {
                       "clientId": "",
@@ -236,8 +205,13 @@ public class BotConfigManager
                 }
                 """;
 
-        FileWriter fileWriter = new FileWriter(this.configFile);
-        fileWriter.write(template);
-        fileWriter.close();
+            FileWriter fileWriter = new FileWriter(configFile);
+            fileWriter.write(template);
+            fileWriter.close();
+        }
+        catch (IOException e)
+        {
+            LOGGER.error("Failed to write config template: {}", e.getMessage());
+        }
     }
 }

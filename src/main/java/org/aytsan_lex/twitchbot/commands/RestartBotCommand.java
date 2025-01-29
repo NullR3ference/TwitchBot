@@ -20,7 +20,7 @@ public class RestartBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {

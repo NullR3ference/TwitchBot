@@ -1,20 +1,18 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.aytsan_lex.twitchbot.FiltersManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.ollama.OllamaModels;
-import org.aytsan_lex.twitchbot.filters.MiraPreFilter;
-import org.aytsan_lex.twitchbot.filters.MiraPostFilter;
+import org.aytsan_lex.twitchbot.OllamaModelsManager;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.common.events.domain.EventChannel;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class MiraBotCommand extends BotCommandBase
 {
-    private static final int MAX_TWITCH_MESSAGE_LEN = 300;
-
     public MiraBotCommand()
     {
         super(1);
@@ -35,11 +33,11 @@ public class MiraBotCommand extends BotCommandBase
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final TwitchChat chat = event.getTwitchChat();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
-        if (!OllamaModels.GEMMA2_MIRA.checkConnection())
+        if (!OllamaModelsManager.checkConnection())
         {
-            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.instance().getConfig().getOllamaHost());
+            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.getConfig().getOllamaHost());
             super.replyToMessageWithDelay(
                     channel,
                     userId,
@@ -77,7 +75,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        final String response = OllamaModels.GEMMA2_MIRA.chatWithModel(userName, message).trim();
+        final String response = OllamaModelsManager.getMiraModel().chatWithModel(userName, message).trim();
         final String filteredResponse = truncateResponseLength(miraPostFilter(response));
 
         TwitchBot.LOGGER.info("Raw model response: {}", response);
@@ -94,8 +92,9 @@ public class MiraBotCommand extends BotCommandBase
 
     private boolean miraPreFilter(final String messageText)
     {
-        // TODO: Replace pre-filter with MiraFilters
-        for (final Pattern pattern : MiraPreFilter.VALUES)
+        final ArrayList<Pattern> filters = FiltersManager.getMiraFilters().getPreFilter();
+
+        for (final Pattern pattern : filters)
         {
             if (pattern.matcher(messageText).find())
             {
@@ -103,16 +102,16 @@ public class MiraBotCommand extends BotCommandBase
                 return false;
             }
         }
+
         return true;
     }
 
     private String miraPostFilter(final String response)
     {
-        // TODO: Replace post-filter with MiraFilters
+        String filtered = response;
+        final ArrayList<Pattern> filters = FiltersManager.getMiraFilters().getPostFilter();
 
-        String filtered = MiraPostFilter.URL_PATTERN.matcher(response).replaceAll("**");
-
-        for (final Pattern pattern : MiraPostFilter.VALUES)
+        for (final Pattern pattern : filters)
         {
             final Matcher matcher = pattern.matcher(filtered);
             if (matcher.find())
@@ -127,8 +126,8 @@ public class MiraBotCommand extends BotCommandBase
 
     private String truncateResponseLength(final String response)
     {
-        // TODO: Replace length filter with MiraFilters
-        if (response.length() <= MAX_TWITCH_MESSAGE_LEN) { return response; }
-        return response.substring(0, MAX_TWITCH_MESSAGE_LEN - 4).concat("...");
+        final int len = FiltersManager.getMiraFilters().getMessageLengthFilter();
+        if (response.length() <= len) { return response; }
+        return response.substring(0, len - 4).concat("...");
     }
 }

@@ -2,9 +2,9 @@ package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.aytsan_lex.twitchbot.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.aytsan_lex.twitchbot.commands.*;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class CommandHandler
@@ -68,7 +68,7 @@ public class CommandHandler
             {
                 case IQ ->
                 {
-                    if (!BotConfigManager.instance().commandIsMuted(cmd))
+                    if (!BotConfigManager.commandIsMuted(cmd))
                     {
                         final String messageText = String.join(" ", cmdArgs);
                         iqBotCommand.execute(messageText, event);
@@ -81,7 +81,7 @@ public class CommandHandler
 
                 case BEN ->
                 {
-                    if (!BotConfigManager.instance().commandIsMuted(cmd))
+                    if (!BotConfigManager.commandIsMuted(cmd))
                     {
                         final String messageText = String.join(" ", cmdArgs);
                         benBotCommand.execute(messageText, event);
@@ -94,7 +94,7 @@ public class CommandHandler
 
                 case MIRA ->
                 {
-                    if (!BotConfigManager.instance().commandIsMuted(cmd))
+                    if (!BotConfigManager.commandIsMuted(cmd))
                     {
                         if (!cmdArgs.isEmpty())
                         {

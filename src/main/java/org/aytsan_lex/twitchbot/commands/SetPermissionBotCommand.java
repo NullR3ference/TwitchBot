@@ -22,12 +22,12 @@ public class SetPermissionBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfigManager.instance().setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
-            BotConfigManager.instance().saveChanges();
+            BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
+            BotConfigManager.writeConfig();
 
             super.replyToMessageWithDelay(
                     event.getChannel(),

@@ -20,16 +20,16 @@ public class AddChannelBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             if (TwitchBot.instance().channelExists(targetChannelName))
             {
-                if (BotConfigManager.instance().addChannel(targetChannelName))
+                if (BotConfigManager.addChannel(targetChannelName))
                 {
                     TwitchBot.instance().joinToChat(targetChannelName);
-                    BotConfigManager.instance().saveChanges();
+                    BotConfigManager.writeConfig();
 
                     super.replyToMessageWithDelay(
                             event.getChannel(),

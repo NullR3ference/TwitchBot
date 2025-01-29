@@ -1,84 +1,110 @@
 package org.aytsan_lex.twitchbot;
 
-import org.aytsan_lex.twitchbot.filters.MiraFilters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import org.aytsan_lex.twitchbot.filters.MiraFilters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
 
 public class FiltersManager
 {
+    private static class MiraFiltersAdapter
+    {
+        public ArrayList<String> preFilterValues;
+        public ArrayList<String> postFilterValues;
+        public int lengthFilterValue;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FiltersManager.class);
-    public static Path FILTERS_PATH = Path.of(Utils.getCurrentWorkingPath() + "/filters");
-    private static FiltersManager filtersManagerInstance = null;
+    private static final Path FILTERS_PATH = Path.of(Utils.getCurrentWorkingPath() + "/filters");
+    private static final File miraFiltersFile = new File(FILTERS_PATH + "/mira_filters.json");
+    private static MiraFilters miraFilters = MiraFilters.empty();
 
-    private final File miraFiltersFile;
-    private MiraFilters miraFilters;
-
-    private FiltersManager()
+    public static void initialize()
     {
-        this.miraFiltersFile = new File(FILTERS_PATH + "/mira_filters.json");
-        this.readFilters();
-    }
-
-    public static synchronized FiltersManager instance()
-    {
-        if (filtersManagerInstance == null) { filtersManagerInstance = new FiltersManager(); }
-        return filtersManagerInstance;
-    }
-
-    public MiraFilters getMiraFilters()
-    {
-        return this.miraFilters;
-    }
-
-    public void readFilters()
-    {
+        LOGGER.info("Initializing...");
         try
         {
             if (!Files.exists(FILTERS_PATH))
             {
+                LOGGER.info("Creating filters folder");
                 Files.createDirectories(FILTERS_PATH);
             }
 
-            if (!this.miraFiltersFile.exists())
+            if (!miraFiltersFile.exists())
             {
-                this.miraFilters = MiraFilters.empty();
-                this.miraFiltersFile.createNewFile();
+                miraFilters = MiraFilters.empty();
+                miraFiltersFile.createNewFile();
+                writeFiltersTemplate();
                 LOGGER.warn("Mira filters file does`nt exists, creating new, filters will be EMPTY");
             }
-            else
-            {
-                final ArrayList<String> preFilterValues = new ArrayList<>();
-                final ArrayList<String> postFilterValues = new ArrayList<>();
-                int lengthFilterValue = 0;
-
-                // TODO: Implement readFilters(): read Mira filters from json to arrays
-
-                if (preFilterValues.isEmpty())
-                {
-                    LOGGER.warn("Mira pre-filter is empty");
-                }
-
-                if (postFilterValues.isEmpty())
-                {
-                    LOGGER.warn("Mira post-filter is empty");
-                }
-
-                this.miraFilters = MiraFilters.of(preFilterValues, postFilterValues, lengthFilterValue);
-            }
         }
-        catch (IOException ignored)
-        { }
+        catch (IOException e)
+        {
+            LOGGER.error("Initialization failed: {}", e.getMessage());
+        }
     }
 
-    private void writeFiltersTemplate()
+    public static void readFilters()
     {
-        // TODO: Implement writeFiltersTemplate() for FiltersManager
-        // Write an template json object to file
+        try
+        {
+            final Gson gson = new Gson();
+            final MiraFiltersAdapter miraFiltersAdapter =
+                    gson.fromJson(new FileReader(miraFiltersFile), MiraFiltersAdapter.class);
+
+            if (miraFiltersAdapter.preFilterValues.isEmpty())
+            {
+                LOGGER.warn("Mira pre-filter is empty");
+            }
+
+            if (miraFiltersAdapter.postFilterValues.isEmpty())
+            {
+                LOGGER.warn("Mira post-filter is empty");
+            }
+
+            miraFilters = MiraFilters.of(
+                    miraFiltersAdapter.preFilterValues,
+                    miraFiltersAdapter.postFilterValues,
+                    miraFiltersAdapter.lengthFilterValue
+            );
+        }
+        catch (IOException e)
+        {
+            LOGGER.error("Failed to read filters from file: {}", e.getMessage());
+        }
+    }
+
+    public static MiraFilters getMiraFilters()
+    {
+        return miraFilters;
+    }
+
+    private static void writeFiltersTemplate()
+    {
+        try
+        {
+            final String template = """
+                {
+                  "preFilterValues": [],
+                  "postFilterValues": [],
+                  "lengthFilterValue": 0
+                }
+                """;
+
+            FileWriter fileWriter = new FileWriter(miraFiltersFile);
+            fileWriter.write(template);
+            fileWriter.close();
+        }
+        catch (IOException e)
+        {
+            LOGGER.error("Failed to write filters template: {}", e.getMessage());
+        }
     }
 }

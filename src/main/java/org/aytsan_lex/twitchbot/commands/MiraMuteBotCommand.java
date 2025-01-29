@@ -21,12 +21,12 @@ public class MiraMuteBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.instance().getPermissionLevel(userName);
+        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfigManager.instance().setCommandIsMuted(CommandHandler.Commands.MIRA.name(), isMuted);
-            BotConfigManager.instance().saveChanges();
+            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), isMuted);
+            BotConfigManager.writeConfig();
             TwitchBot.LOGGER.info("Mira command muted = {}", isMuted);
         }
         else

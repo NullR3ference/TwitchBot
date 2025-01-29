@@ -5,34 +5,7 @@ import java.util.HashMap;
 
 public class BotConfig
 {
-    public static class Credentials
-    {
-        private String clientId;
-        private String accessToken;
-        private String refreshToken;
-
-        public boolean isEmpty()
-        {
-            return clientId.isEmpty() || accessToken.isEmpty() || refreshToken.isEmpty();
-        }
-
-        public String getClientId()
-        {
-            return this.clientId;
-        }
-
-        public String getAccessToken()
-        {
-            return this.accessToken;
-        }
-
-        public String getRefreshToken()
-        {
-            return this.refreshToken;
-        }
-    }
-
-    private Credentials credentials;
+    private HashMap<String, String> credentials;
     private String runningOnChannelId;
     private ArrayList<String> channels;
     private HashMap<String, String> timedOutOnChannels;
@@ -43,9 +16,24 @@ public class BotConfig
     private String miraModelName;
     private String milaModelName;
 
-    public Credentials getCredentials()
+    public static BotConfig empty()
     {
-        return this.credentials;
+        return new BotConfig();
+    }
+
+    public String getClientId()
+    {
+        return this.credentials.get("clientId");
+    }
+
+    public String getAccessToken()
+    {
+        return this.credentials.get("accessToken");
+    }
+
+    public String getRefreshToken()
+    {
+        return this.credentials.get("refreshToken");
     }
 
     public String getRunningOnChannelId()
