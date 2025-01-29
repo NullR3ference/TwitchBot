@@ -14,6 +14,9 @@ public class CommandHandler
         IQ,
         BEN,
         MIRA,
+        STARTVOTE,
+        STOPVOTE,
+        VOTE,
 
         JOIN,
         LEAVE,
@@ -28,7 +31,9 @@ public class CommandHandler
         READCFG,
         RESTART,
         STATUS,
-        UPDATEFILTERS
+        UPDATEFILTERS,
+        FILTERSINFO,
+        VOTEINFO
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
@@ -36,6 +41,9 @@ public class CommandHandler
     private static final IBotCommand iqBotCommand = new IqBotCommand();
     private static final IBotCommand benBotCommand = new BenBotCommand();
     private static final IBotCommand miraBotCommand = new MiraBotCommand();
+    private static final IBotCommand startVoteBotCommand = new StartVoteBotCommand();
+    private static final IBotCommand stopVoteBotCommand = new CancelVoteBotCommand();
+    private static final IBotCommand voteBotCommand = new VoteBotCommand();
     private static final IBotCommand joinToChatBotCommand = new JoinToChatBotCommand();
     private static final IBotCommand leaveFromChatBotCommand = new LeaveFromChatBotCommand();
     private static final IBotCommand addChannelBotCommand = new AddChannelBotCommand();
@@ -48,6 +56,8 @@ public class CommandHandler
     private static final IBotCommand restartBotCommand = new RestartBotCommand();
     private static final IBotCommand statusBotCommand = new StatusBotCommand();
     private static final IBotCommand updateFiltersBotCommand = new UpdateFiltersBotCommand();
+    private static final IBotCommand filterInfoBotCommand = new FiltersInfoBotCommand();
+    private static final IBotCommand voteInfoBotCommand = new VoteInfoBotCommand();
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
@@ -106,6 +116,27 @@ public class CommandHandler
                     {
                         LOGGER.warn("Mira command is muted");
                     }
+                }
+
+                case STARTVOTE ->
+                {
+                    if (cmdArgs.size() >= 2)
+                    {
+                        final int target = Integer.parseInt(cmdArgs.get(0));
+                        cmdArgs.remove(0);
+                        final String content = String.join(" ", cmdArgs);
+                        startVoteBotCommand.execute(event, target, content);
+                    }
+                }
+
+                case STOPVOTE ->
+                {
+                    stopVoteBotCommand.execute(event);
+                }
+
+                case VOTE ->
+                {
+                    voteBotCommand.execute(event);
                 }
 
                 case JOIN ->
@@ -186,6 +217,8 @@ public class CommandHandler
                 case RESTART -> restartBotCommand.execute(event);
                 case STATUS -> statusBotCommand.execute(event);
                 case UPDATEFILTERS -> updateFiltersBotCommand.execute(event);
+                case FILTERSINFO -> filterInfoBotCommand.execute(event);
+                case VOTEINFO -> voteInfoBotCommand.execute(event);
             }
         }
         catch (IllegalArgumentException e)
