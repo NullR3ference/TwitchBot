@@ -221,7 +221,7 @@ public class CommandHandler
 
                 case VOTEINFO ->
                 {
-                    if (cmdArgs.size() >= 2)
+                    if (!cmdArgs.isEmpty())
                     {
                         final String subCommand = cmdArgs.get(0).trim();
                         voteInfoBotCommand.execute(event, subCommand);
