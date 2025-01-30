@@ -9,7 +9,7 @@ public class RemoveChannelBotCommand extends BotCommandBase
 {
     public RemoveChannelBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

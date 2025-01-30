@@ -8,7 +8,7 @@ public class SetPermissionBotCommand extends BotCommandBase
 {
     public SetPermissionBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override
@@ -23,22 +23,48 @@ public class SetPermissionBotCommand extends BotCommandBase
 
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int targeUserPermissionLevel = BotConfigManager.getPermissionLevel(targetUserName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
-            BotConfigManager.writeConfig();
+            if (permissionLevel < targeUserPermissionLevel)
+            {
+                super.replyToMessageWithDelay(
+                        event.getChannel(),
+                        event.getUser().getId(),
+                        event.getMessageId().get(),
+                        event.getTwitchChat(),
+                        "Нельзя изменить уровень доступа для пользователя с уровнем выше твоего: %d против %d"
+                                .formatted(permissionLevel, targeUserPermissionLevel),
+                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                );
 
-            super.replyToMessageWithDelay(
-                    event.getChannel(),
-                    event.getUser().getId(),
-                    event.getMessageId().get(),
-                    event.getTwitchChat(),
-                    "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
+                TwitchBot.LOGGER.warn(
+                        "{}: cannot set permission for '{}' with higher level then you: {} vs {}",
+                        userName,
+                        targetUserName,
+                        permissionLevel,
+                        targeUserPermissionLevel
+                );
+                return;
+            }
 
-            TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
+            if (!targetUserName.toLowerCase().equals(userName))
+            {
+                BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
+                BotConfigManager.writeConfig();
+
+                super.replyToMessageWithDelay(
+                        event.getChannel(),
+                        event.getUser().getId(),
+                        event.getMessageId().get(),
+                        event.getTwitchChat(),
+                        "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
+                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                );
+
+                TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
+            }
         }
         else
         {

@@ -9,7 +9,7 @@ public class UpdateFiltersBotCommand extends BotCommandBase
 {
     public UpdateFiltersBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

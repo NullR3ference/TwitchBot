@@ -9,7 +9,7 @@ public class BenMuteBotCommand extends BotCommandBase
 {
     public BenMuteBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

@@ -13,7 +13,7 @@ public class StatusBotCommand extends BotCommandBase
 {
     public StatusBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

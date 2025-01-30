@@ -9,7 +9,7 @@ public class MiraMuteBotCommand extends BotCommandBase
 {
     public MiraMuteBotCommand()
     {
-        super(4);
+        super();
     }
 
     @Override

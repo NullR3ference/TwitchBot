@@ -8,7 +8,7 @@ public class RestartBotCommand extends BotCommandBase
 {
     public RestartBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

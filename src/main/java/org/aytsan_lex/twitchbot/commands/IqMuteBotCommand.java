@@ -9,7 +9,7 @@ public class IqMuteBotCommand extends BotCommandBase
 {
     public IqMuteBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

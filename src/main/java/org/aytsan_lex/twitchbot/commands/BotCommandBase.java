@@ -3,16 +3,14 @@ package org.aytsan_lex.twitchbot.commands;
 import java.util.concurrent.TimeUnit;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.common.events.domain.EventChannel;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 
 public class BotCommandBase implements IBotCommand
 {
     public static final int DEFAULT_MESSAGE_DELAY = 1100; // ms
 
-    private final int requiredPermissionLevel;
-
-    public BotCommandBase(int level)
+    public BotCommandBase()
     {
-        this.requiredPermissionLevel = level;
     }
 
     @Override
@@ -23,7 +21,7 @@ public class BotCommandBase implements IBotCommand
     @Override
     public int getRequiredPermissionLevel()
     {
-        return this.requiredPermissionLevel;
+        return BotConfigManager.getCommandRequiredPermissionLevel(this.getClass().getSimpleName());
     }
 
     public void replyToMessage(EventChannel channel,

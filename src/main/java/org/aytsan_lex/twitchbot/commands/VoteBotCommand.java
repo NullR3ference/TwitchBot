@@ -7,7 +7,7 @@ public class VoteBotCommand extends BotCommandBase
 {
     public VoteBotCommand()
     {
-        super(0);
+        super();
     }
 
     @Override
@@ -22,6 +22,7 @@ public class VoteBotCommand extends BotCommandBase
         {
             final BotGlobalState.VotingContext context = BotGlobalState.getCurrentVotingContext();
             context.addVote();
+
             if (context.isComplete())
             {
                 super.replyToMessageWithDelay(
@@ -29,7 +30,7 @@ public class VoteBotCommand extends BotCommandBase
                         event.getUser().getId(),
                         event.getMessageId().get(),
                         event.getTwitchChat(),
-                        "Голосование '%s' - завершено! Собрано голосов: %d из %d".formatted(
+                        "Голосование '%s' - ЗАВЕРШЕНО! Голосов: %d из %d".formatted(
                                 context.getContent(),
                                 context.getCurrentVotes(),
                                 context.getTargetVotes()
@@ -45,7 +46,7 @@ public class VoteBotCommand extends BotCommandBase
                         event.getUser().getId(),
                         event.getMessageId().get(),
                         event.getTwitchChat(),
-                        "Голосование '%s'. Собрано голосов: %d из %d".formatted(
+                        "Голосование '%s'. Голосов: %d из %d".formatted(
                                 context.getContent(),
                                 context.getCurrentVotes(),
                                 context.getTargetVotes()
@@ -54,14 +55,20 @@ public class VoteBotCommand extends BotCommandBase
                 );
             }
         }
-        else
+        else if (BotGlobalState.hasRecentVotingContext())
         {
+            final BotGlobalState.VotingContext context = BotGlobalState.getRecentVotingContext();
+
             super.replyToMessageWithDelay(
                     event.getChannel(),
                     event.getUser().getId(),
                     event.getMessageId().get(),
                     event.getTwitchChat(),
-                    "Нет активного голосования",
+                    "Голосование '%s' - ЗАВЕРШЕНО! Голосов: %d из %d".formatted(
+                            context.getContent(),
+                            context.getCurrentVotes(),
+                            context.getTargetVotes()
+                    ),
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
         }

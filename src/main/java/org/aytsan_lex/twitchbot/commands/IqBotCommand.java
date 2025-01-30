@@ -7,7 +7,7 @@ public class IqBotCommand extends BotCommandBase
 {
     public IqBotCommand()
     {
-        super(0);
+        super();
     }
 
     @Override

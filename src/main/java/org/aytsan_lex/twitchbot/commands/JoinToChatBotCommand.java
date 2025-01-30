@@ -8,7 +8,7 @@ public class JoinToChatBotCommand extends BotCommandBase
 {
     public JoinToChatBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

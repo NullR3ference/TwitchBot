@@ -16,7 +16,7 @@ public class MiraBotCommand extends BotCommandBase
 {
     public MiraBotCommand()
     {
-        super(1);
+        super();
     }
 
     @Override
@@ -89,7 +89,10 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        final String response = OllamaModelsManager.getMiraModel().chatWithModel(userName, message).trim();
+        final String response = OllamaModelsManager.getMiraModel()
+                .chatWithModel(userName, message)
+                .trim();
+
         final String filteredResponse = truncateResponseLength(miraPostFilter(response));
 
         TwitchBot.LOGGER.info("Raw model response: {}", response);

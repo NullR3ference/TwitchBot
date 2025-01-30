@@ -9,7 +9,7 @@ public class CancelVoteBotCommand extends BotCommandBase
 {
     public CancelVoteBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

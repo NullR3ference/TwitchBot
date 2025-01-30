@@ -22,7 +22,7 @@ public class MiraFilters
         this.preFilter = new ArrayList<>(preFilter.size());
         this.postFilter = new ArrayList<>(postFilter.size());
 
-        if (lenFilter <= 0)
+        if (lenFilter > 0)
         {
             this.messageLengthFilter = lenFilter;
         }

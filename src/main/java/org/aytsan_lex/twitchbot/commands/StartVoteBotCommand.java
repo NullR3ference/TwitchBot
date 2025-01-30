@@ -9,7 +9,7 @@ public class StartVoteBotCommand extends BotCommandBase
 {
     public StartVoteBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

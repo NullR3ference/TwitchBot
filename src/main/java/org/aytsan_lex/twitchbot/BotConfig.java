@@ -11,6 +11,7 @@ public class BotConfig
     private HashMap<String, String> timedOutOnChannels;
     private ArrayList<String> owners;
     private HashMap<String, Integer> permissions;
+    private HashMap<String, Integer> commandPermissionLevels;
     private ArrayList<String> mutedCommands;
     private String ollamaHost;
     private String miraModelName;
@@ -61,6 +62,11 @@ public class BotConfig
         return this.permissions;
     }
 
+    public HashMap<String, Integer> getCommandPermissionLevels()
+    {
+        return this.commandPermissionLevels;
+    }
+
     public ArrayList<String> getMutedCommands()
     {
         return this.mutedCommands;
@@ -81,4 +87,3 @@ public class BotConfig
         return this.milaModelName;
     }
 }
-

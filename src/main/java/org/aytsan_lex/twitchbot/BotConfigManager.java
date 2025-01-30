@@ -102,7 +102,7 @@ public class BotConfigManager
             config.getOwners().removeIf(id -> Objects.equals(id, userId));
             config.getPermissions().remove(userId);
         }
-        else if (level >= 100)
+        else if (level >= 777)
         {
             if (!config.getOwners().contains(userId)) { config.getOwners().add(userId); }
             config.getPermissions().remove(userId);
@@ -182,6 +182,15 @@ public class BotConfigManager
         }
     }
 
+    public static int getCommandRequiredPermissionLevel(String command)
+    {
+        if (config.getCommandPermissionLevels().containsKey(command))
+        {
+            return config.getCommandPermissionLevels().get(command);
+        }
+        return 777;
+    }
+
     private static void writeConfigTemplate()
     {
         try
@@ -198,6 +207,28 @@ public class BotConfigManager
                   "timedOutOnChannels": {},
                   "owners": [],
                   "permissions": {},
+                  "commandPermissionLevels": {
+                    "AddChannelBotCommand": 777,
+                    "BenBotCommand": 0,
+                    "BenMuteBotCommand": 777,
+                    "CancelVoteBotCommand": 777,
+                    "FiltersInfoBotCommand": 777,
+                    "IqBotCommand": 0,
+                    "IqMuteBotCommand": 777,
+                    "JoinToChatBotCommand": 777,
+                    "LeaveFromChatBotCommand": 777,
+                    "MiraBotCommand": 1,
+                    "MiraMuteBotCommand": 777,
+                    "ReadcfgBotCommand": 777,
+                    "RemoveChannelBotCommand": 777,
+                    "RestartBotCommand": 777,
+                    "SetPermissionBotCommand": 777,
+                    "StartVoteBotCommand": 777,
+                    "StatusBotCommand": 777,
+                    "UpdateFiltersBotCommand": 777,
+                    "VoteBotCommand": 0,
+                    "VoteInfoBotCommand": 777
+                  },
                   "mutedCommands": [],
                   "ollamaHost": "http://localhost:11434",
                   "miraModelName": "gemma2-mira",

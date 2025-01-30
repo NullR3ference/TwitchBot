@@ -34,16 +34,19 @@ public class BotGlobalState
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BotGlobalState.class);
     private static VotingContext currentVotingContext = null;
+    private static VotingContext recentVotingContext = null;
 
     public static void startVoting(String content, int target)
     {
         currentVotingContext = new VotingContext(content, target);
+        recentVotingContext = null;
         LOGGER.info("Voting started: {}", currentVotingContext);
     }
 
     public static void stopVoting()
     {
         LOGGER.info("Voting stopped: {}", currentVotingContext);
+        recentVotingContext = currentVotingContext;
         currentVotingContext = null;
     }
 
@@ -55,5 +58,17 @@ public class BotGlobalState
     public static VotingContext getCurrentVotingContext()
     {
         return currentVotingContext;
+    }
+
+    public static boolean hasRecentVotingContext() { return recentVotingContext != null; }
+
+    public static VotingContext getRecentVotingContext()
+    {
+        return recentVotingContext;
+    }
+
+    public static void clearRecentContext()
+    {
+        recentVotingContext = null;
     }
 }

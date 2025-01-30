@@ -9,7 +9,7 @@ public class FiltersInfoBotCommand extends BotCommandBase
 {
     public FiltersInfoBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

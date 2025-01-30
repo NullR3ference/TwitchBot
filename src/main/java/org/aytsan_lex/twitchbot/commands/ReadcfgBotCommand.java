@@ -8,7 +8,7 @@ public class ReadcfgBotCommand extends BotCommandBase
 {
     public ReadcfgBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

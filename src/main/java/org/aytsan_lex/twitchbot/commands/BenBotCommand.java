@@ -7,7 +7,7 @@ public class BenBotCommand extends BotCommandBase
 {
     public BenBotCommand()
     {
-        super(0);
+        super();
     }
 
     @Override

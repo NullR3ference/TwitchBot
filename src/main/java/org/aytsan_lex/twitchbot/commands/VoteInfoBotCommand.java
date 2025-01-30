@@ -1,15 +1,20 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.BotGlobalState;
-import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class VoteInfoBotCommand extends BotCommandBase
 {
+    private enum SubCommand
+    {
+        CLEAR
+    }
+
     public VoteInfoBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override
@@ -18,6 +23,12 @@ public class VoteInfoBotCommand extends BotCommandBase
         if (!(args[0] instanceof IRCMessageEvent event))
         {
             throw new BotCommandError("Invalid args classes");
+        }
+
+        if ((args.length >= 2) && (args[1] instanceof String subCommand))
+        {
+            this.handleSubCommand(event, subCommand.toUpperCase());
+            return;
         }
 
         final String userName = event.getUser().getName();
@@ -53,5 +64,34 @@ public class VoteInfoBotCommand extends BotCommandBase
                 context.getCurrentVotes(),
                 context.getTargetVotes()
         );
+    }
+
+    private void handleSubCommand(IRCMessageEvent event, String cmd)
+    {
+        try
+        {
+            switch (SubCommand.valueOf(cmd))
+            {
+                case CLEAR ->
+                {
+                    if (BotGlobalState.hasRecentVotingContext())
+                    {
+                        BotGlobalState.clearRecentContext();
+                        super.replyToMessageWithDelay(
+                                event.getChannel(),
+                                event.getUser().getId(),
+                                event.getMessageId().get(),
+                                event.getTwitchChat(),
+                                "Предыдущий контекст голосования очищен",
+                                BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        );
+                    }
+                }
+            }
+        }
+        catch (IllegalArgumentException e)
+        {
+            TwitchBot.LOGGER.warn("Invalid (or unknown) sub-command for '{}': '{}'", this.getClass().getSimpleName(), cmd);
+        }
     }
 }

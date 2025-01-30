@@ -8,7 +8,7 @@ public class AddChannelBotCommand extends BotCommandBase
 {
     public AddChannelBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

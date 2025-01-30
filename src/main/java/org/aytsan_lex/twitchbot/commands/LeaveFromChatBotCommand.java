@@ -9,7 +9,7 @@ public class LeaveFromChatBotCommand extends BotCommandBase
 {
     public LeaveFromChatBotCommand()
     {
-        super(777);
+        super();
     }
 
     @Override

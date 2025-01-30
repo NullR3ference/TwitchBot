@@ -218,7 +218,19 @@ public class CommandHandler
                 case STATUS -> statusBotCommand.execute(event);
                 case UPDATEFILTERS -> updateFiltersBotCommand.execute(event);
                 case FILTERSINFO -> filterInfoBotCommand.execute(event);
-                case VOTEINFO -> voteInfoBotCommand.execute(event);
+
+                case VOTEINFO ->
+                {
+                    if (cmdArgs.size() >= 2)
+                    {
+                        final String subCommand = cmdArgs.get(0).trim();
+                        voteInfoBotCommand.execute(event, subCommand);
+                    }
+                    else
+                    {
+                        voteInfoBotCommand.execute(event);
+                    }
+                }
             }
         }
         catch (IllegalArgumentException e)
