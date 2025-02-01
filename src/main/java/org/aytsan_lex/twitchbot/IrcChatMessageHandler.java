@@ -17,10 +17,6 @@ public class IrcChatMessageHandler
     public static void handleIrcMessage(IRCMessageEvent event)
     {
         final String commandType = event.getCommandType();
-
-        // TODO: Handle other types of command type from Helix API
-        // TODO: Handle timeout and other messages from Helix API
-
         try
         {
             switch (IrcCommandType.valueOf(commandType))
@@ -29,9 +25,7 @@ public class IrcChatMessageHandler
                 case CLEARCHAT -> handleClearchatIrcCommand(event);
             }
         }
-        catch (IllegalArgumentException ignored)
-        {
-        }
+        catch (IllegalArgumentException ignored) { }
     }
 
     private static void handlePrivmsgIrcCommand(IRCMessageEvent event)

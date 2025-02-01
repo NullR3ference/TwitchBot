@@ -232,7 +232,7 @@ public class BotConfigManager
                   "mutedCommands": [],
                   "ollamaHost": "http://localhost:11434",
                   "miraModelName": "gemma2-mira",
-                  "milaModelName": ""
+                  "modelMessageTemplate": "'%s' (уровень доступа %d) говорит: '%s'"
                 }
                 """;
 

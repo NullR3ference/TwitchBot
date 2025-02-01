@@ -24,18 +24,18 @@ public class Gemma2MiraOllamaModel implements IOllamaModel
     {
         try
         {
-            final String finalMessage = "'%s' говорит: %s".formatted(userName, message);
-            LOGGER.info("Sending message to model: '{}'", finalMessage);
-
+            LOGGER.info("Sending message to model: '{}'", message);
             final Instant start = Instant.now();
+
             final OllamaChatResult chatResult = OllamaModelsManager.getAPI().chat(
                     this.ollamaChatRequestBuilder
-                            .withMessage(OllamaChatMessageRole.USER, finalMessage)
+                            .withMessage(OllamaChatMessageRole.USER, message)
                             .build()
             );
-            final Instant finish = Instant.now();
 
+            final Instant finish = Instant.now();
             LOGGER.info("Response from model, took: {} ms", Duration.between(start, finish).toMillis());
+
             return chatResult.getResponse();
         }
         catch (Exception e)

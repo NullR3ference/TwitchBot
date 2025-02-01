@@ -89,22 +89,19 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
+        final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate()
+                .formatted(userName, permissionLevel, message);
+
         final String response = OllamaModelsManager.getMiraModel()
-                .chatWithModel(userName, message)
+                .chatWithModel(userName, finalMessage)
                 .trim();
 
-        final String filteredResponse = truncateResponseLength(miraPostFilter(response));
+        final String filteredResponse = miraPostFilter(response);
 
-        TwitchBot.LOGGER.info("Raw model response: {}", response);
-        TwitchBot.LOGGER.info("Filtered model response: {}", filteredResponse);
+        TwitchBot.LOGGER.info("Raw model response:\n{}", response);
+        TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
 
-        this.replyToMessage(
-                channel,
-                userId,
-                messageId,
-                chat,
-                filteredResponse
-        );
+        this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
     }
 
     private boolean miraPreFilter(final String messageText)
@@ -141,10 +138,30 @@ public class MiraBotCommand extends BotCommandBase
         return filtered;
     }
 
-    private String truncateResponseLength(final String response)
+    private void sendBlocks(final EventChannel channel,
+                            final String userId,
+                            final String messageId,
+                            final TwitchChat chat,
+                            final String response)
     {
-        final int len = FiltersManager.getMiraFilters().getMessageLengthFilter();
-        if (response.length() <= len) { return response; }
-        return response.substring(0, len - 4).concat("...");
+        final int blockLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
+        final int responseLength = response.length();
+
+        TwitchBot.LOGGER.info("Sending {} message block(s)...", responseLength / blockLength);
+
+        for (int i = 0; i < responseLength; i += blockLength)
+        {
+            final int index = Math.min(i + blockLength, responseLength);
+            this.replyToMessageWithDelay(
+                    channel,
+                    userId,
+                    messageId,
+                    chat,
+                    response.substring(i, index),
+                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+            );
+        }
+
+        TwitchBot.LOGGER.info("Message block(s) was sent");
     }
 }

@@ -15,7 +15,7 @@ public class BotConfig
     private ArrayList<String> mutedCommands;
     private String ollamaHost;
     private String miraModelName;
-    private String milaModelName;
+    private String modelMessageTemplate;
 
     public static BotConfig empty()
     {
@@ -82,8 +82,8 @@ public class BotConfig
         return this.miraModelName;
     }
 
-    public String getMilaModelName()
+    public String getModelMessageTemplate()
     {
-        return this.milaModelName;
+        return this.modelMessageTemplate;
     }
 }
