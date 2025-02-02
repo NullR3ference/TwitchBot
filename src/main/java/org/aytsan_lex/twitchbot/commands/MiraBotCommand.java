@@ -40,6 +40,12 @@ public class MiraBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
+        if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
+        {
+            TwitchBot.LOGGER.warn("Command will not execute: command is muted!");
+            return;
+        }
+
         final EventChannel channel = event.getChannel();
         final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
@@ -102,6 +108,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
+        BotGlobalState.setMiraCommandRunning(true);
         final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate()
                 .formatted(userName, permissionLevel, message)
                 .trim();
@@ -116,20 +123,27 @@ public class MiraBotCommand extends BotCommandBase
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);
         TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
 
+        if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
+        {
+            TwitchBot.LOGGER.warn("Message will not send: command is muted!");
+            return;
+        }
+
         switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
         {
             case MSG_SINGLE ->
-                super.replyToMessageWithDelay(
-                        channel,
-                        userId,
-                        messageId,
-                        chat,
-                        this.truncateLength(filteredResponse),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
-                );
+                    super.replyToMessageWithDelay(
+                            channel,
+                            userId,
+                            messageId,
+                            chat,
+                            this.truncateLength(filteredResponse),
+                            BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    );
 
             case MSG_BLOCKS -> this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
         }
+        BotGlobalState.setMiraCommandRunning(false);
     }
 
     private boolean miraPreFilter(final String messageText)

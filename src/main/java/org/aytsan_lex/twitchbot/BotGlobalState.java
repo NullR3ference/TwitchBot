@@ -35,6 +35,7 @@ public class BotGlobalState
     private static final Logger LOGGER = LoggerFactory.getLogger(BotGlobalState.class);
     private static VotingContext currentVotingContext = null;
     private static VotingContext recentVotingContext = null;
+    private static boolean miraCommandRunning = false;
 
     public static void startVoting(String content, int target)
     {
@@ -60,7 +61,10 @@ public class BotGlobalState
         return currentVotingContext;
     }
 
-    public static boolean hasRecentVotingContext() { return recentVotingContext != null; }
+    public static boolean hasRecentVotingContext()
+    {
+        return recentVotingContext != null;
+    }
 
     public static VotingContext getRecentVotingContext()
     {
@@ -70,5 +74,15 @@ public class BotGlobalState
     public static void clearRecentContext()
     {
         recentVotingContext = null;
+    }
+
+    public static boolean isMiraCommandRunning()
+    {
+        return miraCommandRunning;
+    }
+
+    public static void setMiraCommandRunning(boolean value)
+    {
+        miraCommandRunning = value;
     }
 }

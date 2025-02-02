@@ -104,17 +104,17 @@ public class CommandHandler
 
                 case MIRA ->
                 {
-                    if (!BotConfigManager.commandIsMuted(cmd))
+                    if (!BotConfigManager.commandIsMuted(cmd) && !BotGlobalState.isMiraCommandRunning())
                     {
                         if (!cmdArgs.isEmpty())
                         {
                             final String messageText = String.join(" ", cmdArgs);
-                            miraBotCommand.execute(messageText, event);
+                            new Thread(() -> miraBotCommand.execute(messageText, event)).start();
                         }
                     }
                     else
                     {
-                        LOGGER.warn("Mira command is muted");
+                        LOGGER.warn("Mira command is muted or already running!");
                     }
                 }
 
