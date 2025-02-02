@@ -103,11 +103,13 @@ public class MiraBotCommand extends BotCommandBase
         }
 
         final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate()
-                .formatted(userName, permissionLevel, message);
+                .formatted(userName, permissionLevel, message)
+                .trim();
 
         final String response = OllamaModelsManager.getMiraModel()
-                .chatWithModel(userName, finalMessage)
-                .trim();
+                .chatWithModel(finalMessage)
+                .trim()
+                .replaceAll("\\s+", " ");
 
         final String filteredResponse = this.splitWideWords(this.miraPostFilter(response));
 
@@ -166,7 +168,7 @@ public class MiraBotCommand extends BotCommandBase
 
     private String splitWideWords(final String response)
     {
-        final int maxWordLength = 12;
+        final int maxWordLength = 15;
         final ArrayList<String> words = this.splitByMaxLen(response, maxWordLength);
         return String.join(" ", words);
     }

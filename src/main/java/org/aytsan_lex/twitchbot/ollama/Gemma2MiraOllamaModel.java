@@ -20,7 +20,7 @@ public class Gemma2MiraOllamaModel implements IOllamaModel
         this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(BotConfigManager.getConfig().getMiraModelName());
     }
 
-    public String chatWithModel(final String userName, final String message)
+    public String chatWithModel(final String message)
     {
         try
         {

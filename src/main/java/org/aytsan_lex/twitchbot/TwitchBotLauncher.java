@@ -1,9 +1,8 @@
 package org.aytsan_lex.twitchbot;
 
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
 
 public class TwitchBotLauncher
 {
