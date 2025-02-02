@@ -67,7 +67,7 @@ public class CommandHandler
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))
         );
 
-        final String cmd = cmdArgs.get(0).trim().toUpperCase();
+        final String cmd = cmdArgs.get(0).trim().replaceAll("\\s+", "").toUpperCase();
         cmdArgs.remove(0);
 
         LOGGER.info("[{}] Command: '{}', args: {}", event.getUser().getName(), cmd, cmdArgs);
@@ -122,7 +122,7 @@ public class CommandHandler
                 {
                     if (cmdArgs.size() >= 2)
                     {
-                        final int target = Integer.parseInt(cmdArgs.get(0));
+                        final int target = Integer.parseInt(cmdArgs.get(0).trim());
                         cmdArgs.remove(0);
                         final String content = String.join(" ", cmdArgs);
                         startVoteBotCommand.execute(event, target, content);
@@ -208,7 +208,7 @@ public class CommandHandler
                     if (cmdArgs.size() >= 2)
                     {
                         final String targetUserName = cmdArgs.get(0).trim();
-                        final int targetPermissionLvl = Integer.parseInt(cmdArgs.get(1));
+                        final int targetPermissionLvl = Integer.parseInt(cmdArgs.get(1).trim());
                         permitBotCommand.execute(targetUserName, targetPermissionLvl, event);
                     }
                 }
