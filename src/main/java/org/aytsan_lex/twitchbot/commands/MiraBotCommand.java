@@ -109,7 +109,7 @@ public class MiraBotCommand extends BotCommandBase
                 .chatWithModel(userName, finalMessage)
                 .trim();
 
-        final String filteredResponse = miraPostFilter(response);
+        final String filteredResponse = this.splitWideWords(this.miraPostFilter(response));
 
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);
         TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
@@ -156,7 +156,7 @@ public class MiraBotCommand extends BotCommandBase
             final Matcher matcher = pattern.matcher(filtered);
             if (matcher.find())
             {
-                filtered = matcher.replaceAll("**");
+                filtered = matcher.replaceAll(" * ");
                 TwitchBot.LOGGER.warn("Mira post-filter triggered: '{}'", matcher.pattern());
             }
         }
@@ -164,11 +164,35 @@ public class MiraBotCommand extends BotCommandBase
         return filtered;
     }
 
+    private String splitWideWords(final String response)
+    {
+        final int maxWordLength = 12;
+        final ArrayList<String> words = this.splitByMaxLen(response, maxWordLength);
+        return String.join(" ", words);
+    }
+
     private String truncateLength(final String response)
     {
         final int maxLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
         if (response.length() <= maxLength) { return response; }
         return response.substring(0, maxLength - 4).concat("...");
+    }
+
+    private ArrayList<String> splitByMaxLen(final String str, final int maxLen)
+    {
+        final String[] words = str.split(" ");
+        final ArrayList<String> result = new ArrayList<>();
+
+        for (final String word : words)
+        {
+            for (int i = 0; i < word.length(); i += maxLen)
+            {
+                final int end = Math.min(i + maxLen, word.length());
+                result.add(word.substring(i, end));
+            }
+        }
+
+        return result;
     }
 
     private void sendBlocks(final EventChannel channel,
