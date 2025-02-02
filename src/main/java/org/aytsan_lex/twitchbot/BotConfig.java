@@ -16,6 +16,7 @@ public class BotConfig
     private String ollamaHost;
     private String miraModelName;
     private String modelMessageTemplate;
+    private int messageSendingMode;
 
     public static BotConfig empty()
     {
@@ -85,5 +86,10 @@ public class BotConfig
     public String getModelMessageTemplate()
     {
         return this.modelMessageTemplate;
+    }
+
+    public int getMessageSendingMode()
+    {
+        return this.messageSendingMode;
     }
 }

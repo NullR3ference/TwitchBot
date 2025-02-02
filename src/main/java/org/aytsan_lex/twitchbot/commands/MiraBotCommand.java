@@ -3,17 +3,30 @@ package org.aytsan_lex.twitchbot.commands;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.BotConfigManager;
-import org.aytsan_lex.twitchbot.OllamaModelsManager;
-import org.aytsan_lex.twitchbot.FiltersManager;
-import org.aytsan_lex.twitchbot.BotGlobalState;
+import org.aytsan_lex.twitchbot.*;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.common.events.domain.EventChannel;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class MiraBotCommand extends BotCommandBase
 {
+    private enum MessageSendingMode
+    {
+        MSG_SINGLE,
+        MSG_BLOCKS;
+
+        public static MessageSendingMode ofIntValue(int val)
+        {
+            switch (val)
+            {
+                case 0 -> { return MSG_SINGLE; }
+                case 1 -> { return MSG_BLOCKS; }
+            }
+
+            return (val < 1) ? MSG_SINGLE : MSG_BLOCKS;
+        }
+    }
+
     public MiraBotCommand()
     {
         super();
@@ -101,7 +114,20 @@ public class MiraBotCommand extends BotCommandBase
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);
         TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
 
-        this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
+        switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
+        {
+            case MSG_SINGLE ->
+                super.replyToMessageWithDelay(
+                        channel,
+                        userId,
+                        messageId,
+                        chat,
+                        this.truncateLength(filteredResponse),
+                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                );
+
+            case MSG_BLOCKS -> this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
+        }
     }
 
     private boolean miraPreFilter(final String messageText)
@@ -136,6 +162,13 @@ public class MiraBotCommand extends BotCommandBase
         }
 
         return filtered;
+    }
+
+    private String truncateLength(final String response)
+    {
+        final int maxLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
+        if (response.length() <= maxLength) { return response; }
+        return response.substring(0, maxLength - 4).concat("...");
     }
 
     private void sendBlocks(final EventChannel channel,
