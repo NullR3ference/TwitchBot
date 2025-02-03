@@ -61,8 +61,6 @@ public class CommandHandler
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
-        // TODO: Handle commands asynchronously
-
         final ArrayList<String> cmdArgs = new ArrayList<>(
                 Arrays.asList(message.replaceFirst("^%", "").split(" "))
         );
@@ -71,175 +69,183 @@ public class CommandHandler
         cmdArgs.remove(0);
 
         LOGGER.info("[{}] Command: '{}', args: {}", event.getUser().getName(), cmd, cmdArgs);
+        handleCommandsInNewThread(event, cmd, cmdArgs);
+    }
 
-        try
-        {
-            switch (CommandHandler.Commands.valueOf(cmd))
+    private static void handleCommandsInNewThread(final IRCMessageEvent event,
+                                                  final String cmd,
+                                                  final ArrayList<String> cmdArgs)
+    {
+        new Thread(() -> {
+            try
             {
-                case IQ ->
+                switch (CommandHandler.Commands.valueOf(cmd))
                 {
-                    if (!BotConfigManager.commandIsMuted(cmd))
+                    case IQ ->
                     {
-                        final String messageText = String.join(" ", cmdArgs);
-                        iqBotCommand.execute(messageText, event);
+                        if (!BotConfigManager.commandIsMuted(cmd))
+                        {
+                            final String messageText = String.join(" ", cmdArgs);
+                            iqBotCommand.execute(messageText, event);
+                        }
+                        else
+                        {
+                            LOGGER.warn("Iq command is muted");
+                        }
                     }
-                    else
-                    {
-                        LOGGER.warn("Iq command is muted");
-                    }
-                }
 
-                case BEN ->
-                {
-                    if (!BotConfigManager.commandIsMuted(cmd))
+                    case BEN ->
                     {
-                        final String messageText = String.join(" ", cmdArgs);
-                        benBotCommand.execute(messageText, event);
+                        if (!BotConfigManager.commandIsMuted(cmd))
+                        {
+                            final String messageText = String.join(" ", cmdArgs);
+                            benBotCommand.execute(messageText, event);
+                        }
+                        else
+                        {
+                            LOGGER.warn("Ben command is muted");
+                        }
                     }
-                    else
-                    {
-                        LOGGER.warn("Ben command is muted");
-                    }
-                }
 
-                case MIRA ->
-                {
-                    if (!BotConfigManager.commandIsMuted(cmd))
+                    case MIRA ->
+                    {
+                        if (!BotConfigManager.commandIsMuted(cmd))
+                        {
+                            if (!cmdArgs.isEmpty())
+                            {
+                                final String messageText = String.join(" ", cmdArgs);
+                                new Thread(() -> miraBotCommand.execute(messageText, event)).start();
+                            }
+                        }
+                        else
+                        {
+                            LOGGER.warn("Mira command is muted");
+                        }
+                    }
+
+                    case STARTVOTE ->
+                    {
+                        if (cmdArgs.size() >= 2)
+                        {
+                            final int target = Integer.parseInt(cmdArgs.get(0).trim());
+                            cmdArgs.remove(0);
+                            final String content = String.join(" ", cmdArgs);
+                            startVoteBotCommand.execute(event, target, content);
+                        }
+                    }
+
+                    case STOPVOTE ->
+                    {
+                        stopVoteBotCommand.execute(event);
+                    }
+
+                    case VOTE ->
+                    {
+                        voteBotCommand.execute(event);
+                    }
+
+                    case JOIN ->
                     {
                         if (!cmdArgs.isEmpty())
                         {
-                            final String messageText = String.join(" ", cmdArgs);
-                            new Thread(() -> miraBotCommand.execute(messageText, event)).start();
+                            final String channelName = cmdArgs.get(0).trim();
+                            joinToChatBotCommand.execute(channelName, event);
                         }
                     }
-                    else
+
+                    case LEAVE ->
                     {
-                        LOGGER.warn("Mira command is muted");
-                    }
-                }
+                        String channelName = "";
 
-                case STARTVOTE ->
-                {
-                    if (cmdArgs.size() >= 2)
-                    {
-                        final int target = Integer.parseInt(cmdArgs.get(0).trim());
-                        cmdArgs.remove(0);
-                        final String content = String.join(" ", cmdArgs);
-                        startVoteBotCommand.execute(event, target, content);
-                    }
-                }
+                        if (!cmdArgs.isEmpty())
+                        {
+                            channelName = cmdArgs.get(0).trim();
+                        }
+                        else
+                        {
+                            channelName = event.getChannel().getName();
+                        }
 
-                case STOPVOTE ->
-                {
-                    stopVoteBotCommand.execute(event);
-                }
-
-                case VOTE ->
-                {
-                    voteBotCommand.execute(event);
-                }
-
-                case JOIN ->
-                {
-                    if (!cmdArgs.isEmpty())
-                    {
-                        final String channelName = cmdArgs.get(0).trim();
-                        joinToChatBotCommand.execute(channelName, event);
-                    }
-                }
-
-                case LEAVE ->
-                {
-                    String channelName = "";
-
-                    if (!cmdArgs.isEmpty())
-                    {
-                        channelName = cmdArgs.get(0).trim();
-                    }
-                    else
-                    {
-                        channelName = event.getChannel().getName();
+                        leaveFromChatBotCommand.execute(channelName, event);
                     }
 
-                    leaveFromChatBotCommand.execute(channelName, event);
-                }
-
-                case ADD ->
-                {
-                    if (!cmdArgs.isEmpty())
+                    case ADD ->
                     {
-                        final String channelName = cmdArgs.get(0).trim();
-                        addChannelBotCommand.execute(channelName, event);
+                        if (!cmdArgs.isEmpty())
+                        {
+                            final String channelName = cmdArgs.get(0).trim();
+                            addChannelBotCommand.execute(channelName, event);
+                        }
                     }
-                }
 
-                case REMOVE ->
-                {
-                    if (!cmdArgs.isEmpty())
+                    case REMOVE ->
                     {
-                        final String channelName = cmdArgs.get(0).trim();
-                        removeChannelBotCommand.execute(channelName, event);
+                        if (!cmdArgs.isEmpty())
+                        {
+                            final String channelName = cmdArgs.get(0).trim();
+                            removeChannelBotCommand.execute(channelName, event);
+                        }
                     }
-                }
 
-                case IQMUTE ->
-                {
-                    boolean isMuted = true;
-                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
-                    iqMuteBotCommand.execute(isMuted, event);
-                }
-
-                case BENMUTE ->
-                {
-                    boolean isMuted = true;
-                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
-                    benMuteBotCommand.execute(isMuted, event);
-                }
-
-                case MIRAMUTE ->
-                {
-                    boolean isMuted = true;
-                    if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
-                    miraMuteBotCommand.execute(isMuted, event);
-                }
-
-                case PERMIT ->
-                {
-                    if (cmdArgs.size() >= 2)
+                    case IQMUTE ->
                     {
-                        final String targetUserName = cmdArgs.get(0).trim();
-                        final int targetPermissionLvl = Integer.parseInt(cmdArgs.get(1).trim());
-                        permitBotCommand.execute(targetUserName, targetPermissionLvl, event);
+                        boolean isMuted = true;
+                        if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
+                        iqMuteBotCommand.execute(isMuted, event);
                     }
-                }
 
-                case READCFG -> readcfgBotCommand.execute(event);
-                case RESTART -> restartBotCommand.execute(event);
-                case STATUS -> statusBotCommand.execute(event);
-                case UPDATEFILTERS -> updateFiltersBotCommand.execute(event);
-                case FILTERSINFO -> filterInfoBotCommand.execute(event);
-
-                case VOTEINFO ->
-                {
-                    if (!cmdArgs.isEmpty())
+                    case BENMUTE ->
                     {
-                        final String subCommand = cmdArgs.get(0).trim();
-                        voteInfoBotCommand.execute(event, subCommand);
+                        boolean isMuted = true;
+                        if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
+                        benMuteBotCommand.execute(isMuted, event);
                     }
-                    else
+
+                    case MIRAMUTE ->
                     {
-                        voteInfoBotCommand.execute(event);
+                        boolean isMuted = true;
+                        if (!cmdArgs.isEmpty()) { isMuted = Boolean.parseBoolean(cmdArgs.get(0).trim()); }
+                        miraMuteBotCommand.execute(isMuted, event);
+                    }
+
+                    case PERMIT ->
+                    {
+                        if (cmdArgs.size() >= 2)
+                        {
+                            final String targetUserName = cmdArgs.get(0).trim();
+                            final int targetPermissionLvl = Integer.parseInt(cmdArgs.get(1).trim());
+                            permitBotCommand.execute(targetUserName, targetPermissionLvl, event);
+                        }
+                    }
+
+                    case READCFG -> readcfgBotCommand.execute(event);
+                    case RESTART -> restartBotCommand.execute(event);
+                    case STATUS -> statusBotCommand.execute(event);
+                    case UPDATEFILTERS -> updateFiltersBotCommand.execute(event);
+                    case FILTERSINFO -> filterInfoBotCommand.execute(event);
+
+                    case VOTEINFO ->
+                    {
+                        if (!cmdArgs.isEmpty())
+                        {
+                            final String subCommand = cmdArgs.get(0).trim();
+                            voteInfoBotCommand.execute(event, subCommand);
+                        }
+                        else
+                        {
+                            voteInfoBotCommand.execute(event);
+                        }
                     }
                 }
             }
-        }
-        catch (IllegalArgumentException e)
-        {
-            LOGGER.info("Invalid (or unknown) command: '{}'", cmd);
-        }
-        catch (BotCommandError e)
-        {
-            LOGGER.error("Bot command error '{}': {}", cmd, e.getMessage());
-        }
+            catch (IllegalArgumentException e)
+            {
+                LOGGER.info("Invalid (or unknown) command: '{}'", cmd);
+            }
+            catch (BotCommandError e)
+            {
+                LOGGER.error("Bot command error '{}': {}", cmd, e.getMessage());
+            }
+        }).start();
     }
 }
