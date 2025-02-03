@@ -114,7 +114,7 @@ public class CommandHandler
                             if (!cmdArgs.isEmpty())
                             {
                                 final String messageText = String.join(" ", cmdArgs);
-                                new Thread(() -> miraBotCommand.execute(messageText, event)).start();
+                                miraBotCommand.execute(messageText, event);
                             }
                         }
                         else

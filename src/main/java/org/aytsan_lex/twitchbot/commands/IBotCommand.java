@@ -4,4 +4,5 @@ public interface IBotCommand
 {
     void execute(Object... args);
     int getRequiredPermissionLevel();
+    int getCooldown();
 }

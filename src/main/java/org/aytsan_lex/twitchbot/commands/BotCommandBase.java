@@ -27,6 +27,12 @@ public class BotCommandBase implements IBotCommand
         return BotConfigManager.getCommandRequiredPermissionLevel(this.getClass().getSimpleName());
     }
 
+    @Override
+    public int getCooldown()
+    {
+        return BotConfigManager.getCommandCooldown(this.getClass().getSimpleName());
+    }
+
     public void replyToMessage(final EventChannel channel,
                                final String userId,
                                final String messageId,

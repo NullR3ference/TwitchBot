@@ -1,10 +1,9 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import org.aytsan_lex.twitchbot.*;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.common.events.domain.EventChannel;
@@ -28,9 +27,12 @@ public class MiraBotCommand extends BotCommandBase
         }
     }
 
+    private LocalDateTime cooldownExpiresIn;
+
     public MiraBotCommand()
     {
         super();
+        this.cooldownExpiresIn = null;
     }
 
     @Override
@@ -44,6 +46,12 @@ public class MiraBotCommand extends BotCommandBase
         if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
         {
             TwitchBot.LOGGER.warn("Command will not execute: command is muted!");
+            return;
+        }
+
+        if (this.cooldownExpiresIn != null && LocalDateTime.now().isBefore(this.cooldownExpiresIn))
+        {
+            TwitchBot.LOGGER.warn("Command will not execute: cooldown");
             return;
         }
 
@@ -110,6 +118,8 @@ public class MiraBotCommand extends BotCommandBase
         }
 
         BotGlobalState.setMiraCommandRunning(true);
+        this.cooldownExpiresIn = LocalDateTime.now().plusSeconds(super.getCooldown());
+
         final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate()
                 .formatted(userName, permissionLevel, message)
                 .trim();

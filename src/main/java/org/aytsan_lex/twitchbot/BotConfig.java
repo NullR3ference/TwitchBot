@@ -12,6 +12,7 @@ public class BotConfig
     private ArrayList<String> owners;
     private HashMap<String, Integer> permissions;
     private HashMap<String, Integer> commandPermissionLevels;
+    private HashMap<String, Integer> commandCooldowns;
     private ArrayList<String> mutedCommands;
     private String ollamaHost;
     private String miraModelName;
@@ -66,6 +67,11 @@ public class BotConfig
     public HashMap<String, Integer> getCommandPermissionLevels()
     {
         return this.commandPermissionLevels;
+    }
+
+    public HashMap<String, Integer> getCommandCooldowns()
+    {
+        return this.commandCooldowns;
     }
 
     public ArrayList<String> getMutedCommands()

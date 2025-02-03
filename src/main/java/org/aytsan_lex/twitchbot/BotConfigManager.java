@@ -191,6 +191,15 @@ public class BotConfigManager
         return 777;
     }
 
+    public static int getCommandCooldown(String command)
+    {
+        if (config.getCommandCooldowns().containsKey(command))
+        {
+            return config.getCommandCooldowns().get(command);
+        }
+        return 0;
+    }
+
     private static void writeConfigTemplate()
     {
         try
@@ -229,6 +238,7 @@ public class BotConfigManager
                     "VoteBotCommand": 0,
                     "VoteInfoBotCommand": 777
                   },
+                  "commandCooldowns": {},
                   "mutedCommands": [],
                   "ollamaHost": "http://localhost:11434",
                   "miraModelName": "gemma2-mira",
