@@ -38,26 +38,26 @@ public class CommandHandler
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
-    private static final IBotCommand iqBotCommand = new IqBotCommand();
-    private static final IBotCommand benBotCommand = new BenBotCommand();
-    private static final IBotCommand miraBotCommand = new MiraBotCommand();
-    private static final IBotCommand startVoteBotCommand = new StartVoteBotCommand();
-    private static final IBotCommand stopVoteBotCommand = new CancelVoteBotCommand();
-    private static final IBotCommand voteBotCommand = new VoteBotCommand();
-    private static final IBotCommand joinToChatBotCommand = new JoinToChatBotCommand();
-    private static final IBotCommand leaveFromChatBotCommand = new LeaveFromChatBotCommand();
-    private static final IBotCommand addChannelBotCommand = new AddChannelBotCommand();
-    private static final IBotCommand removeChannelBotCommand = new RemoveChannelBotCommand();
-    private static final IBotCommand iqMuteBotCommand = new IqMuteBotCommand();
-    private static final IBotCommand benMuteBotCommand = new BenMuteBotCommand();
-    private static final IBotCommand miraMuteBotCommand = new MiraMuteBotCommand();
-    private static final IBotCommand permitBotCommand = new SetPermissionBotCommand();
-    private static final IBotCommand readcfgBotCommand = new ReadcfgBotCommand();
-    private static final IBotCommand restartBotCommand = new RestartBotCommand();
-    private static final IBotCommand statusBotCommand = new StatusBotCommand();
-    private static final IBotCommand updateFiltersBotCommand = new UpdateFiltersBotCommand();
-    private static final IBotCommand filterInfoBotCommand = new FiltersInfoBotCommand();
-    private static final IBotCommand voteInfoBotCommand = new VoteInfoBotCommand();
+    private static final IBotCommand iqBotCommand               = new IqBotCommand();
+    private static final IBotCommand benBotCommand              = new BenBotCommand();
+    private static final IBotCommand miraBotCommand             = new MiraBotCommand();
+    private static final IBotCommand startVoteBotCommand        = new StartVoteBotCommand();
+    private static final IBotCommand stopVoteBotCommand         = new CancelVoteBotCommand();
+    private static final IBotCommand voteBotCommand             = new VoteBotCommand();
+    private static final IBotCommand joinToChatBotCommand       = new JoinToChatBotCommand();
+    private static final IBotCommand leaveFromChatBotCommand    = new LeaveFromChatBotCommand();
+    private static final IBotCommand addChannelBotCommand       = new AddChannelBotCommand();
+    private static final IBotCommand removeChannelBotCommand    = new RemoveChannelBotCommand();
+    private static final IBotCommand iqMuteBotCommand           = new IqMuteBotCommand();
+    private static final IBotCommand benMuteBotCommand          = new BenMuteBotCommand();
+    private static final IBotCommand miraMuteBotCommand         = new MiraMuteBotCommand();
+    private static final IBotCommand permitBotCommand           = new SetPermissionBotCommand();
+    private static final IBotCommand readcfgBotCommand          = new ReadcfgBotCommand();
+    private static final IBotCommand restartBotCommand          = new RestartBotCommand();
+    private static final IBotCommand statusBotCommand           = new StatusBotCommand();
+    private static final IBotCommand updateFiltersBotCommand    = new UpdateFiltersBotCommand();
+    private static final IBotCommand filterInfoBotCommand       = new FiltersInfoBotCommand();
+    private static final IBotCommand voteInfoBotCommand         = new VoteInfoBotCommand();
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
@@ -104,7 +104,7 @@ public class CommandHandler
 
                 case MIRA ->
                 {
-                    if (!BotConfigManager.commandIsMuted(cmd) && !BotGlobalState.isMiraCommandRunning())
+                    if (!BotConfigManager.commandIsMuted(cmd))
                     {
                         if (!cmdArgs.isEmpty())
                         {
@@ -114,7 +114,7 @@ public class CommandHandler
                     }
                     else
                     {
-                        LOGGER.warn("Mira command is muted or already running!");
+                        LOGGER.warn("Mira command is muted");
                     }
                 }
 

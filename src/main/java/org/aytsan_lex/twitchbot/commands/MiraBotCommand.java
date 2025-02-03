@@ -3,6 +3,8 @@ package org.aytsan_lex.twitchbot.commands;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.aytsan_lex.twitchbot.*;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.common.events.domain.EventChannel;
@@ -22,7 +24,6 @@ public class MiraBotCommand extends BotCommandBase
                 case 0 -> { return MSG_SINGLE; }
                 case 1 -> { return MSG_BLOCKS; }
             }
-
             return (val < 1) ? MSG_SINGLE : MSG_BLOCKS;
         }
     }
@@ -116,7 +117,8 @@ public class MiraBotCommand extends BotCommandBase
         final String response = OllamaModelsManager.getMiraModel()
                 .chatWithModel(finalMessage)
                 .trim()
-                .replaceAll("\\s+", " ");
+                .replaceAll("\\s+", " ")
+                .replaceAll("—+", "-");
 
         final String filteredResponse = this.splitWideWords(this.miraPostFilter(response));
 
@@ -141,8 +143,10 @@ public class MiraBotCommand extends BotCommandBase
                             BotCommandBase.DEFAULT_MESSAGE_DELAY
                     );
 
-            case MSG_BLOCKS -> this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
+            case MSG_BLOCKS ->
+                    this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
         }
+
         BotGlobalState.setMiraCommandRunning(false);
     }
 
