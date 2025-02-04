@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,18 +112,21 @@ public class MiraBotCommand extends BotCommandBase
                     userId,
                     messageId,
                     chat,
-                    "Даже не пытайся ))",
+                    "Даже не пытайся, зайка )",
                     BotCommandBase.DEFAULT_MESSAGE_DELAY
             );
             return;
         }
 
+        final String finalMessage = this.buildModelMessage(userName, message).trim();
+        if (finalMessage.isEmpty())
+        {
+            TwitchBot.LOGGER.warn("Command fill not execute: request message is empty!");
+            return;
+        }
+
         BotGlobalState.setMiraCommandRunning(true);
         this.cooldownExpiresIn = LocalDateTime.now().plusSeconds(super.getCooldown());
-
-        final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate()
-                .formatted(userName, permissionLevel, message)
-                .trim();
 
         final String response = OllamaModelsManager.getMiraModel()
                 .chatWithModel(finalMessage)
@@ -250,5 +254,18 @@ public class MiraBotCommand extends BotCommandBase
         }
 
         TwitchBot.LOGGER.info("Message block(s) was sent");
+    }
+
+    private String buildModelMessage(final String userName, final String message)
+    {
+        final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate();
+
+        final String dateTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        finalMessage.replaceAll("<datetime>", dateTimeStr);
+        finalMessage.replaceAll("<username>", userName);
+        finalMessage.replaceAll("<permlvl>", Integer.toString(BotConfigManager.getPermissionLevel(userName)));
+        finalMessage.replaceAll("<message>", message.trim().replaceAll("\\s{2,}", " "));
+
+        return finalMessage;
     }
 }

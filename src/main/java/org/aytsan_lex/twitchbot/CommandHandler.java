@@ -33,7 +33,8 @@ public class CommandHandler
         STATUS,
         UPDATEFILTERS,
         FILTERSINFO,
-        VOTEINFO
+        VOTEINFO,
+        SETCD
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
@@ -58,6 +59,7 @@ public class CommandHandler
     private static final IBotCommand updateFiltersBotCommand    = new UpdateFiltersBotCommand();
     private static final IBotCommand filterInfoBotCommand       = new FiltersInfoBotCommand();
     private static final IBotCommand voteInfoBotCommand         = new VoteInfoBotCommand();
+    private static final IBotCommand setCooldownBotCommand      = new SetCooldownBotCommand();
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
@@ -234,6 +236,16 @@ public class CommandHandler
                         else
                         {
                             voteInfoBotCommand.execute(event);
+                        }
+                    }
+
+                    case SETCD ->
+                    {
+                        if (cmdArgs.size() >= 2)
+                        {
+                            final String commandName = cmdArgs.get(0).trim();
+                            final int cooldownValue = Integer.parseInt(cmdArgs.get(1).trim());
+                            setCooldownBotCommand.execute(event, commandName, cooldownValue);
                         }
                     }
                 }

@@ -241,9 +241,9 @@ public class BotConfigManager
                   "commandCooldowns": {},
                   "mutedCommands": [],
                   "ollamaHost": "http://localhost:11434",
-                  "miraModelName": "gemma2-mira",
-                  "modelMessageTemplate": "'%s' (уровень доступа %d) говорит: '%s'",
-                  "messageSendingMode": 0,
+                  "miraModelName": "gemma2-9b-mira1.0",
+                  "modelMessageTemplate": "'<username>' говорит: '<message>'",
+                  "messageSendingMode": 0
                 }
                 """;
 
