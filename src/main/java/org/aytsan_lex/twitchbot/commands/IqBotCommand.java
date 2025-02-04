@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import java.util.Random;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class IqBotCommand extends BotCommandBase
@@ -26,7 +27,7 @@ public class IqBotCommand extends BotCommandBase
                 event.getMessageId().get(),
                 event.getTwitchChat(),
                 "@%s у тебя %d IQ".formatted(event.getUserName(), iqValue),
-                BotCommandBase.DEFAULT_MESSAGE_DELAY
+                BotConfigManager.getConfig().getDelayBetweenMessages()
         );
     }
 }

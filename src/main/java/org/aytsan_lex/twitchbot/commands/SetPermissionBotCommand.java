@@ -23,11 +23,12 @@ public class SetPermissionBotCommand extends BotCommandBase
 
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
-        final int targeUserPermissionLevel = BotConfigManager.getPermissionLevel(targetUserName);
+        final int targetUserPermissionLevel = BotConfigManager.getPermissionLevel(targetUserName);
+        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            if (permissionLevel < targeUserPermissionLevel)
+            if (permissionLevel < targetUserPermissionLevel)
             {
                 super.replyToMessageWithDelay(
                         event.getChannel(),
@@ -35,8 +36,8 @@ public class SetPermissionBotCommand extends BotCommandBase
                         event.getMessageId().get(),
                         event.getTwitchChat(),
                         "Нельзя изменить уровень доступа для пользователя с уровнем выше твоего: %d против %d"
-                                .formatted(permissionLevel, targeUserPermissionLevel),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                                .formatted(permissionLevel, targetUserPermissionLevel),
+                        delay
                 );
 
                 TwitchBot.LOGGER.warn(
@@ -44,7 +45,7 @@ public class SetPermissionBotCommand extends BotCommandBase
                         userName,
                         targetUserName,
                         permissionLevel,
-                        targeUserPermissionLevel
+                        targetUserPermissionLevel
                 );
                 return;
             }
@@ -60,7 +61,7 @@ public class SetPermissionBotCommand extends BotCommandBase
                         event.getMessageId().get(),
                         event.getTwitchChat(),
                         "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
 
                 TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);

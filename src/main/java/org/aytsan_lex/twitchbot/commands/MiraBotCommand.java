@@ -62,6 +62,7 @@ public class MiraBotCommand extends BotCommandBase
         final String messageId = event.getMessageId().get();
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
 
         if (!OllamaModelsManager.checkConnection())
         {
@@ -72,7 +73,7 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     "Ошибка сети. Возможно я отключена. Прости зайка <3",
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    delay
             );
             return;
         }
@@ -86,7 +87,7 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     "Прости зайка, я пока не могу общаться с тобой, создателю надо выдать разрешение, прежде чем я смогу тебе отвечать ((",
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    delay
             );
             return;
         }
@@ -100,7 +101,7 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     "Прости зайка, я не могу отвечать, пока голосование активно ((",
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    delay
             );
             return;
         }
@@ -113,7 +114,7 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     "Даже не пытайся, зайка )",
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    delay
             );
             return;
         }
@@ -162,11 +163,11 @@ public class MiraBotCommand extends BotCommandBase
                             messageId,
                             chat,
                             this.truncateLength(filteredResponse),
-                            BotCommandBase.DEFAULT_MESSAGE_DELAY
+                            delay
                     );
 
             case MSG_BLOCKS ->
-                    this.sendBlocks(channel, userId, messageId, chat, filteredResponse);
+                    this.sendBlocks(channel, userId, messageId, chat, delay, filteredResponse);
         }
 
         BotGlobalState.setMiraCommandRunning(false);
@@ -223,7 +224,9 @@ public class MiraBotCommand extends BotCommandBase
 
     private String splitWideWords(final String response)
     {
-        final ArrayList<String> words = this.splitByMaxLen(response, FiltersManager.getMiraFilters().getWordLengthFilter());
+        final ArrayList<String> words =
+                this.splitByMaxLen(response, FiltersManager.getMiraFilters().getWordLengthFilter());
+
         return String.join(" ", words);
     }
 
@@ -244,7 +247,7 @@ public class MiraBotCommand extends BotCommandBase
             for (int i = 0; i < word.length(); i += maxLen)
             {
                 final int end = Math.min(i + maxLen, word.length());
-                result.add(word.substring(i, end));
+                result.add(word.substring(i, end).trim());
             }
         }
 
@@ -255,6 +258,7 @@ public class MiraBotCommand extends BotCommandBase
                             final String userId,
                             final String messageId,
                             final TwitchChat chat,
+                            final int delay,
                             final String response)
     {
         final int blockLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
@@ -271,7 +275,7 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     response.substring(i, index),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    delay
             );
         }
 

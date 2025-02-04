@@ -31,7 +31,7 @@ public class JoinToChatBotCommand extends BotCommandBase
                     event.getMessageId().get(),
                     event.getTwitchChat(),
                     "Подключен к: [%s]".formatted(channelName),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    BotConfigManager.getConfig().getDelayBetweenMessages()
             );
             TwitchBot.LOGGER.info("Joined to: [{}]", channelName);
         }

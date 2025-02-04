@@ -39,7 +39,7 @@ public class RemoveChannelBotCommand extends BotCommandBase
                                 event.getMessageId().get(),
                                 chat,
                                 "Канал удален: [%s]".formatted(targetChannelName),
-                                BotCommandBase.DEFAULT_MESSAGE_DELAY
+                                BotConfigManager.getConfig().getDelayBetweenMessages()
                         );
                         TwitchBot.instance().leaveFromChat(targetChannelName);
                         BotConfigManager.writeConfig();

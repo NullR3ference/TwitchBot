@@ -35,7 +35,7 @@ public class LeaveFromChatBotCommand extends BotCommandBase
                         event.getMessageId().get(),
                         chat,
                         "Отключен от: [%s]".formatted(targetChannelName),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        BotConfigManager.getConfig().getDelayBetweenMessages()
                 );
                 TwitchBot.instance().leaveFromChat(targetChannelName);
                 TwitchBot.LOGGER.info("Leaved from: [{}]", targetChannelName);

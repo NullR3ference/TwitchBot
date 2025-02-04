@@ -2,6 +2,7 @@ package org.aytsan_lex.twitchbot.commands;
 
 import java.util.Random;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.BotConfigManager;
 
 public class BenBotCommand extends BotCommandBase
 {
@@ -26,7 +27,7 @@ public class BenBotCommand extends BotCommandBase
                 event.getMessageId().get(),
                 event.getTwitchChat(),
                 (result) ? "yes" : "no",
-                BotCommandBase.DEFAULT_MESSAGE_DELAY
+                BotConfigManager.getConfig().getDelayBetweenMessages()
         );
     }
 }

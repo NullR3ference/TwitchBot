@@ -37,7 +37,7 @@ public class AddChannelBotCommand extends BotCommandBase
                             event.getMessageId().get(),
                             event.getTwitchChat(),
                             "Канал добавлен: [%s]".formatted(targetChannelName),
-                            BotCommandBase.DEFAULT_MESSAGE_DELAY
+                            BotConfigManager.getConfig().getDelayBetweenMessages()
                     );
 
                     TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);

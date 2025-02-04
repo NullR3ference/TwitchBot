@@ -9,6 +9,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -20,6 +22,7 @@ public class BotConfigManager
     private static final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
     private static final Path CONFIG_PATH = Path.of(Utils.getCurrentWorkingPath() + "/config");
     private static final File configFile = new File(CONFIG_PATH + "/config.json");
+    private static final Lock fileLockMutex = new ReentrantLock(true);
     private static BotConfig config = BotConfig.empty();
 
     public static void initialize()
@@ -60,6 +63,7 @@ public class BotConfigManager
 
     public static void writeConfig()
     {
+        fileLockMutex.lock();
         try
         {
             final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
@@ -72,6 +76,10 @@ public class BotConfigManager
         catch (IOException e)
         {
             LOGGER.error("Failed to write config: {}", e.getMessage());
+        }
+        finally
+        {
+            fileLockMutex.unlock();
         }
     }
 

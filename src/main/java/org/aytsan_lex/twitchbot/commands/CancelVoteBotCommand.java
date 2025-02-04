@@ -22,6 +22,7 @@ public class CancelVoteBotCommand extends BotCommandBase
 
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
@@ -38,7 +39,7 @@ public class CancelVoteBotCommand extends BotCommandBase
                                 context.getCurrentVotes(),
                                 context.getTargetVotes()
                         ),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
                 BotGlobalState.stopVoting();
             }
@@ -50,7 +51,7 @@ public class CancelVoteBotCommand extends BotCommandBase
                         event.getMessageId().get(),
                         event.getTwitchChat(),
                         "Нет активного голосования",
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
             }
         }

@@ -32,7 +32,7 @@ public class FiltersInfoBotCommand extends BotCommandBase
                     event.getMessageId().get(),
                     event.getTwitchChat(),
                     this.createInfoMessage(),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    BotConfigManager.getConfig().getDelayBetweenMessages()
             );
         }
         else

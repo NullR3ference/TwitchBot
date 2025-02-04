@@ -1,5 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.BotGlobalState;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -18,6 +19,8 @@ public class VoteBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
+        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
+
         if (BotGlobalState.votingIsActive())
         {
             final BotGlobalState.VotingContext context = BotGlobalState.getCurrentVotingContext();
@@ -35,7 +38,7 @@ public class VoteBotCommand extends BotCommandBase
                                 context.getCurrentVotes(),
                                 context.getTargetVotes()
                         ),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
                 BotGlobalState.stopVoting();
             }
@@ -51,7 +54,7 @@ public class VoteBotCommand extends BotCommandBase
                                 context.getCurrentVotes(),
                                 context.getTargetVotes()
                         ),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
             }
         }
@@ -69,7 +72,7 @@ public class VoteBotCommand extends BotCommandBase
                             context.getCurrentVotes(),
                             context.getTargetVotes()
                     ),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    delay
             );
         }
     }

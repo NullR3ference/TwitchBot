@@ -24,6 +24,7 @@ public class StartVoteBotCommand extends BotCommandBase
 
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
@@ -37,7 +38,7 @@ public class StartVoteBotCommand extends BotCommandBase
                         event.getTwitchChat(),
                         "Голосование запущено: '%s'; Необходимо %d голосов(са)"
                                 .formatted(voteContent, targetVotes),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
             }
             else
@@ -49,7 +50,7 @@ public class StartVoteBotCommand extends BotCommandBase
                         event.getTwitchChat(),
                         "Нельзя начать новое голосование, уже активно: '%s'"
                                 .formatted(BotGlobalState.getCurrentVotingContext().getContent()),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
             }
         }

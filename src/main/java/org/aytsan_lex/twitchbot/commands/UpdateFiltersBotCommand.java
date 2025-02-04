@@ -33,7 +33,7 @@ public class UpdateFiltersBotCommand extends BotCommandBase
                     event.getMessageId().get(),
                     event.getTwitchChat(),
                     "Фильтры обновлены",
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    BotConfigManager.getConfig().getDelayBetweenMessages()
             );
         }
         else

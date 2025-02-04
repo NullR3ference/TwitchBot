@@ -22,12 +22,13 @@ public class VoteInfoBotCommand extends BotCommandBase
 
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
             if ((args.length >= 2) && (args[1] instanceof String subCommand))
             {
-                this.handleSubCommand(event, subCommand.toUpperCase());
+                this.handleSubCommand(event, subCommand.toUpperCase(), delay);
             }
             else
             {
@@ -37,7 +38,7 @@ public class VoteInfoBotCommand extends BotCommandBase
                         event.getMessageId().get(),
                         event.getTwitchChat(),
                         this.createVoteInfoMessage(),
-                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                        delay
                 );
             }
         }
@@ -62,7 +63,7 @@ public class VoteInfoBotCommand extends BotCommandBase
         );
     }
 
-    private void handleSubCommand(final IRCMessageEvent event, final String cmd)
+    private void handleSubCommand(final IRCMessageEvent event, final String cmd, final int delay)
     {
         try
         {
@@ -79,7 +80,7 @@ public class VoteInfoBotCommand extends BotCommandBase
                                 event.getMessageId().get(),
                                 event.getTwitchChat(),
                                 "Предыдущий контекст голосования очищен",
-                                BotCommandBase.DEFAULT_MESSAGE_DELAY
+                                delay
                         );
                     }
                 }

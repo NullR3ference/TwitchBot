@@ -35,7 +35,7 @@ public class StatusBotCommand extends BotCommandBase
                     event.getMessageId().get(),
                     event.getTwitchChat(),
                     this.createStatusMessage(),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
+                    BotConfigManager.getConfig().getDelayBetweenMessages()
             );
         }
         else
