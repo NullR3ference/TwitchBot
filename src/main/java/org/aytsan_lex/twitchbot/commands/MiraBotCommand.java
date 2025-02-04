@@ -264,7 +264,7 @@ public class MiraBotCommand extends BotCommandBase
         final int blockLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
         final int responseLength = response.length();
 
-        TwitchBot.LOGGER.info("Sending {} message block(s)...", responseLength / blockLength);
+        TwitchBot.LOGGER.info("Sending {} message block(s)...", (responseLength / blockLength) + 1);
 
         for (int i = 0; i < responseLength; i += blockLength)
         {
