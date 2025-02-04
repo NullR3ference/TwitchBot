@@ -286,7 +286,7 @@ public class MiraBotCommand extends BotCommandBase
     {
         String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate();
 
-        final String dateTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        final String dateTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         finalMessage = finalMessage.replaceAll("(<)datetime(>)", dateTimeStr);
         finalMessage = finalMessage.replaceAll("(<)username(>)", userName);
         finalMessage = finalMessage.replaceAll("(<)permlvl(>)", Integer.toString(BotConfigManager.getPermissionLevel(userName)));
