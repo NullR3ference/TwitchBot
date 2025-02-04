@@ -146,14 +146,6 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        if (!this.checkForMuteCommandContext(filteredResponse))
-        {
-            TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
-            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), true);
-            BotGlobalState.setMiraCommandRunning(false);
-            return;
-        }
-
         switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
         {
             case MSG_SINGLE ->
@@ -168,6 +160,12 @@ public class MiraBotCommand extends BotCommandBase
 
             case MSG_BLOCKS ->
                     this.sendBlocks(channel, userId, messageId, chat, delay, filteredResponse);
+        }
+
+        if (!this.checkForMuteCommandContext(filteredResponse))
+        {
+            TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
+            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), true);
         }
 
         BotGlobalState.setMiraCommandRunning(false);
