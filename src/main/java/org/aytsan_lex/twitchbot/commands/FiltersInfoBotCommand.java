@@ -1,9 +1,10 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.FiltersManager;
-import org.aytsan_lex.twitchbot.TwitchBot;
+import org.aytsan_lex.twitchbot.filters.MiraFilters;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class FiltersInfoBotCommand extends BotCommandBase
 {
@@ -42,9 +43,14 @@ public class FiltersInfoBotCommand extends BotCommandBase
 
     private String createInfoMessage()
     {
-        final int preFilterLinesCount = FiltersManager.getMiraFilters().getPreFilter().size();
-        final int postFilterLinesCount = FiltersManager.getMiraFilters().getPostFilter().size();
-        final int lenFilter = FiltersManager.getMiraFilters().getMessageLengthFilter();
-        return "Pre-filter: %d строк | Post-filter: %d строк | Len-filter: %d".formatted(preFilterLinesCount, postFilterLinesCount, lenFilter);
+        final MiraFilters filters = FiltersManager.getMiraFilters();
+
+        return "Pre-filter: %d | Post-filter: %d | MsgLen: %d | WordLen: %d"
+                .formatted(
+                        filters.getPreFilter().size(),
+                        filters.getPostFilter().size(),
+                        filters.getMessageLengthFilter(),
+                        filters.getWordLengthFilter()
+                );
     }
 }

@@ -18,7 +18,9 @@ public class FiltersManager
     {
         public ArrayList<String> preFilterValues;
         public ArrayList<String> postFilterValues;
+        public ArrayList<String> possibleMuteCommands;
         public int lengthFilterValue;
+        public int wordLengthFilterValue;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FiltersManager.class);
@@ -55,9 +57,8 @@ public class FiltersManager
     {
         try
         {
-            final Gson gson = new Gson();
             final MiraFiltersAdapter miraFiltersAdapter =
-                    gson.fromJson(new FileReader(miraFiltersFile), MiraFiltersAdapter.class);
+                    new Gson().fromJson(new FileReader(miraFiltersFile), MiraFiltersAdapter.class);
 
             if (miraFiltersAdapter.preFilterValues.isEmpty())
             {
@@ -72,7 +73,9 @@ public class FiltersManager
             miraFilters = MiraFilters.of(
                     miraFiltersAdapter.preFilterValues,
                     miraFiltersAdapter.postFilterValues,
-                    miraFiltersAdapter.lengthFilterValue
+                    miraFiltersAdapter.possibleMuteCommands,
+                    miraFiltersAdapter.lengthFilterValue,
+                    miraFiltersAdapter.wordLengthFilterValue
             );
         }
         catch (IOException e)
@@ -94,7 +97,9 @@ public class FiltersManager
                 {
                   "preFilterValues": [],
                   "postFilterValues": [],
-                  "lengthFilterValue": 0
+                  "possibleMuteCommands" [],
+                  "lengthFilterValue": 0,
+                  "wordLengthFilterValue": 0
                 }
                 """;
 

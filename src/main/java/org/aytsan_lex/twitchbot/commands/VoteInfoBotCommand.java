@@ -12,11 +12,6 @@ public class VoteInfoBotCommand extends BotCommandBase
         CLEAR
     }
 
-    public VoteInfoBotCommand()
-    {
-        super();
-    }
-
     @Override
     public void execute(Object... args)
     {
@@ -25,25 +20,26 @@ public class VoteInfoBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        if ((args.length >= 2) && (args[1] instanceof String subCommand))
-        {
-            this.handleSubCommand(event, subCommand.toUpperCase());
-            return;
-        }
-
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            super.replyToMessageWithDelay(
-                    event.getChannel(),
-                    event.getUser().getId(),
-                    event.getMessageId().get(),
-                    event.getTwitchChat(),
-                    this.createVoteInfoMessage(),
-                    BotCommandBase.DEFAULT_MESSAGE_DELAY
-            );
+            if ((args.length >= 2) && (args[1] instanceof String subCommand))
+            {
+                this.handleSubCommand(event, subCommand.toUpperCase());
+            }
+            else
+            {
+                super.replyToMessageWithDelay(
+                        event.getChannel(),
+                        event.getUser().getId(),
+                        event.getMessageId().get(),
+                        event.getTwitchChat(),
+                        this.createVoteInfoMessage(),
+                        BotCommandBase.DEFAULT_MESSAGE_DELAY
+                );
+            }
         }
         else
         {
@@ -66,7 +62,7 @@ public class VoteInfoBotCommand extends BotCommandBase
         );
     }
 
-    private void handleSubCommand(IRCMessageEvent event, String cmd)
+    private void handleSubCommand(final IRCMessageEvent event, final String cmd)
     {
         try
         {

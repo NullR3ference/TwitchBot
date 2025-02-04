@@ -131,7 +131,7 @@ public class MiraBotCommand extends BotCommandBase
         final String response = OllamaModelsManager.getMiraModel()
                 .chatWithModel(finalMessage)
                 .trim()
-                .replaceAll("\\s+", " ")
+                .replaceAll("\\s{2,}", " ")
                 .replaceAll("—+", "-");
 
         final String filteredResponse = this.splitWideWords(this.miraPostFilter(response));
@@ -142,6 +142,14 @@ public class MiraBotCommand extends BotCommandBase
         if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
         {
             TwitchBot.LOGGER.warn("Message will not send: command is muted!");
+            return;
+        }
+
+        if (!this.checkForMuteCommandContext(filteredResponse))
+        {
+            TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
+            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), true);
+            BotGlobalState.setMiraCommandRunning(false);
             return;
         }
 
@@ -198,10 +206,24 @@ public class MiraBotCommand extends BotCommandBase
         return filtered;
     }
 
+    private boolean checkForMuteCommandContext(final String postFilteredResponse)
+    {
+        final ArrayList<Pattern> muteCommandsContext = FiltersManager.getMiraFilters().getMuteCommandsFilter();
+
+        for (final Pattern pattern : muteCommandsContext)
+        {
+            if (pattern.matcher(postFilteredResponse).find())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private String splitWideWords(final String response)
     {
-        final int maxWordLength = 15;
-        final ArrayList<String> words = this.splitByMaxLen(response, maxWordLength);
+        final ArrayList<String> words = this.splitByMaxLen(response, FiltersManager.getMiraFilters().getWordLengthFilter());
         return String.join(" ", words);
     }
 

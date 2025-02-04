@@ -18,6 +18,7 @@ public class BotConfig
     private String miraModelName;
     private String modelMessageTemplate;
     private int messageSendingMode;
+    private int delayBetweenMessages;
 
     public static BotConfig empty()
     {
@@ -97,5 +98,15 @@ public class BotConfig
     public int getMessageSendingMode()
     {
         return this.messageSendingMode;
+    }
+
+    public int getDelayBetweenMessages()
+    {
+        return this.delayBetweenMessages;
+    }
+
+    public void setDelayBetweenMessages(int value)
+    {
+        this.delayBetweenMessages = value;
     }
 }

@@ -34,7 +34,8 @@ public class CommandHandler
         UPDATEFILTERS,
         FILTERSINFO,
         VOTEINFO,
-        SETCD
+        SETCD,
+        MSGDELAY
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
@@ -60,6 +61,7 @@ public class CommandHandler
     private static final IBotCommand filterInfoBotCommand       = new FiltersInfoBotCommand();
     private static final IBotCommand voteInfoBotCommand         = new VoteInfoBotCommand();
     private static final IBotCommand setCooldownBotCommand      = new SetCooldownBotCommand();
+    private static final IBotCommand msgDelayBotCommand         = new MsgDelayBotCommand();
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
     {
@@ -246,6 +248,20 @@ public class CommandHandler
                             final String commandName = cmdArgs.get(0).trim();
                             final int cooldownValue = Integer.parseInt(cmdArgs.get(1).trim());
                             setCooldownBotCommand.execute(event, commandName, cooldownValue);
+                        }
+                    }
+
+                    case MSGDELAY ->
+                    {
+                        if (cmdArgs.size() >= 2)
+                        {
+                            final String subCommand = cmdArgs.get(0).trim();
+                            final int delayValue = Integer.parseInt(cmdArgs.get(1).trim());
+                            msgDelayBotCommand.execute(event, subCommand, delayValue);
+                        }
+                        else
+                        {
+                            msgDelayBotCommand.execute(event);
                         }
                     }
                 }

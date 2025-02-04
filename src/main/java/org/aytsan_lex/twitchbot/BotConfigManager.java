@@ -200,6 +200,11 @@ public class BotConfigManager
         return 0;
     }
 
+    public static void setDelayBetweenMessages(int value)
+    {
+        config.setDelayBetweenMessages(value);
+    }
+
     private static void writeConfigTemplate()
     {
         try
@@ -243,7 +248,8 @@ public class BotConfigManager
                   "ollamaHost": "http://localhost:11434",
                   "miraModelName": "gemma2-9b-mira1.0",
                   "modelMessageTemplate": "'<username>' говорит: '<message>'",
-                  "messageSendingMode": 0
+                  "messageSendingMode": 0,
+                  "delayBetweenMessages": 1100
                 }
                 """;
 
