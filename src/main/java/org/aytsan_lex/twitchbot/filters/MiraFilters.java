@@ -45,14 +45,16 @@ public class MiraFilters
         preFilter.forEach(str ->
                 this.preFilter.add(Pattern.compile(
                         str,
-                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE)
-                ));
+                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+                ))
+        );
 
         postFilter.forEach(str ->
                 this.postFilter.add(Pattern.compile(
                         str,
-                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE)
-                ));
+                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+                ))
+        );
 
         muteCommandsFilter.forEach(str ->
             this.muteCommandsFilter.add(Pattern.compile(

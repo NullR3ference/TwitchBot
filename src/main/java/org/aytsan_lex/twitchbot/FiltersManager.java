@@ -18,7 +18,7 @@ public class FiltersManager
     {
         public ArrayList<String> preFilterValues;
         public ArrayList<String> postFilterValues;
-        public ArrayList<String> possibleMuteCommands;
+        public ArrayList<String> possibleMuteCommandsFilter;
         public int lengthFilterValue;
         public int wordLengthFilterValue;
     }
@@ -73,7 +73,7 @@ public class FiltersManager
             miraFilters = MiraFilters.of(
                     miraFiltersAdapter.preFilterValues,
                     miraFiltersAdapter.postFilterValues,
-                    miraFiltersAdapter.possibleMuteCommands,
+                    miraFiltersAdapter.possibleMuteCommandsFilter,
                     miraFiltersAdapter.lengthFilterValue,
                     miraFiltersAdapter.wordLengthFilterValue
             );
@@ -97,7 +97,7 @@ public class FiltersManager
                 {
                   "preFilterValues": [],
                   "postFilterValues": [],
-                  "possibleMuteCommands" [],
+                  "possibleMuteCommandsFilter" [],
                   "lengthFilterValue": 0,
                   "wordLengthFilterValue": 0
                 }
