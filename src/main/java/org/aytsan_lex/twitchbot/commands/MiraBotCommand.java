@@ -258,13 +258,13 @@ public class MiraBotCommand extends BotCommandBase
 
     private String buildModelMessage(final String userName, final String message)
     {
-        final String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate();
+        String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate();
 
         final String dateTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-        finalMessage.replaceAll("(<)datetime(>)", dateTimeStr);
-        finalMessage.replaceAll("(<)username(>)", userName);
-        finalMessage.replaceAll("(<)permlvl(>)", Integer.toString(BotConfigManager.getPermissionLevel(userName)));
-        finalMessage.replaceAll("(<)message(>)", message.trim().replaceAll("\\s{2,}", " "));
+        finalMessage = finalMessage.replaceAll("(<)datetime(>)", dateTimeStr);
+        finalMessage = finalMessage.replaceAll("(<)username(>)", userName);
+        finalMessage = finalMessage.replaceAll("(<)permlvl(>)", Integer.toString(BotConfigManager.getPermissionLevel(userName)));
+        finalMessage = finalMessage.replaceAll("(<)message(>)", message.trim().replaceAll("\\s{2,}", " "));
 
         return finalMessage;
     }
