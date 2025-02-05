@@ -83,6 +83,26 @@ public class MiraFilters
         return new MiraFilters();
     }
 
+    public ArrayList<Pattern> getPreFilter()
+    {
+        return this.preFilter;
+    }
+
+    public ArrayList<Pattern> getPostFilter()
+    {
+        return this.postFilter;
+    }
+
+    public int getMessageLengthFilter()
+    {
+        return this.messageLengthFilter;
+    }
+
+    public int getWordLengthFilter()
+    {
+        return this.wordLengthFilter;
+    }
+
     public boolean testPreFilter(final String response)
     {
         for (final Pattern pattern : this.preFilter)
