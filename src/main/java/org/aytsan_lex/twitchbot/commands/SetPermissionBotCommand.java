@@ -71,8 +71,10 @@ public class SetPermissionBotCommand extends BotCommandBase
                 try
                 {
                     final String modelMessage =
-                            "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d"
+                            "(системное сообщение): 'для пользователя '%s' установлен уровень доступа: %d' (реагируй на него, кратко)"
                                     .formatted(targetUserName, targetLevel);
+
+                    TwitchBot.LOGGER.info("Sending info to the model:\n{}", modelMessage);
 
                     BotGlobalState.setMiraCommandRunning(true);
 
@@ -80,6 +82,8 @@ public class SetPermissionBotCommand extends BotCommandBase
                             .trim()
                             .replaceAll("\\s{2,}", " ")
                             .replaceAll("—+", "-");
+
+                    TwitchBot.LOGGER.info("Response: {}", response);
 
                     BotGlobalState.setMiraCommandRunning(false);
 
