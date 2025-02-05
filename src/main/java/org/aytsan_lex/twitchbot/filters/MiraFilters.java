@@ -1,10 +1,15 @@
 package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MiraFilters
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MiraFilters.class);
+
     private static final int DEFAULT_MESSAGE_LEN_FILTER = 250;
     private static final int DEFAULT_WORD_LEN_FILTER = 15;
 
@@ -78,28 +83,92 @@ public class MiraFilters
         return new MiraFilters();
     }
 
-    public ArrayList<Pattern> getPreFilter()
+    public boolean testPreFilter(final String response)
     {
-        return this.preFilter;
+        for (final Pattern pattern : this.preFilter)
+        {
+            if (pattern.matcher(response).find())
+            {
+                LOGGER.warn("Mira pre-filter failed: {}", response);
+                return false;
+            }
+        }
+        return true;
     }
 
-    public ArrayList<Pattern> getPostFilter()
+    public boolean testMuteCommandsFilter(final String response)
     {
-        return this.postFilter;
+        for (final Pattern pattern : this.muteCommandsFilter)
+        {
+            if (pattern.matcher(response).find())
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public ArrayList<Pattern> getMuteCommandsFilter()
+    public boolean testBotCommandFilter(final String response)
     {
-        return this.muteCommandsFilter;
+        return true;
     }
 
-    public int getMessageLengthFilter()
+    public String runPostFilter(final String response)
     {
-        return this.messageLengthFilter;
+        String postFiltered = response;
+
+        for (final Pattern pattern : this.postFilter)
+        {
+            final Matcher matcher = pattern.matcher(postFiltered);
+            if (matcher.find())
+            {
+                postFiltered = matcher.replaceAll(" * ");
+                LOGGER.warn("Mira post-filter triggered: '{}'", matcher.pattern());
+            }
+        }
+
+        return postFiltered;
     }
 
-    public int getWordLengthFilter()
+    public String truncateLength(final String response)
     {
-        return this.wordLengthFilter;
+        if (response.length() <= this.messageLengthFilter) { return response; }
+        return response.substring(0, this.messageLengthFilter - 4).concat("...");
+    }
+
+    public ArrayList<String> splitWideWords(final String response)
+    {
+        return this.splitByMaxLen(response, this.wordLengthFilter);
+    }
+
+    public ArrayList<String> splitMessageByBlocks(final String response)
+    {
+        final ArrayList<String> result = new ArrayList<>();
+        final int responseLength = response.length();
+
+        for (int i = 0; i < responseLength; i += this.messageLengthFilter)
+        {
+            final int index = Math.min(i + this.messageLengthFilter, responseLength);
+            result.add(response.substring(i, index));
+        }
+
+        return result;
+    }
+
+    private ArrayList<String> splitByMaxLen(final String str, final int maxLen)
+    {
+        final String[] words = str.split(" ");
+        final ArrayList<String> result = new ArrayList<>();
+
+        for (final String word : words)
+        {
+            for (int i = 0; i < word.length(); i += maxLen)
+            {
+                final int end = Math.min(i + maxLen, word.length());
+                result.add(word.substring(i, end).trim());
+            }
+        }
+
+        return result;
     }
 }

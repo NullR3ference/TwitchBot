@@ -3,12 +3,11 @@ package org.aytsan_lex.twitchbot.commands;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.aytsan_lex.twitchbot.*;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.common.events.domain.EventChannel;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
 public class MiraBotCommand extends BotCommandBase
 {
@@ -63,6 +62,7 @@ public class MiraBotCommand extends BotCommandBase
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
+        final MiraFilters miraFilters = FiltersManager.getMiraFilters();
 
         if (!OllamaModelsManager.checkConnection())
         {
@@ -106,7 +106,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        if (!miraPreFilter(message))
+        if (!miraFilters.testPreFilter(message))
         {
             super.replyToMessageWithDelay(
                     channel,
@@ -135,7 +135,10 @@ public class MiraBotCommand extends BotCommandBase
                 .replaceAll("\\s{2,}", " ")
                 .replaceAll("—+", "-");
 
-        final String filteredResponse = this.splitWideWords(this.miraPostFilter(response));
+        final String filteredResponse = String.join(
+                " ",
+                miraFilters.splitWideWords(miraFilters.runPostFilter(response))
+        );
 
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);
         TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
@@ -146,112 +149,31 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        final String runningOnCHannelId = BotConfigManager.getConfig().getRunningOnChannelId();
+        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
 
         switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
         {
             case MSG_SINGLE ->
                     super.sendMessage(
                             channel,
-                            runningOnCHannelId,
+                            runningOnChannelId,
                             null,
                             chat,
-                            this.truncateLength(filteredResponse),
+                            miraFilters.truncateLength(filteredResponse),
                             delay
                     );
 
             case MSG_BLOCKS ->
-                    this.sendBlocks(channel, runningOnCHannelId, null, chat, delay, filteredResponse);
+                    this.sendBlocks(channel, runningOnChannelId, null, chat, delay, filteredResponse);
         }
 
-        if (!this.checkForMuteCommandContext(filteredResponse))
+        if (!miraFilters.testMuteCommandsFilter(filteredResponse))
         {
             TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
             BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), true);
         }
 
         BotGlobalState.setMiraCommandRunning(false);
-    }
-
-    private boolean miraPreFilter(final String messageText)
-    {
-        final ArrayList<Pattern> filters = FiltersManager.getMiraFilters().getPreFilter();
-
-        for (final Pattern pattern : filters)
-        {
-            if (pattern.matcher(messageText).find())
-            {
-                TwitchBot.LOGGER.warn("Mira pre-filter failed: {}", messageText);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private String miraPostFilter(final String response)
-    {
-        String filtered = response;
-        final ArrayList<Pattern> filters = FiltersManager.getMiraFilters().getPostFilter();
-
-        for (final Pattern pattern : filters)
-        {
-            final Matcher matcher = pattern.matcher(filtered);
-            if (matcher.find())
-            {
-                filtered = matcher.replaceAll(" * ");
-                TwitchBot.LOGGER.warn("Mira post-filter triggered: '{}'", matcher.pattern());
-            }
-        }
-
-        return filtered;
-    }
-
-    private boolean checkForMuteCommandContext(final String postFilteredResponse)
-    {
-        final ArrayList<Pattern> muteCommandsContext = FiltersManager.getMiraFilters().getMuteCommandsFilter();
-
-        for (final Pattern pattern : muteCommandsContext)
-        {
-            if (pattern.matcher(postFilteredResponse).find())
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private String splitWideWords(final String response)
-    {
-        final ArrayList<String> words =
-                this.splitByMaxLen(response, FiltersManager.getMiraFilters().getWordLengthFilter());
-
-        return String.join(" ", words);
-    }
-
-    private String truncateLength(final String response)
-    {
-        final int maxLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
-        if (response.length() <= maxLength) { return response; }
-        return response.substring(0, maxLength - 4).concat("...");
-    }
-
-    private ArrayList<String> splitByMaxLen(final String str, final int maxLen)
-    {
-        final String[] words = str.split(" ");
-        final ArrayList<String> result = new ArrayList<>();
-
-        for (final String word : words)
-        {
-            for (int i = 0; i < word.length(); i += maxLen)
-            {
-                final int end = Math.min(i + maxLen, word.length());
-                result.add(word.substring(i, end).trim());
-            }
-        }
-
-        return result;
     }
 
     private void sendBlocks(final EventChannel channel,
@@ -261,24 +183,19 @@ public class MiraBotCommand extends BotCommandBase
                             final int delay,
                             final String response)
     {
-        final int blockLength = FiltersManager.getMiraFilters().getMessageLengthFilter();
-        final int responseLength = response.length();
-
-        TwitchBot.LOGGER.info("Sending {} message block(s)...", (responseLength / blockLength) + 1);
-
-        for (int i = 0; i < responseLength; i += blockLength)
+        final ArrayList<String> messageBlocks = FiltersManager.getMiraFilters().splitMessageByBlocks(response);
+        TwitchBot.LOGGER.info("Sending {} message block(s)...", messageBlocks.size());
+        for (final String msg : messageBlocks)
         {
-            final int index = Math.min(i + blockLength, responseLength);
             this.sendMessage(
                     channel,
                     userId,
                     messageId,
                     chat,
-                    response.substring(i, index),
+                    msg,
                     delay
             );
         }
-
         TwitchBot.LOGGER.info("Message block(s) was sent");
     }
 
