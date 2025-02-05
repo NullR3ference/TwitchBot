@@ -146,20 +146,22 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
+        final String runningOnCHannelId = BotConfigManager.getConfig().getRunningOnChannelId();
+
         switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
         {
             case MSG_SINGLE ->
-                    super.replyToMessageWithDelay(
+                    super.sendMessage(
                             channel,
-                            userId,
-                            messageId,
+                            runningOnCHannelId,
+                            null,
                             chat,
                             this.truncateLength(filteredResponse),
                             delay
                     );
 
             case MSG_BLOCKS ->
-                    this.sendBlocks(channel, userId, messageId, chat, delay, filteredResponse);
+                    this.sendBlocks(channel, runningOnCHannelId, messageId, chat, delay, filteredResponse);
         }
 
         if (!this.checkForMuteCommandContext(filteredResponse))
@@ -267,7 +269,7 @@ public class MiraBotCommand extends BotCommandBase
         for (int i = 0; i < responseLength; i += blockLength)
         {
             final int index = Math.min(i + blockLength, responseLength);
-            this.replyToMessageWithDelay(
+            this.sendMessage(
                     channel,
                     userId,
                     messageId,
