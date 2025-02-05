@@ -109,7 +109,7 @@ public class MiraBotCommand extends BotCommandBase
                     runningOnChannelId,
                     null,
                     chat,
-                    "Прости зайка, я сплю spit",
+                    "@%s Прости зайка, я сплю spit".formatted(userName),
                     delay
             );
             return;
