@@ -161,7 +161,7 @@ public class MiraBotCommand extends BotCommandBase
                     );
 
             case MSG_BLOCKS ->
-                    this.sendBlocks(channel, runningOnCHannelId, messageId, chat, delay, filteredResponse);
+                    this.sendBlocks(channel, runningOnCHannelId, null, chat, delay, filteredResponse);
         }
 
         if (!this.checkForMuteCommandContext(filteredResponse))
