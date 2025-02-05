@@ -1,6 +1,8 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.aytsan_lex.twitchbot.BotGlobalState;
+import org.aytsan_lex.twitchbot.OllamaModelsManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -60,11 +62,40 @@ public class SetPermissionBotCommand extends BotCommandBase
                         event.getUser().getId(),
                         event.getMessageId().get(),
                         event.getTwitchChat(),
-                        "Уровень доступа '%s' -> %d".formatted(targetUserName, targetLevel),
+                        "Уровень доступа установлен '%s' -> %d".formatted(targetUserName, targetLevel),
                         delay
                 );
 
                 TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
+
+                try
+                {
+                    final String modelMessage =
+                            "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d"
+                                    .formatted(targetUserName, targetLevel);
+
+                    BotGlobalState.setMiraCommandRunning(true);
+
+                    final String response = OllamaModelsManager.getMiraModel().chatWithModel(modelMessage)
+                            .trim()
+                            .replaceAll("\\s{2,}", " ")
+                            .replaceAll("—+", "-");
+
+                    BotGlobalState.setMiraCommandRunning(false);
+
+                    super.sendMessage(
+                            event.getChannel(),
+                            BotConfigManager.getConfig().getRunningOnChannelId(),
+                            null,
+                            event.getTwitchChat(),
+                            response,
+                            BotConfigManager.getConfig().getDelayBetweenMessages()
+                    );
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         else
