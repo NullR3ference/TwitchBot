@@ -43,12 +43,6 @@ public class MiraBotCommand extends BotCommandBase
             throw new BotCommandError("Invalid args classes");
         }
 
-        if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
-        {
-            TwitchBot.LOGGER.warn("Command will not execute: command is muted!");
-            return;
-        }
-
         if (this.cooldownExpiresIn != null && LocalDateTime.now().isBefore(this.cooldownExpiresIn))
         {
             TwitchBot.LOGGER.warn("Command will not execute: cooldown");
@@ -63,6 +57,7 @@ public class MiraBotCommand extends BotCommandBase
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
         final MiraFilters miraFilters = FiltersManager.getMiraFilters();
+        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
 
         if (!OllamaModelsManager.checkConnection())
         {
@@ -101,6 +96,20 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     "Прости зайка, я не могу отвечать, пока голосование активно ((",
+                    delay
+            );
+            return;
+        }
+
+        if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
+        {
+            TwitchBot.LOGGER.warn("Command will not execute: command is muted!");
+            super.sendMessage(
+                    channel,
+                    runningOnChannelId,
+                    null,
+                    chat,
+                    "Прости зайка, я сплю spit",
                     delay
             );
             return;
@@ -148,8 +157,6 @@ public class MiraBotCommand extends BotCommandBase
             TwitchBot.LOGGER.warn("Message will not send: command is muted!");
             return;
         }
-
-        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
 
         switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
         {
