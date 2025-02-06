@@ -16,6 +16,7 @@ public class MiraFilters
     private static final int DEFAULT_MESSAGE_LEN_FILTER = 250;
     private static final int DEFAULT_WORD_LEN_FILTER = 15;
 
+    // TODO: Move this patterns to config
     private static final HashMap<Pattern, String> ageDetectionFilter = new HashMap<>(){{
         put(Pattern.compile(
                 "мне \\d+ лет",
