@@ -43,20 +43,21 @@ public class MiraBotCommand extends BotCommandBase
             throw new BotCommandError("Args are required for this command!");
         }
 
-        final String userId = event.getUser().getId();
-        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
+        final String userName = event.getUser().getName();
 
         if (this.cooldownExpiresIn != null && LocalDateTime.now().isBefore(this.cooldownExpiresIn))
         {
-            if (!userId.equals(runningOnChannelId))
+            if (!BotConfigManager.isOwner(userName))
             {
                 TwitchBot.LOGGER.warn("Command will not execute: cooldown");
                 return;
             }
         }
 
+        final String userId = event.getUser().getId();
+        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
+
         final EventChannel channel = event.getChannel();
-        final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
