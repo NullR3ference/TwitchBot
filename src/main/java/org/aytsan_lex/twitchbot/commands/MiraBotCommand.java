@@ -72,7 +72,7 @@ public class MiraBotCommand extends BotCommandBase
                     userId,
                     messageId,
                     chat,
-                    "Ошибка сети. Возможно я отключена. Прости зайка <3",
+                    "Ошибка сети. Возможно я отключена (( Прости зайка <3",
                     delay
             );
             return;

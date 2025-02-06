@@ -1,6 +1,9 @@
 package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -13,9 +16,52 @@ public class MiraFilters
     private static final int DEFAULT_MESSAGE_LEN_FILTER = 250;
     private static final int DEFAULT_WORD_LEN_FILTER = 15;
 
+    private static final HashMap<Pattern, String> ageDetectionFilter = new HashMap<>(){{
+        put(Pattern.compile(
+                "мне \\d+ лет",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "мне ** лет");
+
+        put(Pattern.compile(
+                "мне \\d+",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "мне **");
+
+        put(Pattern.compile(
+                "\\d+ лет мне",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "** лет мне");
+
+        put(Pattern.compile(
+                "\\d+ мне лет",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "** мне лет");
+
+        put(Pattern.compile(
+                "im \\d+ years",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "im ** years");
+
+        put(Pattern.compile(
+                "im \\d+",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "im **");
+
+        put(Pattern.compile(
+                "im \\d+ y. o.",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "im ** y. o.");
+
+        put(Pattern.compile(
+                "i \\d+ years",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+        ), "i ** years");
+    }};
+
     private final ArrayList<Pattern> preFilter;
     private final ArrayList<Pattern> postFilter;
     private final ArrayList<Pattern> muteCommandsFilter;
+
 
     private int messageLengthFilter = DEFAULT_MESSAGE_LEN_FILTER;
     private int wordLengthFilter = DEFAULT_WORD_LEN_FILTER;
@@ -144,6 +190,18 @@ public class MiraFilters
             {
                 postFiltered = matcher.replaceAll(" * ");
                 LOGGER.warn("Mira post-filter triggered: '{}'", matcher.pattern());
+            }
+        }
+
+        for (final Map.Entry<Pattern, String> entry : ageDetectionFilter.entrySet())
+        {
+            final Matcher matcher = entry.getKey().matcher(postFiltered);
+            final String replacement = entry.getValue();
+
+            if (matcher.find())
+            {
+                postFiltered = matcher.replaceAll(replacement);
+                LOGGER.warn("Mira age detection filter triggered: '{}'", matcher.pattern());
             }
         }
 
