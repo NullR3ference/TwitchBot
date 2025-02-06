@@ -4,17 +4,12 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
+import org.aytsan_lex.twitchbot.BotCommandsManager;
 import org.aytsan_lex.twitchbot.BotConfigManager;
-import org.aytsan_lex.twitchbot.CommandHandler;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class IqMuteBotCommand extends BotCommandBase
 {
-    public IqMuteBotCommand()
-    {
-        super();
-    }
-
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
@@ -29,8 +24,7 @@ public class IqMuteBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.IQ.name(), isMuted);
-            BotConfigManager.writeConfig();
+            BotCommandsManager.setCommandIsMuted(IqMuteBotCommand.class.getSimpleName(), isMuted);
             TwitchBot.LOGGER.info("IQ command muted = {}", isMuted);
         }
         else

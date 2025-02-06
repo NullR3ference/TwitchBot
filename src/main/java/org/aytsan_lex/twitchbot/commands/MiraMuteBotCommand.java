@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
+import org.aytsan_lex.twitchbot.BotCommandsManager;
 import org.aytsan_lex.twitchbot.BotConfigManager;
-import org.aytsan_lex.twitchbot.CommandHandler;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class MiraMuteBotCommand extends BotCommandBase
@@ -24,8 +24,7 @@ public class MiraMuteBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), isMuted);
-            BotConfigManager.writeConfig();
+            BotCommandsManager.setCommandIsMuted(MiraBotCommand.class.getSimpleName(), isMuted);
             TwitchBot.LOGGER.info("Mira command muted = {}", isMuted);
         }
         else

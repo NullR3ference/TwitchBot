@@ -17,7 +17,9 @@ public class BotCommandBase implements IBotCommand
     public static final Lock messageSendMutex = new ReentrantLock(true);
 
     @Override
-    public void execute(final IRCMessageEvent event, final ArrayList<String> args) { }
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
+    {
+    }
 
     @Override
     public int getRequiredPermissionLevel()
@@ -29,6 +31,12 @@ public class BotCommandBase implements IBotCommand
     public int getCooldown()
     {
         return BotConfigManager.getCommandCooldown(this.getClass().getSimpleName());
+    }
+
+    @Override
+    public boolean isMuted()
+    {
+        return BotConfigManager.commandIsMuted(this.getClass().getSimpleName());
     }
 
     public void replyToMessageWithDelay(final EventChannel channel,

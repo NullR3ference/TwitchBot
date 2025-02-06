@@ -88,7 +88,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
+        if (super.isMuted())
         {
             TwitchBot.LOGGER.warn("Command will not execute: command is muted!");
             super.sendMessage(
@@ -139,7 +139,7 @@ public class MiraBotCommand extends BotCommandBase
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);
         TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
 
-        if (BotConfigManager.commandIsMuted(CommandHandler.Commands.MIRA.name()))
+        if (super.isMuted())
         {
             TwitchBot.LOGGER.warn("Message will not send: command is muted!");
             return;
@@ -164,7 +164,7 @@ public class MiraBotCommand extends BotCommandBase
         if (!miraFilters.testMuteCommandsFilter(filteredResponse))
         {
             TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
-            BotConfigManager.setCommandIsMuted(CommandHandler.Commands.MIRA.name(), true);
+            BotCommandsManager.setCommandIsMuted(this.getClass().getSimpleName(), true);
         }
 
         BotGlobalState.setMiraCommandRunning(false);

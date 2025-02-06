@@ -8,4 +8,5 @@ public interface IBotCommand
     void execute(IRCMessageEvent event, ArrayList<String> args) throws BotCommandError;
     int getRequiredPermissionLevel();
     int getCooldown();
+    boolean isMuted();
 }

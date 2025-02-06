@@ -97,7 +97,7 @@ public class FiltersManager
                 {
                   "preFilterValues": [],
                   "postFilterValues": [],
-                  "possibleMuteCommandsFilter" [],
+                  "possibleMuteCommandsFilter": [],
                   "lengthFilterValue": 0,
                   "wordLengthFilterValue": 0
                 }

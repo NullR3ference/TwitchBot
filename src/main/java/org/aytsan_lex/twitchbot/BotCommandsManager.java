@@ -26,28 +26,34 @@ public class BotCommandsManager
 
     private static final HashMap<String, IBotCommand> commandAliases = new HashMap<>()
     {{
-        put("iq", iqBotCommand);                        put("айку", iqBotCommand);
-        put("ben", benBotCommand);                      put("бен", benBotCommand);
-        put("mira", miraBotCommand);                    put("мира", miraBotCommand);
-        put("join", joinToChatBotCommand);              // empty
-        put("leave", leaveFromChatBotCommand);          // empty
-        put("addchannel", addChannelBotCommand);        // empty
-        put("rmchannel", removeChannelBotCommand);      // empty
-        put("iqmute", iqMuteBotCommand);                // empty
-        put("benmute", benMuteBotCommand);              // empty
-        put("miramute", miraMuteBotCommand);            // empty
-        put("permit", setPermissionBotCommand);         // empty
-        put("readcfg", readcfgBotCommand);              // empty
-        put("restart", restartBotCommand);              // empty
-        put("status", statusBotCommand);                // empty
-        put("updatefilters", updateFiltersBotCommand);  // empty
-        put("filterinfo", filtersInfoBotCommand);       // empty
-        put("setcd", setCooldownBotCommand);            // empty
-        put("msgdelay", msgDelayBotCommand);            // empty
+        put("iq", iqBotCommand);
+        put("ben", benBotCommand);
+        put("mira", miraBotCommand);
+        put("join", joinToChatBotCommand);
+        put("leave", leaveFromChatBotCommand);
+        put("addchannel", addChannelBotCommand);
+        put("rmchannel", removeChannelBotCommand);
+        put("iqmute", iqMuteBotCommand);
+        put("benmute", benMuteBotCommand);
+        put("miramute", miraMuteBotCommand);
+        put("permit", setPermissionBotCommand);
+        put("readcfg", readcfgBotCommand);
+        put("restart", restartBotCommand);
+        put("status", statusBotCommand);
+        put("updatefilters", updateFiltersBotCommand);
+        put("filterinfo", filtersInfoBotCommand);
+        put("setcd", setCooldownBotCommand);
+        put("msgdelay", msgDelayBotCommand);
     }};
 
     public static IBotCommand getCommandByName(final String name)
     {
         return commandAliases.get(name);
+    }
+
+    public static void setCommandIsMuted(final String commandName, boolean isMuted)
+    {
+        BotConfigManager.setCommandIsMuted(commandName, isMuted);
+        BotConfigManager.writeConfig();
     }
 }
