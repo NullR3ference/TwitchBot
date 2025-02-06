@@ -43,21 +43,25 @@ public class MiraBotCommand extends BotCommandBase
             throw new BotCommandError("Args are required for this command!");
         }
 
+        final String userId = event.getUser().getId();
+        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
+
         if (this.cooldownExpiresIn != null && LocalDateTime.now().isBefore(this.cooldownExpiresIn))
         {
-            TwitchBot.LOGGER.warn("Command will not execute: cooldown");
-            return;
+            if (!userId.equals(runningOnChannelId))
+            {
+                TwitchBot.LOGGER.warn("Command will not execute: cooldown");
+                return;
+            }
         }
 
         final EventChannel channel = event.getChannel();
-        final String userId = event.getUser().getId();
         final String userName = event.getUser().getName();
         final String messageId = event.getMessageId().get();
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
         final MiraFilters miraFilters = FiltersManager.getMiraFilters();
-        final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
         final String message = String.join(" ", args).trim().replaceAll("\\s{2,}", "");
 
         if (!OllamaModelsManager.checkConnection())
