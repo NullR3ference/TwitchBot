@@ -24,7 +24,6 @@ public class JoinToChatBotCommand extends BotCommandBase
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             TwitchBot.instance().joinToChat(targetChannelName);
-            TwitchBot.LOGGER.info("Joined to: [{}]", targetChannelName);
 
             super.replyToMessageWithDelay(
                     event.getChannel(),
@@ -34,6 +33,8 @@ public class JoinToChatBotCommand extends BotCommandBase
                     "Подключен к: [%s]".formatted(targetChannelName),
                     BotConfigManager.getConfig().getDelayBetweenMessages()
             );
+
+            TwitchBot.LOGGER.info("Joined to: [{}]", targetChannelName);
         }
         else
         {

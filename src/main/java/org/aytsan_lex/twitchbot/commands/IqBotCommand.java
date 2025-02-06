@@ -12,15 +12,18 @@ public class IqBotCommand extends BotCommandBase
     @Override
     public void execute(IRCMessageEvent event, ArrayList<String> args)
     {
-        final int iqValue = new Random().nextInt(0, 250);
+        if (!super.isMuted())
+        {
+            final int iqValue = new Random().nextInt(0, 250);
 
-        super.replyToMessageWithDelay(
-                event.getChannel(),
-                event.getUser().getId(),
-                event.getMessageId().get(),
-                event.getTwitchChat(),
-                "@%s У тебя %d IQ".formatted(event.getUserName(), iqValue),
-                BotConfigManager.getConfig().getDelayBetweenMessages()
-        );
+            super.replyToMessageWithDelay(
+                    event.getChannel(),
+                    event.getUser().getId(),
+                    event.getMessageId().get(),
+                    event.getTwitchChat(),
+                    "@%s У тебя %d IQ".formatted(event.getUserName(), iqValue),
+                    BotConfigManager.getConfig().getDelayBetweenMessages()
+            );
+        }
     }
 }

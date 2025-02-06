@@ -13,19 +13,15 @@ public class RemoveChannelBotCommand extends BotCommandBase
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (args.isEmpty())
-        {
-            throw new BotCommandError("Args are required for this command!");
-        }
-
         final String userName = event.getUser().getName();
         final TwitchChat chat = event.getTwitchChat();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
-        final String targetChannelName = args.get(0);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
+            final String targetChannelName = (args.isEmpty()) ? event.getChannel().getName() : args.get(0).trim();
             final String targetChannelId = chat.getChannelNameToChannelId().get(targetChannelName);
+
             if (targetChannelId != null)
             {
                 if (TwitchBot.instance().channelExists(targetChannelName))
@@ -40,8 +36,12 @@ public class RemoveChannelBotCommand extends BotCommandBase
                                 "Канал удален: [%s]".formatted(targetChannelName),
                                 BotConfigManager.getConfig().getDelayBetweenMessages()
                         );
+
                         TwitchBot.instance().leaveFromChat(targetChannelName);
+                        BotConfigManager.removeChannel(targetChannelName);
                         BotConfigManager.writeConfig();
+
+                        TwitchBot.LOGGER.info("Channel removed: [{}]", targetChannelName);
                     }
                 }
             }

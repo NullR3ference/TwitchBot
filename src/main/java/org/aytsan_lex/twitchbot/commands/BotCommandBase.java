@@ -49,12 +49,12 @@ public class BotCommandBase implements IBotCommand
         this.sendMessage(channel, userId, messageId, chat, message, delay);
     }
 
-    public void sendMessage(EventChannel channel,
-                            String userId,
-                            String messageId,
-                            TwitchChat chat,
-                            String message,
-                            int delay)
+    public void sendMessage(final EventChannel channel,
+                            final String userId,
+                            final String messageId,
+                            final TwitchChat chat,
+                            final String message,
+                            final int delay)
     {
         final String channelName = channel.getName();
         final String channelId = channel.getId();

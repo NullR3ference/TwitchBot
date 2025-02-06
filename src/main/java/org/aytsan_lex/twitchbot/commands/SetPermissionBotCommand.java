@@ -14,7 +14,7 @@ public class SetPermissionBotCommand extends BotCommandBase
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (args.isEmpty())
+        if (args.size() < 2)
         {
             throw new BotCommandError("Args are required for this command!");
         }
@@ -70,7 +70,7 @@ public class SetPermissionBotCommand extends BotCommandBase
                 try
                 {
                     final String modelMessage =
-                            "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d (реагируй на него, если 0 - издевайся)"
+                            "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d (реагируй на него, издевайся, кратко, с ухмылкой)"
                                     .formatted(targetUserName, targetLevel);
 
                     TwitchBot.LOGGER.info("Sending info to the model:\n{}", modelMessage);

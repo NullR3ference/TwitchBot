@@ -10,15 +10,18 @@ public class BenBotCommand extends BotCommandBase
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        final boolean result = new Random().nextBoolean();
+        if (!super.isMuted())
+        {
+            final boolean result = new Random().nextBoolean();
 
-        super.replyToMessageWithDelay(
-                event.getChannel(),
-                event.getUser().getId(),
-                event.getMessageId().get(),
-                event.getTwitchChat(),
-                (result) ? "yes" : "no",
-                BotConfigManager.getConfig().getDelayBetweenMessages()
-        );
+            super.replyToMessageWithDelay(
+                    event.getChannel(),
+                    event.getUser().getId(),
+                    event.getMessageId().get(),
+                    event.getTwitchChat(),
+                    (result) ? "yes" : "no",
+                    BotConfigManager.getConfig().getDelayBetweenMessages()
+            );
+        }
     }
 }
