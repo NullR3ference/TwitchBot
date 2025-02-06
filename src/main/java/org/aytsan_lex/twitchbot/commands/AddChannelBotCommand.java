@@ -26,6 +26,7 @@ public class AddChannelBotCommand extends BotCommandBase
                 if (BotConfigManager.addChannel(targetChannelName))
                 {
                     TwitchBot.instance().joinToChat(targetChannelName);
+                    BotConfigManager.addChannel(targetChannelName);
                     BotConfigManager.writeConfig();
 
                     super.replyToMessageWithDelay(
