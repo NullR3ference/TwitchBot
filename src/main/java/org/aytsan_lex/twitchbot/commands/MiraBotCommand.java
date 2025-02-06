@@ -36,11 +36,11 @@ public class MiraBotCommand extends BotCommandBase
     }
 
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (!(args[0] instanceof String message) || !(args[1] instanceof IRCMessageEvent event))
+        if (args.isEmpty())
         {
-            throw new BotCommandError("Invalid args classes");
+            throw new BotCommandError("Args are required for this command!");
         }
 
         if (this.cooldownExpiresIn != null && LocalDateTime.now().isBefore(this.cooldownExpiresIn))
@@ -58,6 +58,7 @@ public class MiraBotCommand extends BotCommandBase
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
         final MiraFilters miraFilters = FiltersManager.getMiraFilters();
         final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
+        final String message = args.get(0);
 
         if (!OllamaModelsManager.checkConnection())
         {
@@ -82,20 +83,6 @@ public class MiraBotCommand extends BotCommandBase
                     messageId,
                     chat,
                     "Прости зайка, создателю надо выдать разрешение, прежде чем я смогу тебе отвечать ((",
-                    delay
-            );
-            return;
-        }
-
-        if (BotGlobalState.votingIsActive())
-        {
-            TwitchBot.LOGGER.warn("Cannot interact with Mira while voting is active");
-            super.replyToMessageWithDelay(
-                    channel,
-                    userId,
-                    messageId,
-                    chat,
-                    "Прости зайка, я не могу отвечать, пока голосование активно ((",
                     delay
             );
             return;

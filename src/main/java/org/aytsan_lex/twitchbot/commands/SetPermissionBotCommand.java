@@ -1,53 +1,52 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
+
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.BotGlobalState;
 import org.aytsan_lex.twitchbot.OllamaModelsManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class SetPermissionBotCommand extends BotCommandBase
 {
-    public SetPermissionBotCommand()
-    {
-        super();
-    }
-
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (!(args[0] instanceof String targetUserName) ||
-            !(args[1] instanceof Integer targetLevel) ||
-            !(args[2] instanceof IRCMessageEvent event))
+        if (args.isEmpty())
         {
-            throw new BotCommandError("Invalid args classes");
+            throw new BotCommandError("Args are required for this command!");
         }
 
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
-        final int targetUserPermissionLevel = BotConfigManager.getPermissionLevel(targetUserName);
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
+
+        final String targetUserName = args.get(0).trim();
+        final int targetLevel = Integer.parseInt(args.get(1).trim());
+        final int targetUserCurrentLevel = BotConfigManager.getPermissionLevel(targetUserName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            if (permissionLevel < targetUserPermissionLevel)
+            if (permissionLevel < targetUserCurrentLevel)
             {
+                TwitchBot.LOGGER.warn(
+                        "{}: cannot set permission for '{}' with higher level then you: {} vs {}",
+                        userName,
+                        targetUserName,
+                        permissionLevel,
+                        targetUserCurrentLevel
+                );
+
                 super.replyToMessageWithDelay(
                         event.getChannel(),
                         event.getUser().getId(),
                         event.getMessageId().get(),
                         event.getTwitchChat(),
                         "Нельзя изменить уровень доступа для пользователя с уровнем выше твоего: %d против %d"
-                                .formatted(permissionLevel, targetUserPermissionLevel),
+                                .formatted(permissionLevel, targetUserCurrentLevel),
                         delay
-                );
-
-                TwitchBot.LOGGER.warn(
-                        "{}: cannot set permission for '{}' with higher level then you: {} vs {}",
-                        userName,
-                        targetUserName,
-                        permissionLevel,
-                        targetUserPermissionLevel
                 );
                 return;
             }
@@ -71,7 +70,7 @@ public class SetPermissionBotCommand extends BotCommandBase
                 try
                 {
                     final String modelMessage =
-                            "(системное сообщение): 'для пользователя '%s' установлен уровень доступа: %d' (реагируй на него, кратко)"
+                            "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d (реагируй на него, если 0 - издевайся)"
                                     .formatted(targetUserName, targetLevel);
 
                     TwitchBot.LOGGER.info("Sending info to the model:\n{}", modelMessage);

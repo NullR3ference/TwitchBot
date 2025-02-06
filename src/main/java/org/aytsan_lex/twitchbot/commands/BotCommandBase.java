@@ -1,25 +1,23 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.aytsan_lex.twitchbot.BotConfigManager;
+
 import com.github.twitch4j.chat.TwitchChat;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.common.events.domain.EventChannel;
+
+import org.aytsan_lex.twitchbot.BotConfigManager;
 
 public class BotCommandBase implements IBotCommand
 {
     public static final int DEFAULT_MESSAGE_DELAY = 1100; // ms
     public static final Lock messageSendMutex = new ReentrantLock(true);
 
-    public BotCommandBase()
-    {
-    }
-
     @Override
-    public void execute(Object... args)
-    {
-    }
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args) { }
 
     @Override
     public int getRequiredPermissionLevel()
@@ -31,15 +29,6 @@ public class BotCommandBase implements IBotCommand
     public int getCooldown()
     {
         return BotConfigManager.getCommandCooldown(this.getClass().getSimpleName());
-    }
-
-    public void replyToMessage(final EventChannel channel,
-                               final String userId,
-                               final String messageId,
-                               final TwitchChat chat,
-                               final String message)
-    {
-        this.replyToMessageWithDelay(channel, userId, messageId, chat, message, 0);
     }
 
     public void replyToMessageWithDelay(final EventChannel channel,
@@ -72,8 +61,7 @@ public class BotCommandBase implements IBotCommand
             }
             chat.sendMessage(channelName, message,null, messageId);
         }
-        catch (Exception ignored)
-        { }
+        catch (Exception ignored) { }
         finally
         {
             messageSendMutex.unlock();

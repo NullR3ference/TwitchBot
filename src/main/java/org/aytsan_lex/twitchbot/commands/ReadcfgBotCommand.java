@@ -1,24 +1,16 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
+
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class ReadcfgBotCommand extends BotCommandBase
 {
-    public ReadcfgBotCommand()
-    {
-        super();
-    }
-
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (!(args[0] instanceof IRCMessageEvent event))
-        {
-            throw new BotCommandError("Invalid args classes");
-        }
-
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 

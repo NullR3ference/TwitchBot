@@ -1,10 +1,11 @@
 package org.aytsan_lex.twitchbot.commands;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.BotConfigManager;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class MsgDelayBotCommand extends BotCommandBase
 {
@@ -14,29 +15,21 @@ public class MsgDelayBotCommand extends BotCommandBase
     }
 
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (!(args[0] instanceof IRCMessageEvent event))
-        {
-            throw new BotCommandError("Invalid args classes");
-        }
-
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            if (args.length >= 3)
+            if (!args.isEmpty())
             {
-                if (!(args[1] instanceof String subCommand))
-                {
-                    throw new BotCommandError("Invalid args classes");
-                }
+                final String subCommand = args.get(0).trim().toUpperCase();
 
                 this.handleSubCommand(
                         event,
-                        subCommand.trim().toUpperCase(),
-                        new ArrayList<>(Arrays.asList(args).subList(2, args.length))
+                        subCommand,
+                        new ArrayList<>(args.subList(1, args.size()))
                 );
             }
             else
@@ -47,7 +40,7 @@ public class MsgDelayBotCommand extends BotCommandBase
                         event.getUser().getId(),
                         event.getMessageId().get(),
                         event.getTwitchChat(),
-                        "Задержка м/сообщениями: %dms".formatted(delayValue),
+                        "Задержка между сообщениями: %dms".formatted(delayValue),
                         delayValue
                 );
             }
@@ -70,14 +63,14 @@ public class MsgDelayBotCommand extends BotCommandBase
                     BotConfigManager.setDelayBetweenMessages(value);
                     BotConfigManager.writeConfig();
 
-                    TwitchBot.LOGGER.info("Delay between messages set -> {}ms", value);
+                    TwitchBot.LOGGER.info("Delay between messages set: {} ms", BotCommandBase.DEFAULT_MESSAGE_DELAY);
 
                     super.replyToMessageWithDelay(
                             event.getChannel(),
                             event.getUser().getId(),
                             event.getMessageId().get(),
                             event.getTwitchChat(),
-                            "Задержка м/сообщениями установлена -> %dms".formatted(value),
+                            "Задержка между сообщениями установлена: %d ms".formatted(value),
                             value
                     );
                 }

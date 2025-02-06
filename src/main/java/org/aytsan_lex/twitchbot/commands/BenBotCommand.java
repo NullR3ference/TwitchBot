@@ -1,24 +1,15 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
 import java.util.Random;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import org.aytsan_lex.twitchbot.BotConfigManager;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class BenBotCommand extends BotCommandBase
 {
-    public BenBotCommand()
-    {
-        super();
-    }
-
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if ((!(args[0] instanceof String messageText)) || (!(args[1] instanceof IRCMessageEvent event)))
-        {
-            throw new BotCommandError("Invalid args classes");
-        }
-
         final boolean result = new Random().nextBoolean();
 
         super.replyToMessageWithDelay(

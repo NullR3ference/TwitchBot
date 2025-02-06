@@ -1,8 +1,11 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
 public interface IBotCommand
 {
-    void execute(Object... args);
+    void execute(IRCMessageEvent event, ArrayList<String> args) throws BotCommandError;
     int getRequiredPermissionLevel();
     int getCooldown();
 }

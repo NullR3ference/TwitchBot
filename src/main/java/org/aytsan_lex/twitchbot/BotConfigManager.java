@@ -245,11 +245,8 @@ public class BotConfigManager
                     "RemoveChannelBotCommand": 777,
                     "RestartBotCommand": 777,
                     "SetPermissionBotCommand": 777,
-                    "StartVoteBotCommand": 777,
                     "StatusBotCommand": 777,
-                    "UpdateFiltersBotCommand": 777,
-                    "VoteBotCommand": 0,
-                    "VoteInfoBotCommand": 777
+                    "UpdateFiltersBotCommand": 777
                   },
                   "commandCooldowns": {},
                   "mutedCommands": [],

@@ -5,83 +5,15 @@ import org.slf4j.LoggerFactory;
 
 public class BotGlobalState
 {
-    public static class VotingContext
-    {
-        private final String content;
-        private final int targetVotes;
-        private int currentVotes;
-
-        public VotingContext(String content, int target)
-        {
-            this.content = content;
-            this.targetVotes = target;
-            this.currentVotes = 0;
-        }
-
-        public String getContent() { return this.content; }
-        public int getTargetVotes() { return this.targetVotes; }
-        public int getCurrentVotes() { return this.currentVotes; }
-        public void addVote() { this.currentVotes++; }
-        public boolean isComplete() { return this.currentVotes >= this.targetVotes; }
-
-        @Override
-        public String toString()
-        {
-            return "VotingContext{'%s'; %d/%d; complete=%b}"
-                    .formatted(this.content, this.currentVotes, this.targetVotes, isComplete());
-        }
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BotGlobalState.class);
-    private static VotingContext currentVotingContext = null;
-    private static VotingContext recentVotingContext = null;
     private static boolean miraCommandRunning = false;
 
-    public static void startVoting(String content, int target)
-    {
-        currentVotingContext = new VotingContext(content, target);
-        recentVotingContext = null;
-        LOGGER.info("Voting started: {}", currentVotingContext);
-    }
-
-    public static void stopVoting()
-    {
-        LOGGER.info("Voting stopped: {}", currentVotingContext);
-        recentVotingContext = currentVotingContext;
-        currentVotingContext = null;
-    }
-
-    public static boolean votingIsActive()
-    {
-        return currentVotingContext != null;
-    }
-
-    public static VotingContext getCurrentVotingContext()
-    {
-        return currentVotingContext;
-    }
-
-    public static boolean hasRecentVotingContext()
-    {
-        return recentVotingContext != null;
-    }
-
-    public static VotingContext getRecentVotingContext()
-    {
-        return recentVotingContext;
-    }
-
-    public static void clearRecentContext()
-    {
-        recentVotingContext = null;
-    }
-
-    public static boolean isMiraCommandRunning()
+    public static synchronized boolean isMiraCommandRunning()
     {
         return miraCommandRunning;
     }
 
-    public static void setMiraCommandRunning(boolean value)
+    public static synchronized void setMiraCommandRunning(boolean value)
     {
         miraCommandRunning = value;
     }

@@ -1,25 +1,18 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.util.ArrayList;
+
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
 import org.aytsan_lex.twitchbot.FiltersManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.BotConfigManager;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class UpdateFiltersBotCommand extends BotCommandBase
 {
-    public UpdateFiltersBotCommand()
-    {
-        super();
-    }
-
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (!(args[0] instanceof IRCMessageEvent event))
-        {
-            throw new BotCommandError("Invalid args classes");
-        }
-
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 

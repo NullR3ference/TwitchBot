@@ -4,26 +4,19 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
 import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.TwitchBotLauncher;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class StatusBotCommand extends BotCommandBase
 {
-    public StatusBotCommand()
-    {
-        super();
-    }
-
     @Override
-    public void execute(Object... args)
+    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        if (!(args[0] instanceof IRCMessageEvent event))
-        {
-            throw new BotCommandError("Invalid args classes");
-        }
-
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
@@ -51,12 +44,13 @@ public class StatusBotCommand extends BotCommandBase
         final float heapUsedMib = (float)memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
         final float nonHeapUsedMib = (float)memoryMXBean.getNonHeapMemoryUsage().getUsed() / (1024 * 1024);
 
-        return "Uptime: %02d:%02d:%02d | Heap: %.2f MiB | Non-Heap: %.2f MiB".formatted(
+        return "%02d:%02d:%02d | Heap: %.2f MiB Non-Heap: %.2f MiB | Channels: %d".formatted(
                 uptime.toHoursPart(),
                 uptime.toMinutesPart(),
                 uptime.toSecondsPart(),
                 heapUsedMib,
-                nonHeapUsedMib
+                nonHeapUsedMib,
+                BotConfigManager.getConfig().getChannels().size()
         );
     }
 }
