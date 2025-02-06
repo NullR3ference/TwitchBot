@@ -1,9 +1,11 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import java.util.ArrayList;
+
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.BotConfigManager;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class AddChannelBotCommand extends BotCommandBase
 {

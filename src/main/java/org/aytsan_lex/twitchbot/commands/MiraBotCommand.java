@@ -158,7 +158,7 @@ public class MiraBotCommand extends BotCommandBase
                     );
 
             case MSG_BLOCKS ->
-                    this.sendBlocks(channel, runningOnChannelId, null, chat, delay, filteredResponse);
+                    this.sendBlocks(channel, runningOnChannelId, chat, delay, filteredResponse);
         }
 
         if (!miraFilters.testMuteCommandsFilter(filteredResponse))
@@ -172,7 +172,6 @@ public class MiraBotCommand extends BotCommandBase
 
     private void sendBlocks(final EventChannel channel,
                             final String userId,
-                            final String messageId,
                             final TwitchChat chat,
                             final int delay,
                             final String response)
@@ -184,7 +183,7 @@ public class MiraBotCommand extends BotCommandBase
             this.sendMessage(
                     channel,
                     userId,
-                    messageId,
+                    null,
                     chat,
                     msg,
                     delay

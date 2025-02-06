@@ -15,7 +15,7 @@ public class BotCommandsManager
     private static final IBotCommand iqMuteBotCommand = new IqMuteBotCommand();
     private static final IBotCommand benMuteBotCommand = new BenMuteBotCommand();
     private static final IBotCommand miraMuteBotCommand = new MiraMuteBotCommand();
-    private static final IBotCommand setPermissionBotCommand = new SetPermissionBotCommand();
+    private static final IBotCommand setPermissionBotCommand = new PermissionBotCommand();
     private static final IBotCommand readcfgBotCommand = new ReadcfgBotCommand();
     private static final IBotCommand restartBotCommand = new RestartBotCommand();
     private static final IBotCommand statusBotCommand = new StatusBotCommand();
@@ -36,7 +36,7 @@ public class BotCommandsManager
         put("iqmute", iqMuteBotCommand);
         put("benmute", benMuteBotCommand);
         put("miramute", miraMuteBotCommand);
-        put("permit", setPermissionBotCommand);
+        put("perm", setPermissionBotCommand);
         put("readcfg", readcfgBotCommand);
         put("restart", restartBotCommand);
         put("status", statusBotCommand);

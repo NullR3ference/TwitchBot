@@ -17,6 +17,11 @@ public class MsgDelayBotCommand extends BotCommandBase
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
+        if (args.isEmpty())
+        {
+            throw new BotCommandError("Args are required for this command!");
+        }
+
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
@@ -25,12 +30,7 @@ public class MsgDelayBotCommand extends BotCommandBase
             if (!args.isEmpty())
             {
                 final String subCommand = args.get(0).trim().toUpperCase();
-
-                this.handleSubCommand(
-                        event,
-                        subCommand,
-                        new ArrayList<>(args.subList(1, args.size()))
-                );
+                this.handleSubCommand(event, subCommand, new ArrayList<>(args.subList(1, args.size())));
             }
             else
             {
@@ -51,7 +51,9 @@ public class MsgDelayBotCommand extends BotCommandBase
         }
     }
 
-    private void handleSubCommand(final IRCMessageEvent event, final String cmd, final ArrayList<Object> args)
+    private void handleSubCommand(final IRCMessageEvent event,
+                                  final String cmd,
+                                  final ArrayList<Object> args)
     {
         try
         {
@@ -78,7 +80,7 @@ public class MsgDelayBotCommand extends BotCommandBase
         }
         catch (IllegalArgumentException e)
         {
-            TwitchBot.LOGGER.warn("Invalid (or unknown) sub-command for '{}': '{}'", this.getClass().getSimpleName(), cmd);
+            TwitchBot.LOGGER.warn("Invalid sub-command for '{}': '{}'", this.getClass().getSimpleName(), cmd);
         }
     }
 }
