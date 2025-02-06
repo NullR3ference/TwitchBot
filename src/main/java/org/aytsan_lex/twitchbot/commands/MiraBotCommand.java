@@ -58,7 +58,7 @@ public class MiraBotCommand extends BotCommandBase
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
         final MiraFilters miraFilters = FiltersManager.getMiraFilters();
         final String runningOnChannelId = BotConfigManager.getConfig().getRunningOnChannelId();
-        final String message = args.get(0);
+        final String message = String.join(" ", args).trim().replaceAll("\\s{2,}", "");
 
         if (!OllamaModelsManager.checkConnection())
         {
