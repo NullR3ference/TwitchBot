@@ -149,32 +149,6 @@ public class BotConfigManager
         return config.getMutedCommands().contains(cmd);
     }
 
-    public static boolean isTimedOutChannel(String channelName)
-    {
-        return config.getTimedOutOnChannels().containsKey(channelName);
-    }
-
-    public static LocalDateTime getTimeoutExpiredIn(String channelName)
-    {
-        return LocalDateTime.parse(
-                config.getTimedOutOnChannels().get(channelName),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
-        );
-    }
-
-    public static void removeTimedOutChannel(String channelName)
-    {
-        config.getTimedOutOnChannels().remove(channelName);
-    }
-
-    public static void setChannelIsTimedOut(String channelName, LocalDateTime expiredIn)
-    {
-        config.getTimedOutOnChannels().put(
-                channelName,
-                expiredIn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
-        );
-    }
-
     public static void setCommandIsMuted(String cmd, boolean isMuted)
     {
         if (isMuted)
@@ -187,6 +161,52 @@ public class BotConfigManager
         else
         {
             config.getMutedCommands().removeIf(c -> Objects.equals(c, cmd));
+        }
+    }
+
+    public static boolean isTimedOutOnChannel(String channelName)
+    {
+        return config.getTimedOutOnChannels().containsKey(channelName);
+    }
+
+    public static LocalDateTime getTimeoutEndsAt(String channelName)
+    {
+        return LocalDateTime.parse(
+                config.getTimedOutOnChannels().get(channelName),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        );
+    }
+
+    public static void setTimedOutOnChannel(String channelName, LocalDateTime expiredIn)
+    {
+        config.getTimedOutOnChannels().put(
+                channelName,
+                expiredIn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+        );
+    }
+
+    public static void removeTimedOutOnChannel(String channelName)
+    {
+        config.getTimedOutOnChannels().remove(channelName);
+    }
+
+    public static boolean isBannedOnChannel(String channelName)
+    {
+        return config.getBannedOnChannels().contains(channelName);
+    }
+
+    public static void setBannedOnChannel(String channelName, boolean isBanned)
+    {
+        if (isBanned)
+        {
+            if (!config.getBannedOnChannels().contains(channelName))
+            {
+                config.getBannedOnChannels().add(channelName);
+            }
+        }
+        else
+        {
+            config.getChannels().removeIf(c -> Objects.equals(c, channelName));
         }
     }
 
@@ -227,6 +247,7 @@ public class BotConfigManager
                   "runningOnChannelId": "",
                   "channels": [],
                   "timedOutOnChannels": {},
+                  "bannedOnChannels": [],
                   "owners": [],
                   "permissions": {},
                   "commandPermissionLevels": {

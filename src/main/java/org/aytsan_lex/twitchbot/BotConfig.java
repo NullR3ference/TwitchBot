@@ -9,6 +9,7 @@ public class BotConfig
     private String runningOnChannelId;
     private ArrayList<String> channels;
     private HashMap<String, String> timedOutOnChannels;
+    private ArrayList<String> bannedOnChannels;
     private ArrayList<String> owners;
     private HashMap<String, Integer> permissions;
     private HashMap<String, Integer> commandPermissionLevels;
@@ -53,6 +54,11 @@ public class BotConfig
     public HashMap<String, String> getTimedOutOnChannels()
     {
         return this.timedOutOnChannels;
+    }
+
+    public ArrayList<String> getBannedOnChannels()
+    {
+        return this.bannedOnChannels;
     }
 
     public ArrayList<String> getOwners()

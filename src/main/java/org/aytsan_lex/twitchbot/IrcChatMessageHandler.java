@@ -30,37 +30,37 @@ public class IrcChatMessageHandler
 
     private static void handlePrivmsgIrcCommand(IRCMessageEvent event)
     {
-        final EventUser user = event.getUser();
-        final Optional<String> optionalMessage = event.getMessage();
-
-        if (user != null && optionalMessage.isPresent())
-        {
-            final String channelName = event.getChannel().getName();
-            final String message = optionalMessage.get();
-
-            // TODO: Handle command via @tag of bot
-            // @bot <command> [args...]
-
-            if (message.startsWith("%"))
-            {
-                if (BotConfigManager.isTimedOutChannel(channelName))
-                {
-                    final LocalDateTime currentDateTime = LocalDateTime.now();
-                    final LocalDateTime expiredIn = BotConfigManager.getTimeoutExpiredIn(channelName);
-
-                    if (currentDateTime.isBefore(expiredIn))
-                    {
-                        TwitchBot.LOGGER.warn("Failed to handle command on '{}': timed out", channelName);
-                        return;
-                    }
-
-                    BotConfigManager.removeTimedOutChannel(channelName);
-                    BotConfigManager.writeConfig();
-                }
-
-                CommandHandler.handleCommand(message, event);
-            }
-        }
+//        final EventUser user = event.getUser();
+//        final Optional<String> optionalMessage = event.getMessage();
+//
+//        if (user != null && optionalMessage.isPresent())
+//        {
+//            final String channelName = event.getChannel().getName();
+//            final String message = optionalMessage.get();
+//
+//            // TODO: Handle command via @tag of bot
+//            // @bot <command> [args...]
+//
+//            if (message.startsWith("%"))
+//            {
+//                if (BotConfigManager.isTimedOutChannel(channelName))
+//                {
+//                    final LocalDateTime currentDateTime = LocalDateTime.now();
+//                    final LocalDateTime expiredIn = BotConfigManager.getTimeoutExpiredIn(channelName);
+//
+//                    if (currentDateTime.isBefore(expiredIn))
+//                    {
+//                        TwitchBot.LOGGER.warn("Failed to handle command on '{}': timed out", channelName);
+//                        return;
+//                    }
+//
+//                    BotConfigManager.removeTimedOutChannel(channelName);
+//                    BotConfigManager.writeConfig();
+//                }
+//
+//                CommandHandler.handleCommand(message, event);
+//            }
+//        }
     }
 
     private static void handleClearchatIrcCommand(IRCMessageEvent event)
@@ -77,7 +77,7 @@ public class IrcChatMessageHandler
                 final int seconds = Integer.parseInt(values.get("ban-duration"));
 
                 final LocalDateTime expiredIn = LocalDateTime.now().plusSeconds(seconds);
-                BotConfigManager.setChannelIsTimedOut(channelName, expiredIn);
+                BotConfigManager.setTimedOutOnChannel(channelName, expiredIn);
                 BotConfigManager.writeConfig();
 
                 TwitchBot.LOGGER.warn("You`ve been timed out for {} seconds on channel: '{}'", seconds, channelName);

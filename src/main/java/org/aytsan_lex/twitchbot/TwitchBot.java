@@ -1,5 +1,8 @@
 package org.aytsan_lex.twitchbot;
 
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.eventsub.events.ChannelBanEvent;
+import com.github.twitch4j.eventsub.events.ChannelUnbanEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
@@ -69,15 +72,22 @@ public class TwitchBot
     {
         if (!isRunning)
         {
-            LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.getConfig().getChannels());
+            this.twitchClient.getEventManager()
+                    .getEventHandler(SimpleEventHandler.class)
+                    .onEvent(ChannelMessageEvent.class, ChannelEventHandler::handleChannelMessage);
 
             this.twitchClient.getEventManager()
                     .getEventHandler(SimpleEventHandler.class)
-                    .onEvent(IRCMessageEvent.class, IrcChatMessageHandler::handleIrcMessage);
+                    .onEvent(ChannelBanEvent.class, ChannelEventHandler::handleBanEvent);
 
+            this.twitchClient.getEventManager()
+                    .getEventHandler(SimpleEventHandler.class)
+                    .onEvent(ChannelUnbanEvent.class, ChannelEventHandler::handleUnbanEvent);
+
+            LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.getConfig().getChannels());
             BotConfigManager.getConfig().getChannels().forEach(this::joinToChat);
-            this.isRunning = true;
 
+            this.isRunning = true;
             LOGGER.info("Started");
         }
         else
