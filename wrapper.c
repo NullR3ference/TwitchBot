@@ -94,6 +94,5 @@ int main(int argc, char** argv)
     sleep(WATCHDOG_CHECK_TIMEOUT);
   }
 
-exit:
   return 0;
 }
