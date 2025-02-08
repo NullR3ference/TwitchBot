@@ -2,6 +2,7 @@ package org.aytsan_lex.twitchbot;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,24 +21,32 @@ public class CommandHandler
         );
 
         final String cmd = rawMessage.get(0).trim().replaceAll("\\s+", "").toLowerCase();
+        ArrayList<String> args = new ArrayList<>();
 
-        handleCommandsInNewThread(
-                event,
-                cmd,
-                (rawMessage.size() >= 2)
-                        ? new ArrayList<>(rawMessage.subList(1, rawMessage.size()))
-                        : new ArrayList<>()
-        );
+        if (rawMessage.size() >= 2)
+        {
+            args = rawMessage.subList(1, rawMessage.size())
+                    .stream()
+                    .map(String::trim)
+                    .map(s -> s.replaceAll("\\s+", ""))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        handleCommandsInNewThread(event, cmd, args);
     }
 
     private static void handleCommandsInNewThread(final IRCMessageEvent event,
                                                   final String cmd,
                                                   final ArrayList<String> cmdArgs)
     {
+        final String channelName = event.getChannel().getName();
+        final String userName = event.getUser().getName();
         final IBotCommand command = BotCommandsManager.getCommandByName(cmd);
+
         if (command != null)
         {
-            LOGGER.info("[{}] Command: '{}', args: {}", event.getUser().getName(), cmd, cmdArgs);
+            LOGGER.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
+
             new Thread(() -> {
                 try
                 {
@@ -45,7 +54,10 @@ public class CommandHandler
                 }
                 catch (BotCommandError e)
                 {
-                    LOGGER.error("{} error: {}", command.getClass().getSimpleName(), e.getMessage());
+                    LOGGER.error(
+                            "[{}] [{}] '{}': Error: {}",
+                            channelName, userName, command.getClass().getSimpleName(), e.getMessage()
+                    );
                     Thread.currentThread().interrupt();
                 }
                 catch (Exception e)
@@ -57,7 +69,7 @@ public class CommandHandler
         }
         else
         {
-            LOGGER.warn("Invalid (or unknown) command: '{}'", cmd);
+            LOGGER.warn("[{}] [{}]: Invalid command: '{}'", channelName, userName, cmd);
         }
     }
 }

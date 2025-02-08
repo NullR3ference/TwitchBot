@@ -22,11 +22,10 @@ public class StatusBotCommand extends BotCommandBase
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            super.replyToMessageWithDelay(
+            super.replyToMessage(
                     event.getChannel(),
-                    event.getUser().getId(),
-                    event.getMessageId().get(),
                     event.getTwitchChat(),
+                    event.getMessageId().get(),
                     this.createStatusMessage(),
                     BotConfigManager.getConfig().getDelayBetweenMessages()
             );
@@ -39,17 +38,17 @@ public class StatusBotCommand extends BotCommandBase
 
     private String createStatusMessage()
     {
-        final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        final MemoryMXBean memMXBean = ManagementFactory.getMemoryMXBean();
         final Duration uptime = Duration.between(TwitchBotLauncher.getStartTime(), Instant.now());
-        final float heapUsedMib = (float)memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
-        final float nonHeapUsedMib = (float)memoryMXBean.getNonHeapMemoryUsage().getUsed() / (1024 * 1024);
+        final float heapUsedMib = (float)memMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
+        final float heapMaxMib = (float)memMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024);
 
-        return "%02d:%02d:%02d | Heap: %.2f MiB Non-Heap: %.2f MiB | Channels: %d".formatted(
+        return "%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d".formatted(
                 uptime.toHoursPart(),
                 uptime.toMinutesPart(),
                 uptime.toSecondsPart(),
                 heapUsedMib,
-                nonHeapUsedMib,
+                heapMaxMib,
                 BotConfigManager.getConfig().getChannels().size()
         );
     }

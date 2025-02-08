@@ -14,19 +14,22 @@ public class FiltersInfoBotCommand extends BotCommandBase
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
+        final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            super.replyToMessageWithDelay(
-                    event.getChannel(),
-                    event.getUser().getId(),
-                    event.getMessageId().get(),
-                    event.getTwitchChat(),
-                    this.createInfoMessage(),
-                    BotConfigManager.getConfig().getDelayBetweenMessages()
-            );
+            if (!super.isTimedOutOnChannelOrModify(channelName))
+            {
+                super.replyToMessage(
+                        event.getChannel(),
+                        event.getTwitchChat(),
+                        event.getMessageId().get(),
+                        this.createInfoMessage(),
+                        BotConfigManager.getConfig().getDelayBetweenMessages()
+                );
+            }
         }
         else
         {

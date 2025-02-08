@@ -1,5 +1,6 @@
 package org.aytsan_lex.twitchbot.commands;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -39,40 +40,51 @@ public class BotCommandBase implements IBotCommand
         return BotConfigManager.commandIsMuted(this.getClass().getSimpleName());
     }
 
-    public void replyToMessageWithDelay(final EventChannel channel,
-                                        final String userId,
-                                        final String messageId,
-                                        final TwitchChat chat,
-                                        final String message,
-                                        final int delay)
+    protected boolean isTimedOutOnChannelOrModify(final String channelName)
     {
-        this.sendMessage(channel, userId, messageId, chat, message, delay);
+        if (BotConfigManager.isTimedOutOnChannel(channelName))
+        {
+            final LocalDateTime now = LocalDateTime.now();
+            final LocalDateTime timeoutEndsAt = BotConfigManager.getTimeoutEndsAt(channelName);
+
+            if (now.isBefore(timeoutEndsAt)) { return true; }
+
+            BotConfigManager.removeTimedOutOnChannel(channelName);
+            BotConfigManager.writeConfig();
+        }
+        return false;
     }
 
-    public void sendMessage(final EventChannel channel,
-                            final String userId,
-                            final String messageId,
-                            final TwitchChat chat,
-                            final String message,
-                            final int delay)
+    protected void replyToMessage(final EventChannel channel,
+                                  final TwitchChat chat,
+                                  final String messageId,
+                                  final String message,
+                                  final int delay)
     {
-        final String channelName = channel.getName();
-        final String channelId = channel.getId();
-
         messageSendMutex.lock();
         try
         {
-            if (!channelId.equals(userId))
-            {
-                try { TimeUnit.MILLISECONDS.sleep(delay); }
-                catch (InterruptedException e) { }
-            }
-            chat.sendMessage(channelName, message,null, messageId);
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException ignored) { }
+            chat.sendMessage(channel.getName(), message,null, messageId);
         }
         catch (Exception ignored) { }
-        finally
+        finally { messageSendMutex.unlock(); }
+    }
+
+    protected void sendMessage(final EventChannel channel,
+                               final TwitchChat chat,
+                               final String message,
+                               final int delay)
+    {
+        messageSendMutex.lock();
+        try
         {
-            messageSendMutex.unlock();
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException ignored) { }
+            chat.sendMessage(channel.getName(), message);
         }
+        catch (Exception ignored) { }
+        finally { messageSendMutex.unlock(); }
     }
 }

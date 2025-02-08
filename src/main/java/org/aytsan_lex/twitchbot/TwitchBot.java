@@ -1,15 +1,14 @@
 package org.aytsan_lex.twitchbot;
 
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.eventsub.events.ChannelBanEvent;
-import com.github.twitch4j.eventsub.events.ChannelUnbanEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
-import com.github.philippheuer.events4j.simple.SimpleEventHandler;
+import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
+
+import java.util.ArrayList;
 
 public class TwitchBot
 {
@@ -43,7 +42,7 @@ public class TwitchBot
                     .withEnableHelix(true)
                     .withTimeout(1000)
                     .withChatMaxJoinRetries(2)
-                    .withDefaultEventHandler(SimpleEventHandler.class);
+                    .withDefaultEventHandler(ReactorEventHandler.class);
 
             client_builder = client_builder
                     .withChatAccount(
@@ -73,19 +72,17 @@ public class TwitchBot
         if (!isRunning)
         {
             this.twitchClient.getEventManager()
-                    .getEventHandler(SimpleEventHandler.class)
-                    .onEvent(ChannelMessageEvent.class, ChannelEventHandler::handleChannelMessage);
+                    .getEventHandler(ReactorEventHandler.class)
+                    .onEvent(IRCMessageEvent.class, IrcMessageHandler::handleIrcMessage);
 
-            this.twitchClient.getEventManager()
-                    .getEventHandler(SimpleEventHandler.class)
-                    .onEvent(ChannelBanEvent.class, ChannelEventHandler::handleBanEvent);
+            final ArrayList<String> channels = BotConfigManager.getConfig().getChannels();
+            final ArrayList<String> owners = BotConfigManager.getConfig().getOwners();
 
-            this.twitchClient.getEventManager()
-                    .getEventHandler(SimpleEventHandler.class)
-                    .onEvent(ChannelUnbanEvent.class, ChannelEventHandler::handleUnbanEvent);
+            LOGGER.info("Connecting TwitchBot to owners channels: {}", owners);
+            owners.forEach(this::joinToChat);
 
-            LOGGER.info("Connecting TwitchBot to channels: {}", BotConfigManager.getConfig().getChannels());
-            BotConfigManager.getConfig().getChannels().forEach(this::joinToChat);
+            LOGGER.info("Connecting TwitchBot to channels: {}", channels);
+            channels.forEach(this::joinToChat);
 
             this.isRunning = true;
             LOGGER.info("Started");
@@ -108,17 +105,17 @@ public class TwitchBot
         }
     }
 
-    public void joinToChat(String channelName)
+    public void joinToChat(final String channelName)
     {
         this.twitchClient.getChat().joinChannel(channelName);
     }
 
-    public void leaveFromChat(String channelName)
+    public void leaveFromChat(final String channelName)
     {
         this.twitchClient.getChat().leaveChannel(channelName);
     }
 
-    public boolean channelExists(String channelName)
+    public boolean channelExists(final String channelName)
     {
         // TODO: Implement channel exist checking
         return true;

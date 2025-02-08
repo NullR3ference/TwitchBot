@@ -20,11 +20,10 @@ public class UpdateFiltersBotCommand extends BotCommandBase
         {
             FiltersManager.readFilters();
 
-            super.replyToMessageWithDelay(
+            super.replyToMessage(
                     event.getChannel(),
-                    event.getUser().getId(),
-                    event.getMessageId().get(),
                     event.getTwitchChat(),
+                    event.getMessageId().get(),
                     "Фильтры обновлены",
                     BotConfigManager.getConfig().getDelayBetweenMessages()
             );

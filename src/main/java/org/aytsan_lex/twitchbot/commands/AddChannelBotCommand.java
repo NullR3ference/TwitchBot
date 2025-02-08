@@ -31,16 +31,15 @@ public class AddChannelBotCommand extends BotCommandBase
                     BotConfigManager.addChannel(targetChannelName);
                     BotConfigManager.writeConfig();
 
-                    super.replyToMessageWithDelay(
+                    TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);
+
+                    super.replyToMessage(
                             event.getChannel(),
-                            event.getUser().getId(),
-                            event.getMessageId().get(),
                             event.getTwitchChat(),
+                            event.getMessageId().get(),
                             "Канал добавлен: [%s]".formatted(targetChannelName),
                             BotConfigManager.getConfig().getDelayBetweenMessages()
                     );
-
-                    TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);
                 }
             }
         }

@@ -27,7 +27,7 @@ public class PermissionBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            final String subCommand = args.get(0).trim().toUpperCase();
+            final String subCommand = args.get(0).toUpperCase();
             this.handleSubCommand(event, subCommand, new ArrayList<>(args.subList(1, args.size())));
         }
         else
@@ -40,6 +40,7 @@ public class PermissionBotCommand extends BotCommandBase
                                   final String subCmd,
                                   final ArrayList<String> args) throws BotCommandError
     {
+        final String channelName = event.getChannel().getName();
         final String senderUserName = event.getUser().getName();
         final int senderPermissionLevel = BotConfigManager.getPermissionLevel(senderUserName);
         final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
@@ -58,11 +59,10 @@ public class PermissionBotCommand extends BotCommandBase
                     final String targetUserName = args.get(0).trim().toLowerCase();
                     final int permissionLevel = BotConfigManager.getPermissionLevel(targetUserName);
 
-                    super.replyToMessageWithDelay(
+                    super.replyToMessage(
                             event.getChannel(),
-                            event.getUser().getId(),
-                            event.getMessageId().get(),
                             event.getTwitchChat(),
+                            event.getMessageId().get(),
                             "Уровень доступа '%s': %d".formatted(targetUserName, permissionLevel),
                             delay
                     );
@@ -75,8 +75,8 @@ public class PermissionBotCommand extends BotCommandBase
                         throw new BotCommandError("Args are required for this command!");
                     }
 
-                    final String targetUserName = args.get(0).trim().toLowerCase();
-                    final int targetLevel = Integer.parseInt(args.get(1).trim());
+                    final String targetUserName = args.get(0).toLowerCase();
+                    final int targetLevel = Integer.parseInt(args.get(1));
                     final int targetUserCurrentLevel = BotConfigManager.getPermissionLevel(targetUserName);
 
                     if (senderPermissionLevel < targetUserCurrentLevel)
@@ -89,16 +89,14 @@ public class PermissionBotCommand extends BotCommandBase
                                 targetUserCurrentLevel
                         );
 
-                        super.replyToMessageWithDelay(
+                        super.replyToMessage(
                                 event.getChannel(),
-                                event.getUser().getId(),
-                                event.getMessageId().get(),
                                 event.getTwitchChat(),
+                                event.getMessageId().get(),
                                 "Нельзя изменить уровень доступа для пользователя с уровнем выше твоего: %d против %d"
                                         .formatted(senderPermissionLevel, targetUserCurrentLevel),
                                 delay
                         );
-
                         return;
                     }
 
@@ -107,49 +105,45 @@ public class PermissionBotCommand extends BotCommandBase
                         BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
                         BotConfigManager.writeConfig();
 
-                        new Thread(() -> {
-                            try
-                            {
-                                final String modelMessage =
-                                        "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d (реагируй на него, издевайся, кратко, с ухмылкой, упомянай его по имени)"
-                                                .formatted(targetUserName, targetLevel);
+                        if (!super.isTimedOutOnChannelOrModify(channelName))
+                        {
+                            new Thread(() -> {
+                                try
+                                {
+                                    final String modelMessage =
+                                            "(системное сообщение): для пользователя '%s' установлен уровень доступа: %d (реагируй на него, издевайся, кратко, упомянай его по имени)"
+                                                    .formatted(targetUserName, targetLevel);
 
-                                TwitchBot.LOGGER.info("Sending info to the model:\n{}", modelMessage);
+                                    TwitchBot.LOGGER.info("Sending info to the model:\n{}", modelMessage);
 
-                                BotGlobalState.setMiraCommandRunning(true);
+                                    final String filteredResponse = FiltersManager.getMiraFilters().runPostFilter(
+                                            OllamaModelsManager.getMiraModel().chatWithModel(modelMessage)
+                                                    .trim()
+                                                    .replaceAll("\\s{2,}", " ")
+                                                    .replaceAll("—+", "-")
+                                    );
 
-                                final String filteredResponse = FiltersManager.getMiraFilters().runPostFilter(
-                                        OllamaModelsManager.getMiraModel().chatWithModel(modelMessage)
-                                                .trim()
-                                                .replaceAll("\\s{2,}", " ")
-                                                .replaceAll("—+", "-")
-                                );
+                                    TwitchBot.LOGGER.info("Response: {}", filteredResponse);
 
-                                TwitchBot.LOGGER.info("Response: {}", filteredResponse);
+                                    super.sendMessage(
+                                            event.getChannel(),
+                                            event.getTwitchChat(),
+                                            filteredResponse,
+                                            BotConfigManager.getConfig().getDelayBetweenMessages()
+                                    );
+                                }
+                                catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                    Thread.currentThread().interrupt();
+                                }
+                            }).start();
+                        }
 
-                                BotGlobalState.setMiraCommandRunning(false);
-
-                                super.sendMessage(
-                                        event.getChannel(),
-                                        BotConfigManager.getConfig().getRunningOnChannelId(),
-                                        null,
-                                        event.getTwitchChat(),
-                                        filteredResponse,
-                                        BotConfigManager.getConfig().getDelayBetweenMessages()
-                                );
-                            }
-                            catch (Exception e)
-                            {
-                                e.printStackTrace();
-                                Thread.currentThread().interrupt();
-                            }
-                        }).start();
-
-                        super.replyToMessageWithDelay(
+                        super.replyToMessage(
                                 event.getChannel(),
-                                event.getUser().getId(),
-                                event.getMessageId().get(),
                                 event.getTwitchChat(),
+                                event.getMessageId().get(),
                                 "Уровень доступа установлен '%s' -> %d".formatted(targetUserName, targetLevel),
                                 delay
                         );

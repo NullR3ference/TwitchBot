@@ -17,11 +17,10 @@ public class ReadcfgBotCommand extends BotCommandBase
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             BotConfigManager.readConfig();
-            super.replyToMessageWithDelay(
+            super.replyToMessage(
                     event.getChannel(),
-                    event.getUser().getId(),
-                    event.getMessageId().get(),
                     event.getTwitchChat(),
+                    event.getMessageId().get(),
                     "Конфиг обновлен",
                     BotConfigManager.getConfig().getDelayBetweenMessages()
             );

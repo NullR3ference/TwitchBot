@@ -1,101 +1,84 @@
 package org.aytsan_lex.twitchbot;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-public class IrcChatMessageHandler
+public class IrcMessageHandler
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IrcMessageHandler.class);
+
     private enum IrcCommandType
     {
+        // https://dev.twitch.tv/docs/chat/irc/#irc-command-reference
         PRIVMSG,
-        CLEARCHAT
+        CLEARCHAT,
+        PART
     }
 
-    public static void handleIrcMessage(IRCMessageEvent event)
+    public static void handleIrcMessage(final IRCMessageEvent event)
     {
-        final String commandType = event.getCommandType();
         try
         {
-            switch (IrcCommandType.valueOf(commandType))
+            switch (IrcCommandType.valueOf(event.getCommandType()))
             {
                 case PRIVMSG -> handlePrivmsgIrcCommand(event);
                 case CLEARCHAT -> handleClearchatIrcCommand(event);
+                case PART -> handlePartIrcCommand(event);
             }
         }
-        catch (IllegalArgumentException ignored) { }
+        catch (IllegalArgumentException ignored)
+        { }
     }
 
-    private static void handlePrivmsgIrcCommand(IRCMessageEvent event)
+    private static void handlePrivmsgIrcCommand(final IRCMessageEvent event)
     {
+        // TODO: Handle command via @tag of bot
+        // @bot <command> [args...]
+
         final EventUser user = event.getUser();
-        final Optional<String> optionalMessage = event.getMessage();
+        final Optional<String> eventMessage = event.getMessage();
 
-        if (user != null && optionalMessage.isPresent())
+        if (user != null && eventMessage.isPresent())
         {
-            final String channelName = event.getChannel().getName();
-            final String message = optionalMessage.get();
-
-            // TODO: Handle command via @tag of bot
-            // @bot <command> [args...]
-
+            final String message = eventMessage.get();
             if (message.startsWith("%"))
             {
-                if (BotConfigManager.isBannedOnChannel(channelName))
-                {
-                    LOGGER.warn("Command will not handle: banned in chat of '{}'", channelName);
-                    return;
-                }
-
-                if (BotConfigManager.isTimedOutOnChannel(channelName))
-                {
-                    final LocalDateTime currentDateTime = LocalDateTime.now();
-                    final LocalDateTime expiredIn = BotConfigManager.getTimeoutEndsAt(channelName);
-
-                    if (currentDateTime.isBefore(expiredIn))
-                    {
-                        TwitchBot.LOGGER.warn("Failed to handle command on '{}': timed out", channelName);
-                        return;
-                    }
-
-                    BotConfigManager.removeTimedOutOnChannel(channelName);
-                    BotConfigManager.writeConfig();
-                }
-
                 CommandHandler.handleCommand(message, event);
             }
         }
     }
 
-    private static void handleClearchatIrcCommand(IRCMessageEvent event)
+    private static void handleClearchatIrcCommand(final IRCMessageEvent event)
     {
-        final String rawMessage = event.getRawMessage();
-        if (rawMessage.contains("@ban-duration"))
+        final Optional<String> banDurationTag = event.getTagValue("ban-duration");
+        final Optional<String> targetUserIdTag = event.getTagValue("target-user-id");
+
+        if (banDurationTag.isPresent() && targetUserIdTag.isPresent())
         {
-            final HashMap<String, String> values = parseRawMessageForClearchatCommand(rawMessage);
-            final String targetId = values.get("target-id");
+            final String channelName = event.getChannel().getName();
+            final String targetUserId = targetUserIdTag.get();
+            final int banDuration = Integer.parseInt(banDurationTag.get());
 
-            if (BotConfigManager.getConfig().getRunningOnChannelId().equals(targetId))
+            if (targetUserId.equals(BotConfigManager.getConfig().getRunningOnChannelId()))
             {
-                final String channelName = event.getChannel().getName();
-                final int seconds = Integer.parseInt(values.get("ban-duration"));
-
-                final LocalDateTime expiredIn = LocalDateTime.now().plusSeconds(seconds);
-                BotConfigManager.setTimedOutOnChannel(channelName, expiredIn);
+                BotConfigManager.setTimedOutOnChannel(channelName, LocalDateTime.now().plusSeconds(banDuration));
                 BotConfigManager.writeConfig();
-
-                TwitchBot.LOGGER.warn("You`ve been timed out for {} seconds on channel: '{}'", seconds, channelName);
+                LOGGER.warn("[{}] You`ve been timed out for {} seconds", channelName, banDuration);
             }
-            // targetId == null ~ banned
+            else
+            {
+                final String targetUserName = event.getTargetUser().getName();
+                LOGGER.info("[{}] User '{}' has been timed out for {} seconds", channelName, targetUserName, banDuration);
+            }
         }
     }
 
-    private static HashMap<String, String> parseRawMessageForClearchatCommand(final String rawMessage)
+    private static void handlePartIrcCommand(final IRCMessageEvent event)
     {
-        // TODO: Implement parseRawMessageForClearchatCommand()
-        return new HashMap<>();
     }
 }

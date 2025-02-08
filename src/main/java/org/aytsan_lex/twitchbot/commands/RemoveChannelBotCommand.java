@@ -28,11 +28,10 @@ public class RemoveChannelBotCommand extends BotCommandBase
                 {
                     if (BotConfigManager.removeChannel(targetChannelName))
                     {
-                        super.replyToMessageWithDelay(
+                        super.replyToMessage(
                                 event.getChannel(),
-                                event.getUser().getId(),
-                                event.getMessageId().get(),
                                 chat,
+                                event.getMessageId().get(),
                                 "Канал удален: [%s]".formatted(targetChannelName),
                                 BotConfigManager.getConfig().getDelayBetweenMessages()
                         );
