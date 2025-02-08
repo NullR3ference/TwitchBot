@@ -3,6 +3,7 @@ package org.aytsan_lex.twitchbot;
 import java.util.HashMap;
 import java.util.Optional;
 import java.time.LocalDateTime;
+
 import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
@@ -30,37 +31,43 @@ public class IrcChatMessageHandler
 
     private static void handlePrivmsgIrcCommand(IRCMessageEvent event)
     {
-//        final EventUser user = event.getUser();
-//        final Optional<String> optionalMessage = event.getMessage();
-//
-//        if (user != null && optionalMessage.isPresent())
-//        {
-//            final String channelName = event.getChannel().getName();
-//            final String message = optionalMessage.get();
-//
-//            // TODO: Handle command via @tag of bot
-//            // @bot <command> [args...]
-//
-//            if (message.startsWith("%"))
-//            {
-//                if (BotConfigManager.isTimedOutChannel(channelName))
-//                {
-//                    final LocalDateTime currentDateTime = LocalDateTime.now();
-//                    final LocalDateTime expiredIn = BotConfigManager.getTimeoutExpiredIn(channelName);
-//
-//                    if (currentDateTime.isBefore(expiredIn))
-//                    {
-//                        TwitchBot.LOGGER.warn("Failed to handle command on '{}': timed out", channelName);
-//                        return;
-//                    }
-//
-//                    BotConfigManager.removeTimedOutChannel(channelName);
-//                    BotConfigManager.writeConfig();
-//                }
-//
-//                CommandHandler.handleCommand(message, event);
-//            }
-//        }
+        final EventUser user = event.getUser();
+        final Optional<String> optionalMessage = event.getMessage();
+
+        if (user != null && optionalMessage.isPresent())
+        {
+            final String channelName = event.getChannel().getName();
+            final String message = optionalMessage.get();
+
+            // TODO: Handle command via @tag of bot
+            // @bot <command> [args...]
+
+            if (message.startsWith("%"))
+            {
+                if (BotConfigManager.isBannedOnChannel(channelName))
+                {
+                    LOGGER.warn("Command will not handle: banned in chat of '{}'", channelName);
+                    return;
+                }
+
+                if (BotConfigManager.isTimedOutOnChannel(channelName))
+                {
+                    final LocalDateTime currentDateTime = LocalDateTime.now();
+                    final LocalDateTime expiredIn = BotConfigManager.getTimeoutEndsAt(channelName);
+
+                    if (currentDateTime.isBefore(expiredIn))
+                    {
+                        TwitchBot.LOGGER.warn("Failed to handle command on '{}': timed out", channelName);
+                        return;
+                    }
+
+                    BotConfigManager.removeTimedOutOnChannel(channelName);
+                    BotConfigManager.writeConfig();
+                }
+
+                CommandHandler.handleCommand(message, event);
+            }
+        }
     }
 
     private static void handleClearchatIrcCommand(IRCMessageEvent event)
