@@ -23,6 +23,7 @@ public class TwitchBotLauncher
             System.exit(1);
         }
 
+        CommandHandler.initialize();
         OllamaModelsManager.initialize();
 
         TwitchBot.instance().initialize(

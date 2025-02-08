@@ -1,5 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
@@ -8,10 +10,10 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
 
-import java.util.ArrayList;
-
 public class TwitchBot
 {
+    // TODO: Make it static
+
     public static final Logger LOGGER = LoggerFactory.getLogger(TwitchBot.class);
     private static TwitchBot twitchBotInstance = null;
 
@@ -78,10 +80,10 @@ public class TwitchBot
             final ArrayList<String> channels = BotConfigManager.getConfig().getChannels();
             final ArrayList<String> owners = BotConfigManager.getConfig().getOwners();
 
-            LOGGER.info("Connecting TwitchBot to owners channels: {}", owners);
+            LOGGER.info("Connecting to owners channels: {}", owners);
             owners.forEach(this::joinToChat);
 
-            LOGGER.info("Connecting TwitchBot to channels: {}", channels);
+            LOGGER.info("Connecting to channels: {}", channels);
             channels.forEach(this::joinToChat);
 
             this.isRunning = true;

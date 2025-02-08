@@ -80,5 +80,6 @@ public class IrcMessageHandler
 
     private static void handlePartIrcCommand(final IRCMessageEvent event)
     {
+        LOGGER.info("{}", event);
     }
 }
