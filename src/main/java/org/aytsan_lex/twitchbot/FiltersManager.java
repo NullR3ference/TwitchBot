@@ -7,10 +7,12 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import org.aytsan_lex.twitchbot.filters.MiraFilters;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
+
+import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
 public class FiltersManager
 {

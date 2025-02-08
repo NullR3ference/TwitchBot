@@ -23,22 +23,20 @@ public class AddChannelBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            if (TwitchBot.instance().channelExists(targetChannelName))
+            if (TwitchBot.channelExists(targetChannelName))
             {
                 if (BotConfigManager.addChannel(targetChannelName))
                 {
-                    TwitchBot.instance().joinToChat(targetChannelName);
+                    TwitchBot.joinToChat(targetChannelName);
                     BotConfigManager.addChannel(targetChannelName);
                     BotConfigManager.writeConfig();
 
                     TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);
 
-                    super.replyToMessage(
-                            event.getChannel(),
-                            event.getTwitchChat(),
+                    TwitchBot.replyToMessage(
+                            event.getChannel().getName(),
                             event.getMessageId().get(),
-                            "Канал добавлен: [%s]".formatted(targetChannelName),
-                            BotConfigManager.getConfig().getDelayBetweenMessages()
+                            "Канал добавлен: [%s]".formatted(targetChannelName)
                     );
                 }
             }

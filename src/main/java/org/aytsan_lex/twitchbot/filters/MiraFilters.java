@@ -63,7 +63,6 @@ public class MiraFilters
     private final ArrayList<Pattern> postFilter;
     private final ArrayList<Pattern> muteCommandsFilter;
 
-
     private int messageLengthFilter = DEFAULT_MESSAGE_LEN_FILTER;
     private int wordLengthFilter = DEFAULT_WORD_LEN_FILTER;
 

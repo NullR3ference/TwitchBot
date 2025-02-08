@@ -25,17 +25,12 @@ public class LeaveFromChatBotCommand extends BotCommandBase
 
             if (!BotConfigManager.getConfig().getRunningOnChannelId().equals(targetChannelId))
             {
-                if (!super.isTimedOutOnChannelOrModify(channelName))
-                {
-                    super.replyToMessage(
-                            event.getChannel(),
-                            chat,
-                            event.getMessageId().get(),
-                            "Отключен от: [%s]".formatted(targetChannelName),
-                            BotConfigManager.getConfig().getDelayBetweenMessages()
-                    );
-                }
-                TwitchBot.instance().leaveFromChat(targetChannelName);
+                TwitchBot.replyToMessage(
+                        channelName,
+                        event.getMessageId().get(),
+                        "Отключен от: [%s]".formatted(targetChannelName)
+                );
+                TwitchBot.leaveFromChat(targetChannelName);
                 TwitchBot.LOGGER.info("Leaved from: [{}]", targetChannelName);
             }
         }

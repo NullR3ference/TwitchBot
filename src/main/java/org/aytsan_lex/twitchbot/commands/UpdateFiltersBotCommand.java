@@ -19,13 +19,10 @@ public class UpdateFiltersBotCommand extends BotCommandBase
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
             FiltersManager.readFilters();
-
-            super.replyToMessage(
-                    event.getChannel(),
-                    event.getTwitchChat(),
+            TwitchBot.replyToMessage(
+                    event.getChannel().getName(),
                     event.getMessageId().get(),
-                    "Фильтры обновлены",
-                    BotConfigManager.getConfig().getDelayBetweenMessages()
+                    "Фильтры обновлены"
             );
         }
         else

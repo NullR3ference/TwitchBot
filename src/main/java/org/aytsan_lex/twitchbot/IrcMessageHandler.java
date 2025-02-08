@@ -70,16 +70,10 @@ public class IrcMessageHandler
                 BotConfigManager.writeConfig();
                 LOGGER.warn("[{}] You`ve been timed out for {} seconds", channelName, banDuration);
             }
-            else
-            {
-                final String targetUserName = event.getTargetUser().getName();
-                LOGGER.info("[{}] User '{}' has been timed out for {} seconds", channelName, targetUserName, banDuration);
-            }
         }
     }
 
     private static void handlePartIrcCommand(final IRCMessageEvent event)
     {
-        LOGGER.info("{}", event);
     }
 }

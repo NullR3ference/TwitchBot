@@ -30,12 +30,11 @@ public class MsgDelayBotCommand extends BotCommandBase
             else
             {
                 final int delayValue = BotConfigManager.getConfig().getDelayBetweenMessages();
-                super.replyToMessage(
-                        event.getChannel(),
-                        event.getTwitchChat(),
+                TwitchBot.replyToMessageWithDelay(
+                        event.getChannel().getName(),
                         event.getMessageId().get(),
                         "Задержка м/сообщениями: %d ms".formatted(delayValue),
-                        delayValue
+                        BotCommandBase.DEFAULT_MESSAGE_DELAY
                 );
             }
         }
@@ -51,8 +50,6 @@ public class MsgDelayBotCommand extends BotCommandBase
     {
         try
         {
-            final String channelName = event.getChannel().getName();
-
             switch (SubCommand.valueOf(cmd))
             {
                 case SET ->
@@ -63,9 +60,8 @@ public class MsgDelayBotCommand extends BotCommandBase
 
                     TwitchBot.LOGGER.info("Delay between messages set: {} ms", value);
 
-                    super.replyToMessage(
-                            event.getChannel(),
-                            event.getTwitchChat(),
+                    TwitchBot.replyToMessageWithDelay(
+                            event.getChannel().getName(),
                             event.getMessageId().get(),
                             "Задержка м/сообщениями установлена: %d ms".formatted(value),
                             BotCommandBase.DEFAULT_MESSAGE_DELAY

@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
 import java.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +12,37 @@ public class TwitchBotLauncher
 
     public static void main(String[] args)
     {
+        initializeOrExitOnFailure();
+        TwitchBot.start();
+        START_TIME = Instant.now();
+    }
+
+    public static Instant getStartTime()
+    {
+        return START_TIME;
+    }
+
+    public static void onRestart()
+    {
+        LOGGER.info("Restarting....");
+
+        shutdownSystems();
+        initializeOrExitOnFailure();
+        TwitchBot.start();
+
+        START_TIME = Instant.now();
+    }
+
+    private static void initializeOrExitOnFailure()
+    {
         BotConfigManager.initialize();
         FiltersManager.initialize();
 
         BotConfigManager.readConfig();
         FiltersManager.readFilters();
+
+        CommandHandler.initialize();
+        OllamaModelsManager.initialize();
 
         if (BotConfigManager.credentialsIsEmpty())
         {
@@ -23,20 +50,21 @@ public class TwitchBotLauncher
             System.exit(1);
         }
 
-        CommandHandler.initialize();
-        OllamaModelsManager.initialize();
-
-        TwitchBot.instance().initialize(
+        TwitchBot.initialize(
                 BotConfigManager.getConfig().getClientId(),
                 BotConfigManager.getConfig().getAccessToken()
         );
 
-        TwitchBot.instance().start();
-        START_TIME = Instant.now();
+        if (!TwitchBot.isInitialized())
+        {
+            System.exit(1);
+        }
     }
 
-    public static Instant getStartTime()
+    private static void shutdownSystems()
     {
-        return START_TIME;
+        CommandHandler.shutdown();
+        TwitchBot.stop();
+        TwitchBot.shutdown();
     }
 }

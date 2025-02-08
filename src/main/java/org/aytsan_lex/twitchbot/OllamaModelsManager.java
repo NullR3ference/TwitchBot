@@ -1,18 +1,20 @@
 package org.aytsan_lex.twitchbot;
 
-import org.aytsan_lex.twitchbot.ollama.IOllamaModel;
-import org.aytsan_lex.twitchbot.ollama.Gemma2MiraOllamaModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import io.github.ollama4j.OllamaAPI;
+
+import org.aytsan_lex.twitchbot.ollama.IOllamaModel;
+import org.aytsan_lex.twitchbot.ollama.MiraOllamaModel;
 
 public class OllamaModelsManager
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OllamaModelsManager.class);
     private static final int REQUEST_TIMEOUT = 240;
-    private static OllamaAPI API = null;
 
-    private static final IOllamaModel miraModel = new Gemma2MiraOllamaModel();
+    private static OllamaAPI API = null;
+    private static IOllamaModel miraModel = null;
 
     public static void initialize()
     {
@@ -26,6 +28,8 @@ public class OllamaModelsManager
         {
             LOGGER.warn("Failed to connect Ollama on: {}", BotConfigManager.getConfig().getOllamaHost());
         }
+
+        miraModel = new MiraOllamaModel();
     }
 
     public static OllamaAPI getAPI()

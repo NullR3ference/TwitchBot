@@ -43,8 +43,8 @@ public class MiraBotCommand extends BotCommandBase
             throw new BotCommandError("Args are required for this command!");
         }
 
+        final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
-        final EventChannel channel = event.getChannel();
         final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
 
         if (permissionLevel < this.getRequiredPermissionLevel())
@@ -53,7 +53,7 @@ public class MiraBotCommand extends BotCommandBase
             return;
         }
 
-        if (super.isTimedOutOnChannelOrModify(channel.getName()))
+        if (super.isTimedOutOnChannelOrModify(channelName))
         {
             TwitchBot.LOGGER.warn("Command will not execute: you are timed out");
             return;
@@ -87,12 +87,10 @@ public class MiraBotCommand extends BotCommandBase
 
         if (!miraFilters.testPreFilter(message))
         {
-            super.replyToMessage(
-                    channel,
-                    chat,
+            TwitchBot.replyToMessage(
+                    channelName,
                     event.getMessageId().get(),
-                    "Даже не пытайся, зайка )",
-                    delay
+                    "Даже не пытайся, зайка )"
             );
             return;
         }
@@ -118,16 +116,8 @@ public class MiraBotCommand extends BotCommandBase
         {
             switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
             {
-                case MSG_SINGLE ->
-                        super.sendMessage(
-                                channel,
-                                chat,
-                                miraFilters.truncateLength(filteredResponse),
-                                delay
-                        );
-
-                case MSG_BLOCKS ->
-                        this.sendBlocks(channel, chat, delay, filteredResponse);
+                case MSG_SINGLE -> TwitchBot.sendMessage(channelName, miraFilters.truncateLength(filteredResponse));
+                case MSG_BLOCKS -> this.sendBlocks(channelName, filteredResponse);
             }
 
             if (!miraFilters.testMuteCommandsFilter(filteredResponse))
@@ -142,14 +132,12 @@ public class MiraBotCommand extends BotCommandBase
         }
     }
 
-    private void sendBlocks(final EventChannel channel,
-                            final TwitchChat chat,
-                            final int delay,
-                            final String response)
+    private void sendBlocks(final String channelName, final String response)
     {
         final ArrayList<String> messageBlocks = FiltersManager.getMiraFilters().splitMessageByBlocks(response);
+
         TwitchBot.LOGGER.info("Sending {} message block(s)...", messageBlocks.size());
-        messageBlocks.forEach(msg -> super.sendMessage(channel, chat, msg, delay));
+        messageBlocks.forEach(msg -> TwitchBot.sendMessage(channelName, msg));
         TwitchBot.LOGGER.info("Message block(s) was sent");
     }
 

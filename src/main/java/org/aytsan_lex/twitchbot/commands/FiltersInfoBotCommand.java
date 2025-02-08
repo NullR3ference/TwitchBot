@@ -20,16 +20,11 @@ public class FiltersInfoBotCommand extends BotCommandBase
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            if (!super.isTimedOutOnChannelOrModify(channelName))
-            {
-                super.replyToMessage(
-                        event.getChannel(),
-                        event.getTwitchChat(),
-                        event.getMessageId().get(),
-                        this.createInfoMessage(),
-                        BotConfigManager.getConfig().getDelayBetweenMessages()
-                );
-            }
+            TwitchBot.replyToMessage(
+                    channelName,
+                    event.getMessageId().get(),
+                    this.createInfoMessage()
+            );
         }
         else
         {

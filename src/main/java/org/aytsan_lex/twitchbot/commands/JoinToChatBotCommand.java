@@ -24,19 +24,14 @@ public class JoinToChatBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            TwitchBot.instance().joinToChat(targetChannelName);
+            TwitchBot.joinToChat(targetChannelName);
             TwitchBot.LOGGER.info("Joined to: [{}]", targetChannelName);
 
-            if (!super.isTimedOutOnChannelOrModify(channelName))
-            {
-                super.replyToMessage(
-                        event.getChannel(),
-                        event.getTwitchChat(),
-                        event.getMessageId().get(),
-                        "Подключен к: [%s]".formatted(targetChannelName),
-                        BotConfigManager.getConfig().getDelayBetweenMessages()
-                );
-            }
+            TwitchBot.replyToMessage(
+                    channelName,
+                    event.getMessageId().get(),
+                    "Подключен к: [%s]".formatted(targetChannelName)
+            );
         }
         else
         {

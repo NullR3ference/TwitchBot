@@ -5,7 +5,7 @@ import java.util.Random;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class IqBotCommand extends BotCommandBase
 {
@@ -15,12 +15,10 @@ public class IqBotCommand extends BotCommandBase
         if (!super.isMuted() && !super.isTimedOutOnChannelOrModify(event.getChannel().getName()))
         {
             final int iqValue = new Random().nextInt(0, 250);
-            super.replyToMessage(
-                    event.getChannel(),
-                    event.getTwitchChat(),
+            TwitchBot.replyToMessage(
+                    event.getChannel().getName(),
                     event.getMessageId().get(),
-                    "@%s У тебя %d IQ".formatted(event.getUserName(), iqValue),
-                    BotConfigManager.getConfig().getDelayBetweenMessages()
+                    "@%s У тебя %d IQ".formatted(event.getUserName(), iqValue)
             );
         }
     }

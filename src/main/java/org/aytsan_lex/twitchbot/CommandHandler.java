@@ -80,16 +80,23 @@ public class CommandHandler
         }
     }
 
-    private static final int COMMAND_QUEUE_SIZE = 15;
+    private static final int COMMAND_QUEUE_SIZE = 30;
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
+    private static Thread commandExecutorThread = null;
     private static final BlockingQueue<CommandContext> commandQueue = new ArrayBlockingQueue<>(COMMAND_QUEUE_SIZE);
-    private static final Thread commandExecutorThread = new Thread(new CommandExecutor(), "CommandExecutor");
 
     public static void initialize()
     {
         LOGGER.info("Initializing...");
+
+        commandExecutorThread = new Thread(new CommandExecutor(), "CommandExecutor");
         commandExecutorThread.start();
+    }
+
+    public static void shutdown()
+    {
+        commandExecutorThread.interrupt();
     }
 
     public static void handleCommand(final String message, final IRCMessageEvent event)

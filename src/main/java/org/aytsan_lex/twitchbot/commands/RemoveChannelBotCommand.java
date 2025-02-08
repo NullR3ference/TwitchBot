@@ -24,19 +24,17 @@ public class RemoveChannelBotCommand extends BotCommandBase
 
             if (targetChannelId != null)
             {
-                if (TwitchBot.instance().channelExists(targetChannelName))
+                if (TwitchBot.channelExists(targetChannelName))
                 {
                     if (BotConfigManager.removeChannel(targetChannelName))
                     {
-                        super.replyToMessage(
-                                event.getChannel(),
-                                chat,
+                        TwitchBot.replyToMessage(
+                                event.getChannel().getName(),
                                 event.getMessageId().get(),
-                                "Канал удален: [%s]".formatted(targetChannelName),
-                                BotConfigManager.getConfig().getDelayBetweenMessages()
+                                "Канал удален: [%s]".formatted(targetChannelName)
                         );
 
-                        TwitchBot.instance().leaveFromChat(targetChannelName);
+                        TwitchBot.leaveFromChat(targetChannelName);
                         BotConfigManager.removeChannel(targetChannelName);
                         BotConfigManager.writeConfig();
 

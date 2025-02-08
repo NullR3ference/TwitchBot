@@ -6,6 +6,7 @@ import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.TwitchBotLauncher;
 
 public class RestartBotCommand extends BotCommandBase
 {
@@ -17,9 +18,7 @@ public class RestartBotCommand extends BotCommandBase
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            // Assumes that user runs this code via JVM and not over Gradle
-            // Because Gradle returns 1
-            System.exit(10);
+            TwitchBotLauncher.onRestart();
         }
         else
         {

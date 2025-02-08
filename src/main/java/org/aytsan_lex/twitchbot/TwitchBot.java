@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,68 +13,37 @@ import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
 
 public class TwitchBot
 {
-    // TODO: Make it static
-
     public static final Logger LOGGER = LoggerFactory.getLogger(TwitchBot.class);
-    private static TwitchBot twitchBotInstance = null;
 
-    private TwitchClient twitchClient;
-    private boolean isInitialized;
-    private boolean isRunning;
+    private static TwitchClient twitchClient = null;
+    private static boolean isRunning = false;
 
-    private TwitchBot()
+    public static void initialize(String clientId, String accessToken)
     {
-        this.isRunning = false;
+        LOGGER.info("Initializing...");
+
+        twitchClient = TwitchClientBuilder.builder()
+                .withClientId(clientId)
+                .withEnableChat(true)
+                .withEnablePubSub(true)
+                .withTimeout(1000)
+                .withChatMaxJoinRetries(2)
+                .withChatAccount(new OAuth2Credential("twitch", accessToken))
+                .withDefaultEventHandler(ReactorEventHandler.class)
+                .build();
     }
 
-    public static synchronized TwitchBot instance()
+    public static void shutdown()
     {
-        if (twitchBotInstance == null) { twitchBotInstance = new TwitchBot(); }
-        return twitchBotInstance;
+        twitchClient.close();
+        twitchClient = null;
     }
 
-    public TwitchBot initialize(String clientId, String accessToken)
-    {
-        if (!this.isInitialized)
-        {
-            LOGGER.info("Initializing...");
-
-            TwitchClientBuilder client_builder = TwitchClientBuilder.builder()
-                    .withClientId(clientId)
-                    .withEnableChat(true)
-                    .withEnableHelix(true)
-                    .withTimeout(1000)
-                    .withChatMaxJoinRetries(2)
-                    .withDefaultEventHandler(ReactorEventHandler.class);
-
-            client_builder = client_builder
-                    .withChatAccount(
-                            new OAuth2Credential(
-                                    "twitch",
-                                    accessToken,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null
-                            )
-                    );
-
-            this.twitchClient = client_builder.build();
-            this.isInitialized = true;
-        }
-        else
-        {
-            LOGGER.warn("Cannot initialize, already initialized!");
-        }
-        return this;
-    }
-
-    public void start()
+    public static void start()
     {
         if (!isRunning)
         {
-            this.twitchClient.getEventManager()
+            twitchClient.getEventManager()
                     .getEventHandler(ReactorEventHandler.class)
                     .onEvent(IRCMessageEvent.class, IrcMessageHandler::handleIrcMessage);
 
@@ -81,12 +51,12 @@ public class TwitchBot
             final ArrayList<String> owners = BotConfigManager.getConfig().getOwners();
 
             LOGGER.info("Connecting to owners channels: {}", owners);
-            owners.forEach(this::joinToChat);
+            owners.forEach(TwitchBot::joinToChat);
 
             LOGGER.info("Connecting to channels: {}", channels);
-            channels.forEach(this::joinToChat);
+            channels.forEach(TwitchBot::joinToChat);
 
-            this.isRunning = true;
+            isRunning = true;
             LOGGER.info("Started");
         }
         else
@@ -95,29 +65,52 @@ public class TwitchBot
         }
     }
 
-    public void stop()
+    public static void stop()
     {
-        if (this.isRunning)
-        {
-            this.isRunning = false;
-        }
-        else
-        {
-            LOGGER.warn("Cannot stop, already stopped!");
-        }
+        if (isRunning)  { isRunning = false; }
+        else            { LOGGER.warn("Cannot stop, already stopped!"); }
     }
 
-    public void joinToChat(final String channelName)
+    public static boolean isInitialized()
     {
-        this.twitchClient.getChat().joinChannel(channelName);
+        return twitchClient != null;
     }
 
-    public void leaveFromChat(final String channelName)
+    public static void joinToChat(String channelName)
     {
-        this.twitchClient.getChat().leaveChannel(channelName);
+        twitchClient.getChat().joinChannel(channelName);
     }
 
-    public boolean channelExists(final String channelName)
+    public static void leaveFromChat(String channelName)
+    {
+        twitchClient.getChat().leaveChannel(channelName);
+    }
+
+    public static synchronized void sendMessage(String channelName, String message)
+    {
+        sendMessageWithDelay(channelName, message, BotConfigManager.getConfig().getDelayBetweenMessages());
+    }
+
+    public static synchronized void replyToMessage(String channelName, String messageId, String message)
+    {
+        replyToMessageWithDelay(channelName, messageId, message, BotConfigManager.getConfig().getDelayBetweenMessages());
+    }
+
+    public static synchronized void sendMessageWithDelay(String channelName, String message, int delay)
+    {
+        try { TimeUnit.MILLISECONDS.sleep(delay); }
+        catch (InterruptedException ignored) { }
+        twitchClient.getChat().sendMessage(channelName, message);
+    }
+
+    public static synchronized void replyToMessageWithDelay(String channelName, String messageId, String message, int delay)
+    {
+        try { TimeUnit.MILLISECONDS.sleep(delay); }
+        catch (InterruptedException ignored) { }
+        twitchClient.getChat().sendMessage(channelName, message, null, messageId);
+    }
+
+    public static boolean channelExists(final String channelName)
     {
         // TODO: Implement channel exist checking
         return true;
