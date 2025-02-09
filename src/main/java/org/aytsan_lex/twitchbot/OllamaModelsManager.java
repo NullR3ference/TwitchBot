@@ -11,7 +11,7 @@ import org.aytsan_lex.twitchbot.ollama.MiraOllamaModel;
 public class OllamaModelsManager
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OllamaModelsManager.class);
-    private static final int REQUEST_TIMEOUT = 240;
+    private static final int REQUEST_TIMEOUT = 600;
 
     private static OllamaAPI API = null;
     private static IOllamaModel miraModel = null;

@@ -2,6 +2,7 @@
 
 <configuration scan="true">
 	<logger name="com.github.twitch4j" level="ERROR"/>
+	<logger name="io.javalin.Javalin" level="WARN"/>
 	<logger name="org.aytsan_lex.twitchbot" level="INFO"/>
 
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -12,7 +13,7 @@
 
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<encoder>
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{42} - %msg%n</pattern>
 		</encoder>
 		<file>TwitchBot.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">

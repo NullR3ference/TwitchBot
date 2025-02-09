@@ -3,10 +3,12 @@ package org.aytsan_lex.twitchbot.commands;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import org.aytsan_lex.twitchbot.*;
-import com.github.twitch4j.chat.TwitchChat;
-import com.github.twitch4j.common.events.domain.EventChannel;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+
+import org.aytsan_lex.twitchbot.*;
 import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
 public class MiraBotCommand extends BotCommandBase
@@ -27,11 +29,15 @@ public class MiraBotCommand extends BotCommandBase
         }
     }
 
+    private static final Pattern forwardToChatPattern = Pattern.compile(
+            "^#(\\w+):",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+    );
+
     private LocalDateTime cooldownExpiresIn;
 
     public MiraBotCommand()
     {
-        super();
         this.cooldownExpiresIn = null;
     }
 
@@ -80,9 +86,7 @@ public class MiraBotCommand extends BotCommandBase
             }
         }
 
-        final TwitchChat chat = event.getTwitchChat();
         final String message = String.join(" ", args);
-        final int delay = BotConfigManager.getConfig().getDelayBetweenMessages();
         final MiraFilters miraFilters = FiltersManager.getMiraFilters();
 
         if (!miraFilters.testPreFilter(message))
@@ -114,16 +118,34 @@ public class MiraBotCommand extends BotCommandBase
 
         if (!super.isMuted())
         {
-            switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
+            String targetChannelName = channelName;
+            String finalResponseMessage = filteredResponse;
+            final Matcher matcher = forwardToChatPattern.matcher(finalResponseMessage);
+
+            if (matcher.find())
             {
-                case MSG_SINGLE -> TwitchBot.sendMessage(channelName, miraFilters.truncateLength(filteredResponse));
-                case MSG_BLOCKS -> this.sendBlocks(channelName, filteredResponse);
+                targetChannelName = matcher.group(1);
+                finalResponseMessage = finalResponseMessage.replaceAll(forwardToChatPattern.pattern(), "");
+                TwitchBot.LOGGER.info("Forward to chat pattern triggered: {}", targetChannelName);
             }
 
-            if (!miraFilters.testMuteCommandsFilter(filteredResponse))
+            if (TwitchBot.isConnectedToChat(targetChannelName))
             {
-                TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
-                BotCommandsManager.setCommandIsMuted(this.getClass().getSimpleName(), true);
+                switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
+                {
+                    case MSG_SINGLE -> TwitchBot.sendMessage(targetChannelName, miraFilters.truncateLength(finalResponseMessage));
+                    case MSG_BLOCKS -> this.sendBlocks(targetChannelName, finalResponseMessage);
+                }
+
+                if (!miraFilters.testMuteCommandsFilter(filteredResponse))
+                {
+                    TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
+                    BotCommandsManager.setCommandIsMuted(this.getClass().getSimpleName(), true);
+                }
+            }
+            else
+            {
+                TwitchBot.LOGGER.warn("Message will not send: not connected to chat of '{}'", targetChannelName);
             }
         }
         else

@@ -14,6 +14,7 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic","1.3.5")
     implementation("io.github.ollama4j:ollama4j:1.0.79")
     implementation("com.google.code.gson:gson:2.11.0")
+    implementation("io.javalin:javalin:6.4.0")
 }
 
 java {

@@ -16,6 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.FormattingStyle;
 
+// TODO: Implement auto-update config when file has been changed
+
 public class BotConfigManager
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);

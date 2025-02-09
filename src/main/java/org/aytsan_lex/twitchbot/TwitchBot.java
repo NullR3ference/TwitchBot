@@ -86,6 +86,11 @@ public class TwitchBot
         twitchClient.getChat().leaveChannel(channelName);
     }
 
+    public static boolean isConnectedToChat(String channelName)
+    {
+        return twitchClient.getChat().isChannelJoined(channelName);
+    }
+
     public static synchronized void sendMessage(String channelName, String message)
     {
         sendMessageWithDelay(channelName, message, BotConfigManager.getConfig().getDelayBetweenMessages());
@@ -98,6 +103,7 @@ public class TwitchBot
 
     public static synchronized void sendMessageWithDelay(String channelName, String message, int delay)
     {
+        // TODO: Handle identical message timeout, prevent this
         try { TimeUnit.MILLISECONDS.sleep(delay); }
         catch (InterruptedException ignored) { }
         twitchClient.getChat().sendMessage(channelName, message);
@@ -110,7 +116,7 @@ public class TwitchBot
         twitchClient.getChat().sendMessage(channelName, message, null, messageId);
     }
 
-    public static boolean channelExists(final String channelName)
+    public static boolean channelExists(String channelName)
     {
         // TODO: Implement channel exist checking
         return true;

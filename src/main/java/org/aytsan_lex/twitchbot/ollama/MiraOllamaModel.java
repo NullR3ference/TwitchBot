@@ -34,7 +34,7 @@ public class MiraOllamaModel implements IOllamaModel
 
             synchronized (chatSync)
             {
-                LOGGER.info("Sending message to model: '{}'", message);
+                LOGGER.info("---> Sending message to model:\n'{}'", message);
                 chatResult = OllamaModelsManager.getAPI().chat(
                         this.ollamaChatRequestBuilder
                                 .withMessage(OllamaChatMessageRole.USER, message)
@@ -43,7 +43,7 @@ public class MiraOllamaModel implements IOllamaModel
             }
 
             final Instant finish = Instant.now();
-            LOGGER.info("Response from model, took: {} ms", Duration.between(start, finish).toMillis());
+            LOGGER.info("<-- Response from model took: {} ms", Duration.between(start, finish).toMillis());
 
             return chatResult.getResponse();
         }

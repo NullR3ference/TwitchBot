@@ -14,6 +14,8 @@ import com.google.gson.Gson;
 
 import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
+// TODO: Implement auto-update filters when file has been changed
+
 public class FiltersManager
 {
     private static class MiraFiltersAdapter
