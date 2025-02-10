@@ -3,29 +3,43 @@ package org.aytsan_lex.twitchbot;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.commands.*;
+import org.aytsan_lex.twitchbot.commands.IBotCommand;
+import org.aytsan_lex.twitchbot.commands.MiraBotCommand;
+import org.aytsan_lex.twitchbot.commands.BotCommandError;
 
 public class CommandHandler
 {
     private static class CommandContext
     {
-        public final IBotCommand commandObject;
-        public final IRCMessageEvent event;
-        public final ArrayList<String> args;
+        private final IBotCommand commandObject;
+        private final IRCMessageEvent event;
+        private final ArrayList<String> args;
 
-        public CommandContext(final IBotCommand command, final IRCMessageEvent event, final ArrayList<String> args)
+        public CommandContext(final IBotCommand command,
+                              final IRCMessageEvent event,
+                              final ArrayList<String> args)
         {
             this.commandObject = command;
             this.event = event;
             this.args = args;
+        }
+
+        public IBotCommand getCommandObject()
+        {
+            return this.commandObject;
+        }
+
+        public IRCMessageEvent getEvent()
+        {
+            return this.event;
         }
 
         public void execute()
@@ -39,16 +53,49 @@ public class CommandHandler
         }
     }
 
-    private static class CommandContextComparator implements Comparator<CommandContext>
+    private static class CommandPriorityComparator implements Comparator<CommandContext>
     {
         @Override
-        public int compare(CommandContext lhs, CommandContext rhs)
+        public int compare(final CommandContext lhs, final CommandContext rhs)
         {
             return Integer.compare(rhs.getPriority(), lhs.getPriority());
         }
     }
 
     private static class CommandExecutor implements Runnable
+    {
+        private CommandContext currentContext = null;
+
+        @Override
+        public void run()
+        {
+            if (this.currentContext != null)
+            {
+                try
+                {
+                    currentContext.execute();
+                }
+                catch (BotCommandError e)
+                {
+                    final String channelName = currentContext.getEvent().getChannel().getName();
+                    final String userName = currentContext.getEvent().getUser().getName();
+
+                    LOGGER.error(
+                            "[{}] [{}] '{}': Error: {}",
+                            channelName, userName, currentContext.getCommandObject().getClass().getSimpleName(), e.getMessage()
+                    );
+                }
+                this.currentContext = null;
+            }
+        }
+
+        public void setCurrentContext(final CommandContext context)
+        {
+            this.currentContext = context;
+        }
+    }
+
+    private static class BotCommandExecutor extends CommandExecutor
     {
         @Override
         public void run()
@@ -57,42 +104,12 @@ public class CommandHandler
             {
                 try
                 {
-                    final CommandContext commandContext = commandQueue.take();
-                    try
-                    {
-                        LOGGER.info(
-                                "Taken command with priority: {}, in queue: {}",
-                                commandContext.getPriority(), commandQueue.size()
-                        );
-
-                        if (commandContext.commandObject instanceof MiraBotCommand)
-                        {
-                            new Thread(commandContext::execute).start();
-                        }
-                        else
-                        {
-                            commandContext.execute();
-                        }
-                    }
-                    catch (BotCommandError e)
-                    {
-                        final String channelName = commandContext.event.getChannel().getName();
-                        final String userName = commandContext.event.getUser().getName();
-
-                        LOGGER.error(
-                                "[{}] [{}] '{}': Error: {}",
-                                channelName, userName, commandContext.commandObject.getClass().getSimpleName(), e.getMessage()
-                        );
-                    }
-                }
-                catch (InterruptedException e)
-                {
-                    Thread.currentThread().interrupt();
-                    break;
+                    final CommandContext commandContext = botCommandQueue.take();
+                    super.setCurrentContext(commandContext);
+                    super.run();
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
                     Thread.currentThread().interrupt();
                     break;
                 }
@@ -100,27 +117,62 @@ public class CommandHandler
         }
     }
 
-    private static final int COMMAND_QUEUE_SIZE = 30;
+    private static class MiraCommandExecutor extends CommandExecutor
+    {
+        @Override
+        public void run()
+        {
+            while (true)
+            {
+                try
+                {
+                    final CommandContext commandContext = miraCommandQueue.take();
+                    super.setCurrentContext(commandContext);
+                    super.run();
+                }
+                catch (Exception e)
+                {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
-    private static Thread commandExecutorThread = null;
+    private static final int BOT_COMMAND_QUEUE_SIZE = 15;
+    private static final int MIRA_COMMANDS_QUEUE_SIZE = 5;
+    private static final Comparator<CommandContext> commandPriorityComparator = new CommandPriorityComparator();
 
-    private static final BlockingQueue<CommandContext> commandQueue = new PriorityBlockingQueue<>(
-            COMMAND_QUEUE_SIZE,
-            new CommandContextComparator()
+    private static final BlockingQueue<CommandContext> botCommandQueue = new PriorityBlockingQueue<>(
+            BOT_COMMAND_QUEUE_SIZE, commandPriorityComparator
     );
+
+    private static final BlockingQueue<CommandContext> miraCommandQueue = new PriorityBlockingQueue<>(
+            MIRA_COMMANDS_QUEUE_SIZE, commandPriorityComparator
+    );
+
+    private static Thread botCommandExecutorThread = null;
+    private static Thread miraCommandExecutorThread = null;
+
+
 
     public static void initialize()
     {
         LOGGER.info("Initializing...");
 
-        commandExecutorThread = new Thread(new CommandExecutor(), "CommandExecutor");
-        commandExecutorThread.start();
+        botCommandExecutorThread = new Thread(new BotCommandExecutor(), "BotCommandExecutor");
+        miraCommandExecutorThread = new Thread(new MiraCommandExecutor(), "MiraCommandExecutor");
+
+        botCommandExecutorThread.start();
+        miraCommandExecutorThread.start();
     }
 
     public static void shutdown()
     {
-        commandExecutorThread.interrupt();
+        botCommandExecutorThread.interrupt();
+        miraCommandExecutorThread.interrupt();
     }
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
@@ -154,17 +206,25 @@ public class CommandHandler
 
         if (command != null)
         {
+            LOGGER.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
             final CommandContext commandContext = new CommandContext(command, event, cmdArgs);
-            if (!commandQueue.contains(commandContext))
+
+            try
             {
-                try
+                if (command instanceof MiraBotCommand)
                 {
-                    commandQueue.put(commandContext);
-                    LOGGER.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
+                    LOGGER.info("Putting command context into Mira command queue");
+                    miraCommandQueue.put(commandContext);
                 }
-                catch (InterruptedException e)
+                else
                 {
+                    LOGGER.info("Putting command context into bot command queue");
+                    botCommandQueue.put(commandContext);
                 }
+            }
+            catch (InterruptedException e)
+            {
+                LOGGER.warn("[{}] [{}]: Command: '{}': {}", channelName, userName, cmd, e.getMessage());
             }
         }
         else
