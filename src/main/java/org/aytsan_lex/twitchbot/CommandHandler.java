@@ -2,8 +2,9 @@ package org.aytsan_lex.twitchbot;
 
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Comparator;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -31,6 +32,20 @@ public class CommandHandler
         {
             commandObject.execute(event, args);
         }
+
+        public int getPriority()
+        {
+            return BotConfigManager.getPermissionLevel(this.event.getUser().getName());
+        }
+    }
+
+    private static class CommandContextComparator implements Comparator<CommandContext>
+    {
+        @Override
+        public int compare(CommandContext lhs, CommandContext rhs)
+        {
+            return Integer.compare(rhs.getPriority(), lhs.getPriority());
+        }
     }
 
     private static class CommandExecutor implements Runnable
@@ -42,26 +57,31 @@ public class CommandHandler
             {
                 try
                 {
-                    final CommandContext context = commandQueue.take();
-                    final String channelName = context.event.getChannel().getName();
-                    final String userName = context.event.getUser().getName();
-
+                    final CommandContext commandContext = commandQueue.take();
                     try
                     {
-                        if (context.commandObject instanceof MiraBotCommand)
+                        LOGGER.info(
+                                "Taken command with priority: {}, in queue: {}",
+                                commandContext.getPriority(), commandQueue.size()
+                        );
+
+                        if (commandContext.commandObject instanceof MiraBotCommand)
                         {
-                            new Thread(context::execute).start();
+                            new Thread(commandContext::execute).start();
                         }
                         else
                         {
-                            context.execute();
+                            commandContext.execute();
                         }
                     }
                     catch (BotCommandError e)
                     {
+                        final String channelName = commandContext.event.getChannel().getName();
+                        final String userName = commandContext.event.getUser().getName();
+
                         LOGGER.error(
                                 "[{}] [{}] '{}': Error: {}",
-                                channelName, userName, context.commandObject.getClass().getSimpleName(), e.getMessage()
+                                channelName, userName, commandContext.commandObject.getClass().getSimpleName(), e.getMessage()
                         );
                     }
                 }
@@ -84,7 +104,11 @@ public class CommandHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
     private static Thread commandExecutorThread = null;
-    private static final BlockingQueue<CommandContext> commandQueue = new ArrayBlockingQueue<>(COMMAND_QUEUE_SIZE);
+
+    private static final BlockingQueue<CommandContext> commandQueue = new PriorityBlockingQueue<>(
+            COMMAND_QUEUE_SIZE,
+            new CommandContextComparator()
+    );
 
     public static void initialize()
     {
@@ -130,14 +154,17 @@ public class CommandHandler
 
         if (command != null)
         {
-            LOGGER.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
-            try
+            final CommandContext commandContext = new CommandContext(command, event, cmdArgs);
+            if (!commandQueue.contains(commandContext))
             {
-                commandQueue.put(new CommandContext(command, event, cmdArgs));
-            }
-            catch (InterruptedException e)
-            {
-                LOGGER.warn("Interrupted: {}", e.getMessage());
+                try
+                {
+                    commandQueue.put(commandContext);
+                    LOGGER.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
+                }
+                catch (InterruptedException e)
+                {
+                }
             }
         }
         else
