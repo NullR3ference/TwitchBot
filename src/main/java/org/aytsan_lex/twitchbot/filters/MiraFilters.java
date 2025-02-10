@@ -1,7 +1,6 @@
 package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -13,8 +12,8 @@ public class MiraFilters
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(MiraFilters.class);
 
-    private static final int DEFAULT_MESSAGE_LEN_FILTER = 250;
-    private static final int DEFAULT_WORD_LEN_FILTER = 15;
+    private static final int DEFAULT_MESSAGE_LEN_FILTER = 300;
+    private static final int DEFAULT_WORD_LEN_FILTER = 16;
 
     // TODO: Move this patterns to config
     private static final HashMap<Pattern, String> ageDetectionFilter = new HashMap<>(){{

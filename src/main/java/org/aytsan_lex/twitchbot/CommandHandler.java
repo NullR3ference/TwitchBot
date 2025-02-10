@@ -105,6 +105,14 @@ public class CommandHandler
                 try
                 {
                     final CommandContext commandContext = botCommandQueue.take();
+
+                    LOGGER.info(
+                            "Executing '{}' with priority: {}; in queue: {}",
+                            commandContext.getCommandObject().getClass().getSimpleName(),
+                            commandContext.getPriority(),
+                            botCommandQueue.size()
+                    );
+
                     super.setCurrentContext(commandContext);
                     super.run();
                 }
@@ -127,6 +135,13 @@ public class CommandHandler
                 try
                 {
                     final CommandContext commandContext = miraCommandQueue.take();
+
+                    LOGGER.info(
+                            "Executing Mira command with priority: {}; in queue: {}",
+                            commandContext.getPriority(),
+                            miraCommandQueue.size()
+                    );
+
                     super.setCurrentContext(commandContext);
                     super.run();
                 }
@@ -141,7 +156,7 @@ public class CommandHandler
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
-    private static final int BOT_COMMAND_QUEUE_SIZE = 15;
+    private static final int BOT_COMMAND_QUEUE_SIZE = 10;
     private static final int MIRA_COMMANDS_QUEUE_SIZE = 5;
     private static final Comparator<CommandContext> commandPriorityComparator = new CommandPriorityComparator();
 
@@ -173,6 +188,8 @@ public class CommandHandler
     {
         botCommandExecutorThread.interrupt();
         miraCommandExecutorThread.interrupt();
+        botCommandQueue.clear();
+        miraCommandQueue.clear();
     }
 
     public static void handleCommand(final String message, final IRCMessageEvent event)
@@ -211,15 +228,27 @@ public class CommandHandler
 
             try
             {
+                boolean commandAccepted = false;
+
                 if (command instanceof MiraBotCommand)
                 {
-                    LOGGER.info("Putting command context into Mira command queue");
-                    miraCommandQueue.put(commandContext);
+                    if (miraCommandQueue.size() < MIRA_COMMANDS_QUEUE_SIZE)
+                    {
+                        LOGGER.info("Putting context into Mira command queue");
+                        miraCommandQueue.put(commandContext);
+                        commandAccepted = true;
+                    }
                 }
-                else
+                else if (botCommandQueue.size() < BOT_COMMAND_QUEUE_SIZE)
                 {
-                    LOGGER.info("Putting command context into bot command queue");
+                    LOGGER.info("Putting context into bot command queue");
                     botCommandQueue.put(commandContext);
+                    commandAccepted = true;
+                }
+
+                if (!commandAccepted)
+                {
+                    LOGGER.warn("Command rejected: queue is full");
                 }
             }
             catch (InterruptedException e)

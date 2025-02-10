@@ -15,6 +15,7 @@ public class TwitchBot
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(TwitchBot.class);
 
+    private static final Object chatMessageSync = new Object();
     private static TwitchClient twitchClient = null;
     private static boolean isRunning = false;
 
@@ -91,28 +92,34 @@ public class TwitchBot
         return twitchClient.getChat().isChannelJoined(channelName);
     }
 
-    public static synchronized void sendMessage(String channelName, String message)
+    public static void sendMessage(String channelName, String message)
     {
         sendMessageWithDelay(channelName, message, BotConfigManager.getConfig().getDelayBetweenMessages());
     }
 
-    public static synchronized void replyToMessage(String channelName, String messageId, String message)
+    public static void replyToMessage(String channelName, String messageId, String message)
     {
         replyToMessageWithDelay(channelName, messageId, message, BotConfigManager.getConfig().getDelayBetweenMessages());
     }
 
-    public static synchronized void sendMessageWithDelay(String channelName, String message, int delay)
+    public static void sendMessageWithDelay(String channelName, String message, int delay)
     {
         // TODO: Handle identical message timeout, prevent this
-        try { TimeUnit.MILLISECONDS.sleep(delay); }
-        catch (InterruptedException ignored) { }
+        synchronized (chatMessageSync)
+        {
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException ignored) { }
+        }
         twitchClient.getChat().sendMessage(channelName, message);
     }
 
     public static synchronized void replyToMessageWithDelay(String channelName, String messageId, String message, int delay)
     {
-        try { TimeUnit.MILLISECONDS.sleep(delay); }
-        catch (InterruptedException ignored) { }
+        synchronized (chatMessageSync)
+        {
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException ignored) {}
+        }
         twitchClient.getChat().sendMessage(channelName, message, null, messageId);
     }
 

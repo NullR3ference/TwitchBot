@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.javalin.Javalin;
 
+import org.aytsan_lex.twitchbot.webui.routes.*;
+
 // TODO: Implement simple Web-UI for TwitchBot
 // https://github.com/javalin/javalin
 // https://javalin.io/documentation#getting-started
@@ -21,10 +23,10 @@ public class WebUiServer
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebUiServer.class);
-    private final Javalin app;
+    private static final IndexGet rootPageGetHandler = new IndexGet();
+    private static final IndexPost rootPagePostHandler = new IndexPost();
 
-    private static final RootPageGetHandler rootPageGetHandler = new RootPageGetHandler();
-    private static final RootPagePostHandler rootPagePostHandler = new RootPagePostHandler();
+    private final Javalin app;
 
     private WebUiServer(final String host, final int port)
     {
