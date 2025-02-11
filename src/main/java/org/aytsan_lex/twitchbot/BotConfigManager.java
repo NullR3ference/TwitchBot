@@ -49,7 +49,7 @@ public class BotConfigManager
         }
     }
 
-    public static void readConfig()
+    public static synchronized void readConfig()
     {
         try
         {
@@ -237,7 +237,9 @@ public class BotConfigManager
                   "credentials": {
                       "clientId": "",
                       "accessToken": "",
-                      "refreshToken": ""
+                      "refreshToken": "",
+                      "expiredIn": 0,
+                      "scopes": []
                   },
                   "runningOnChannelId": "",
                   "channels": [],
@@ -248,8 +250,7 @@ public class BotConfigManager
                   "commandPermissionLevels": {
                     "AddChannelBotCommand": 777,
                     "BenBotCommand": 0,
-                    "BenMuteBotCommand": 777,
-                    "CancelVoteBotCommand": 777,
+                    "BenMuteBotCommand": 777
                     "FiltersInfoBotCommand": 777,
                     "IqBotCommand": 0,
                     "IqMuteBotCommand": 777,
