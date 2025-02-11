@@ -1,4 +1,6 @@
 plugins {
+    id("java")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     application
 }
 
@@ -14,13 +16,12 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic","1.3.5")
     implementation("io.github.ollama4j:ollama4j:1.0.79")
     implementation("com.google.code.gson:gson:2.11.0")
-    implementation("io.javalin:javalin:6.4.0")
+    implementation("org.java-websocket:Java-WebSocket:1.6.0")
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 application {

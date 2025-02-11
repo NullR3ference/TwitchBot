@@ -3,7 +3,6 @@ package org.aytsan_lex.twitchbot;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.github.twitch4j.auth.TwitchAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
@@ -11,6 +10,9 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
+
+// TODO: Implement WebSocket client to interact with frontend
+// https://github.com/TooTallNate/Java-WebSocket
 
 public class TwitchBot
 {
