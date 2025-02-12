@@ -122,7 +122,6 @@ public class BotConfig
 
     public String asJson()
     {
-        final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
-        return gson.toJson(this);
+        return new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(this);
     }
 }

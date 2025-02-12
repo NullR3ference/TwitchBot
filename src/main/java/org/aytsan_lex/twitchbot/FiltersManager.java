@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +17,6 @@ import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
 public class FiltersManager
 {
-    private static class MiraFiltersAdapter
-    {
-        public ArrayList<String> preFilterValues;
-        public ArrayList<String> postFilterValues;
-        public int lengthFilterValue;
-        public int wordLengthFilterValue;
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(FiltersManager.class);
     private static final Path FILTERS_PATH = Path.of(Utils.getCurrentWorkingPath() + "/filters");
     private static final File miraFiltersFile = new File(FILTERS_PATH + "/mira_filters.json");
@@ -60,8 +51,8 @@ public class FiltersManager
     {
         try
         {
-            final MiraFiltersAdapter miraFiltersAdapter =
-                    new Gson().fromJson(new FileReader(miraFiltersFile), MiraFiltersAdapter.class);
+            final MiraFilters.Adapter miraFiltersAdapter =
+                    new Gson().fromJson(new FileReader(miraFiltersFile), MiraFilters.Adapter.class);
 
             if (miraFiltersAdapter.preFilterValues.isEmpty())
             {

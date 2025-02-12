@@ -66,15 +66,8 @@ public class TwitchBot
             LOGGER.info("Connecting to channels: {}", channels);
             channels.forEach(TwitchBot::joinToChat);
 
-            try
-            {
-                LOGGER.info("Connection to Web UI...");
-                if (!webUiWsClient.connectBlocking(1000, TimeUnit.MILLISECONDS))
-                {
-                    LOGGER.warn("Web UI connection timeout");
-                }
-            }
-            catch (InterruptedException ignored) { }
+            LOGGER.info("Connection to Web UI...");
+            webUiWsClient.connect();
 
             isRunning = true;
             LOGGER.info("Started");

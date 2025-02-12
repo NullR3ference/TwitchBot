@@ -10,6 +10,12 @@ import org.java_websocket.handshake.ServerHandshake;
 
 public class WebUiWsClient extends WebSocketClient
 {
+    private enum Commands
+    {
+        requestconfig,
+        requestfilters
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(WebUiWsClient.class);
 
     public static class Builder
@@ -57,20 +63,27 @@ public class WebUiWsClient extends WebSocketClient
     @Override
     public void onOpen(ServerHandshake serverHandshake)
     {
-        LOG.info("WebSocket connection opened");
+        LOG.info("WebSocket connected");
     }
 
     @Override
     public void onMessage(String message)
     {
-        LOG.info("Message: {}", message);
-
         if (message.startsWith("#"))
         {
             final String command = message.substring(1);
-            if (command.equals("requestconfig"))
+            try
             {
-                send(BotConfigManager.getConfig().asJson());
+                LOG.info("Handling command: {}", command);
+                switch (Commands.valueOf(command))
+                {
+                    case requestconfig -> send(BotConfigManager.getConfig().asJson());
+                    case requestfilters -> send(FiltersManager.getMiraFilters().asJson());
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                LOG.error("Invalid command: {}", command);
             }
         }
     }
@@ -78,7 +91,7 @@ public class WebUiWsClient extends WebSocketClient
     @Override
     public void onClose(int i, String s, boolean b)
     {
-        LOG.info("WebSocket connection closed: {}", s);
+        LOG.info("WebSocket connection closed");
     }
 
     @Override

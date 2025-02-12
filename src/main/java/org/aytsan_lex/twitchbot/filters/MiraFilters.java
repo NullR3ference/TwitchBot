@@ -1,16 +1,48 @@
 package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import com.google.gson.FormattingStyle;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MiraFilters
 {
+    public static class Adapter
+    {
+        public ArrayList<String> preFilterValues;
+        public ArrayList<String> postFilterValues;
+        public int lengthFilterValue;
+        public int wordLengthFilterValue;
+
+        public static Adapter fromPatterns(MiraFilters filters)
+        {
+            Adapter adapter = new Adapter();
+
+            adapter.preFilterValues = filters.preFilter
+                    .stream()
+                    .map(Pattern::pattern)
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            adapter.postFilterValues = filters.postFilter
+                    .stream()
+                    .map(Pattern::pattern)
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            adapter.lengthFilterValue = filters.messageLengthFilter;
+            adapter.wordLengthFilterValue = filters.wordLengthFilter;
+
+            return adapter;
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MiraFilters.class);
 
     private static final int DEFAULT_MESSAGE_LEN_FILTER = 300;
@@ -207,6 +239,12 @@ public class MiraFilters
         }
 
         return result;
+    }
+
+    public String asJson()
+    {
+        final Adapter adapter = Adapter.fromPatterns(this);
+        return new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(adapter);
     }
 
     private ArrayList<String> splitByMaxLen(final String str, final int maxLen)
