@@ -28,6 +28,7 @@ public class BotConfigManager
     public static void initialize()
     {
         LOGGER.info("Initializing...");
+
         try
         {
             if (!Files.exists(CONFIG_PATH))
@@ -42,6 +43,8 @@ public class BotConfigManager
                 configFile.createNewFile();
                 writeConfigTemplate();
             }
+
+            readConfig();
         }
         catch (Exception e)
         {
@@ -65,9 +68,7 @@ public class BotConfigManager
     {
         try
         {
-            final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
-            final String jsonData = gson.toJson(config);
-
+            final String jsonData = config.asJson();
             final FileWriter fileWriter = new FileWriter(configFile);
             fileWriter.write(jsonData);
             fileWriter.close();

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,6 @@ public class MiraFilters
 
     private final ArrayList<Pattern> preFilter;
     private final ArrayList<Pattern> postFilter;
-    private final ArrayList<Pattern> muteCommandsFilter;
 
     private int messageLengthFilter = DEFAULT_MESSAGE_LEN_FILTER;
     private int wordLengthFilter = DEFAULT_WORD_LEN_FILTER;
@@ -69,18 +69,15 @@ public class MiraFilters
     {
         this.preFilter = new ArrayList<>();
         this.postFilter = new ArrayList<>();
-        this.muteCommandsFilter = new ArrayList<>();
     }
 
     private MiraFilters(ArrayList<String> preFilter,
                         ArrayList<String> postFilter,
-                        ArrayList<String> muteCommandsFilter,
                         int lenFilter,
                         int wordLengthFilter)
     {
         this.preFilter = new ArrayList<>(preFilter.size());
         this.postFilter = new ArrayList<>(postFilter.size());
-        this.muteCommandsFilter = new ArrayList<>(muteCommandsFilter.size());
 
         if (lenFilter > 0)
         {
@@ -105,22 +102,14 @@ public class MiraFilters
                         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
                 ))
         );
-
-        muteCommandsFilter.forEach(str ->
-            this.muteCommandsFilter.add(Pattern.compile(
-                    str,
-                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-            ))
-        );
     }
 
-    public static MiraFilters of(ArrayList<String> preFilter,
-                                 ArrayList<String> postFilter,
-                                 ArrayList<String> muteCommandsFilter,
-                                 int lenFilter,
-                                 int wordLengthFilter)
+    public static MiraFilters of(final ArrayList<String> preFilter,
+                                 final ArrayList<String> postFilter,
+                                 final int lenFilter,
+                                 final int wordLengthFilter)
     {
-        return new MiraFilters(preFilter, postFilter, muteCommandsFilter, lenFilter, wordLengthFilter);
+        return new MiraFilters(preFilter, postFilter, lenFilter, wordLengthFilter);
     }
 
     public static MiraFilters empty()
@@ -155,18 +144,6 @@ public class MiraFilters
             if (pattern.matcher(response).find())
             {
                 LOGGER.warn("Mira pre-filter failed: {}", response);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean testMuteCommandsFilter(final String response)
-    {
-        for (final Pattern pattern : this.muteCommandsFilter)
-        {
-            if (pattern.matcher(response).find())
-            {
                 return false;
             }
         }

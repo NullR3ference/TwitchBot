@@ -1,5 +1,9 @@
 package org.aytsan_lex.twitchbot;
 
+import com.google.gson.FormattingStyle;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -114,5 +118,11 @@ public class BotConfig
     public void setDelayBetweenMessages(int value)
     {
         this.delayBetweenMessages = value;
+    }
+
+    public String asJson()
+    {
+        final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
+        return gson.toJson(this);
     }
 }

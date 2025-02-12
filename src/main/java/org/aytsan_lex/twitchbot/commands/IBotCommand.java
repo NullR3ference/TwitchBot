@@ -1,6 +1,7 @@
 package org.aytsan_lex.twitchbot.commands;
 
 import java.util.ArrayList;
+
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public interface IBotCommand

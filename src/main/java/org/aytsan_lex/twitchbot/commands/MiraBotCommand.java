@@ -136,12 +136,6 @@ public class MiraBotCommand extends BotCommandBase
                     case MSG_SINGLE -> TwitchBot.sendMessage(targetChannelName, miraFilters.truncateLength(finalResponseMessage));
                     case MSG_BLOCKS -> this.sendBlocks(targetChannelName, finalResponseMessage);
                 }
-
-                if (!miraFilters.testMuteCommandsFilter(filteredResponse))
-                {
-                    TwitchBot.LOGGER.warn("Detected Mute context word, Mira will be muted!");
-                    BotCommandsManager.setCommandIsMuted(this.getClass().getSimpleName(), true);
-                }
             }
             else
             {

@@ -58,6 +58,7 @@ public class TwitchBotLauncher
 
         if (!TwitchBot.isInitialized())
         {
+            LOGGER.error("TwitchBot initialization failed");
             System.exit(1);
         }
     }

@@ -3,6 +3,7 @@ package org.aytsan_lex.twitchbot;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.java_websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
@@ -21,6 +22,11 @@ public class TwitchBot
     private static final Object chatMessageSync = new Object();
     private static TwitchClient twitchClient = null;
     private static boolean isRunning = false;
+
+    private static final WebSocketClient webUiWsClient = WebUiWsClient.builder()
+            .withHost("127.0.0.1")
+            .withPort(8812)
+            .build();
 
     public static void initialize(String clientId, String accessToken)
     {
@@ -59,6 +65,16 @@ public class TwitchBot
 
             LOGGER.info("Connecting to channels: {}", channels);
             channels.forEach(TwitchBot::joinToChat);
+
+            try
+            {
+                LOGGER.info("Connection to Web UI...");
+                if (!webUiWsClient.connectBlocking(1000, TimeUnit.MILLISECONDS))
+                {
+                    LOGGER.warn("Web UI connection timeout");
+                }
+            }
+            catch (InterruptedException ignored) { }
 
             isRunning = true;
             LOGGER.info("Started");
@@ -130,5 +146,9 @@ public class TwitchBot
     {
         // TODO: Implement channel exist checking
         return true;
+    }
+
+    public static void onRestart()
+    {
     }
 }
