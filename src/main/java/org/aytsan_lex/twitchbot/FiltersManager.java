@@ -47,12 +47,17 @@ public class FiltersManager
         }
     }
 
+    public static String readFiltersAsString() throws IOException
+    {
+        return Files.readString(miraFiltersFile.toPath());
+    }
+
     public static void readFilters()
     {
         try
         {
-            final MiraFilters.Adapter miraFiltersAdapter =
-                    new Gson().fromJson(new FileReader(miraFiltersFile), MiraFilters.Adapter.class);
+            final String data = readFiltersAsString();
+            final MiraFilters.Adapter miraFiltersAdapter = new Gson().fromJson(data, MiraFilters.Adapter.class);
 
             if (miraFiltersAdapter.preFilterValues.isEmpty())
             {

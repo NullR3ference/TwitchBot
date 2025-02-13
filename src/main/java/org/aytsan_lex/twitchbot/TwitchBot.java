@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.github.philippheuer.credentialmanager.CredentialManager;
-import com.github.philippheuer.credentialmanager.domain.AuthenticationController;
-import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
-import org.java_websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
+import com.github.philippheuer.credentialmanager.CredentialManager;
+import com.github.philippheuer.credentialmanager.domain.AuthenticationController;
+import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 
 // TODO: Implement WebSocket client to interact with frontend
 // https://github.com/TooTallNate/Java-WebSocket
@@ -34,13 +33,12 @@ public class TwitchBot
                                                           String redirectUrl,
                                                           List<Object> scopes)
         {
-            LOGGER.info("Autorization");
         }
     });
 
-    private static final WebUiWsClient webUiWsClient = WebUiWsClient.builder()
+    private static final WsUiServer wsUiServer = WsUiServer.builder()
             .withHost("127.0.0.1")
-            .withPort(8812)
+            .withPort(8811)
             .build();
 
     public static void initialize()
@@ -61,7 +59,6 @@ public class TwitchBot
     public static void shutdown()
     {
         twitchClient.close();
-        twitchClient = null;
     }
 
     public static void start()
@@ -81,8 +78,7 @@ public class TwitchBot
             LOGGER.info("Connecting to channels: {}", channels);
             channels.forEach(TwitchBot::joinToChat);
 
-            LOGGER.info("Connection to Web UI...");
-            webUiWsClient.connect();
+            wsUiServer.start();
 
             isRunning = true;
             LOGGER.info("Started");
@@ -95,8 +91,17 @@ public class TwitchBot
 
     public static void stop()
     {
-        if (isRunning)  { isRunning = false; }
-        else            { LOGGER.warn("Cannot stop, already stopped!"); }
+        if (isRunning)
+        {
+            try { wsUiServer.stop(); }
+            catch (InterruptedException ignored) { }
+
+            isRunning = false;
+        }
+        else
+        {
+            LOGGER.warn("Cannot stop, already stopped!");
+        }
     }
 
     public static boolean isInitialized()
@@ -154,10 +159,5 @@ public class TwitchBot
     {
         // TODO: Implement channel exist checking
         return true;
-    }
-
-    public static WebUiWsClient getWebUiWsClient()
-    {
-        return webUiWsClient;
     }
 }

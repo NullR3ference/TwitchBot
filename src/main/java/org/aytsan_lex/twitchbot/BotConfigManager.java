@@ -52,11 +52,17 @@ public class BotConfigManager
         }
     }
 
+    public static synchronized String readConfigAdString() throws IOException
+    {
+        return Files.readString(configFile.toPath());
+    }
+
     public static synchronized void readConfig()
     {
         try
         {
-            config = new Gson().fromJson(new FileReader(configFile), BotConfig.class);
+            final String data = readConfigAdString();
+            config = new Gson().fromJson(data, BotConfig.class);
         }
         catch (IOException e)
         {

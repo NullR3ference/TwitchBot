@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.philippheuer.credentialmanager.api.IStorageBackend;
 import com.github.philippheuer.credentialmanager.domain.Credential;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
