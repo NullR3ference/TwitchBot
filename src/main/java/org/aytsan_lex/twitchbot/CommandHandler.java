@@ -17,7 +17,7 @@ import org.aytsan_lex.twitchbot.commands.BotCommandError;
 
 public class CommandHandler
 {
-    private static class CommandContext
+    public static class CommandContext
     {
         private final IBotCommand commandObject;
         private final IRCMessageEvent event;
@@ -40,6 +40,11 @@ public class CommandHandler
         public IRCMessageEvent getEvent()
         {
             return this.event;
+        }
+
+        public ArrayList<String> getArgs()
+        {
+            return this.args;
         }
 
         public void execute()
@@ -211,6 +216,16 @@ public class CommandHandler
         }
 
         putCommandInQueue(event, cmd, args);
+    }
+
+    public static BlockingQueue<CommandContext> getBotCommandQueue()
+    {
+        return botCommandQueue;
+    }
+
+    public static BlockingQueue<CommandContext> getMiraCommandQueue()
+    {
+        return miraCommandQueue;
     }
 
     private static void putCommandInQueue(final IRCMessageEvent event,

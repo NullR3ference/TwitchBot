@@ -79,14 +79,6 @@ public class BotConfigManager
         }
     }
 
-    public static boolean credentialsIsEmpty()
-    {
-        final String clientId = config.getClientId();
-        final String accessToken = config.getAccessToken();
-        if (clientId == null || accessToken == null) { return false; }
-        return clientId.isEmpty() || accessToken.isEmpty();
-    }
-
     public static BotConfig getConfig()
     {
         return config;
@@ -186,26 +178,6 @@ public class BotConfigManager
         config.getTimedOutOnChannels().remove(channelName);
     }
 
-    public static boolean isBannedOnChannel(String channelName)
-    {
-        return config.getBannedOnChannels().contains(channelName);
-    }
-
-    public static void setBannedOnChannel(String channelName, boolean isBanned)
-    {
-        if (isBanned)
-        {
-            if (!config.getBannedOnChannels().contains(channelName))
-            {
-                config.getBannedOnChannels().add(channelName);
-            }
-        }
-        else
-        {
-            config.getChannels().removeIf(c -> Objects.equals(c, channelName));
-        }
-    }
-
     public static int getCommandRequiredPermissionLevel(String command)
     {
         if (config.getCommandPermissionLevels().containsKey(command))
@@ -235,13 +207,6 @@ public class BotConfigManager
         {
             final String template = """
                 {
-                  "credentials": {
-                      "clientId": "",
-                      "accessToken": "",
-                      "refreshToken": "",
-                      "expiredIn": 0,
-                      "scopes": []
-                  },
                   "runningOnChannelId": "",
                   "channels": [],
                   "timedOutOnChannels": {},

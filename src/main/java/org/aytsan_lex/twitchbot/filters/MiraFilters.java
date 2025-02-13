@@ -1,17 +1,16 @@
 package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.gson.FormattingStyle;
-import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.gson.FormattingStyle;
+import com.google.gson.GsonBuilder;
 
 public class MiraFilters
 {
@@ -179,11 +178,6 @@ public class MiraFilters
                 return false;
             }
         }
-        return true;
-    }
-
-    public boolean testBotCommandFilter(final String response)
-    {
         return true;
     }
 

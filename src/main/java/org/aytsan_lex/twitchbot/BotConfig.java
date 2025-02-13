@@ -1,19 +1,16 @@
 package org.aytsan_lex.twitchbot;
 
-import com.google.gson.FormattingStyle;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.google.gson.FormattingStyle;
+import com.google.gson.GsonBuilder;
+
 public class BotConfig
 {
-    private HashMap<String, String> credentials;
     private String runningOnChannelId;
     private ArrayList<String> channels;
     private HashMap<String, String> timedOutOnChannels;
-    private ArrayList<String> bannedOnChannels;
     private ArrayList<String> owners;
     private HashMap<String, Integer> permissions;
     private HashMap<String, Integer> commandPermissionLevels;
@@ -30,21 +27,6 @@ public class BotConfig
         return new BotConfig();
     }
 
-    public String getClientId()
-    {
-        return this.credentials.get("clientId");
-    }
-
-    public String getAccessToken()
-    {
-        return this.credentials.get("accessToken");
-    }
-
-    public String getRefreshToken()
-    {
-        return this.credentials.get("refreshToken");
-    }
-
     public String getRunningOnChannelId()
     {
         return this.runningOnChannelId;
@@ -58,11 +40,6 @@ public class BotConfig
     public HashMap<String, String> getTimedOutOnChannels()
     {
         return this.timedOutOnChannels;
-    }
-
-    public ArrayList<String> getBannedOnChannels()
-    {
-        return this.bannedOnChannels;
     }
 
     public ArrayList<String> getOwners()

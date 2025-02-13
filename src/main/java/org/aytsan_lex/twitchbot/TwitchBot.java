@@ -1,15 +1,18 @@
 package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.github.philippheuer.credentialmanager.CredentialManager;
+import com.github.philippheuer.credentialmanager.domain.AuthenticationController;
+import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import org.java_websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
-import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
 
 // TODO: Implement WebSocket client to interact with frontend
@@ -23,22 +26,34 @@ public class TwitchBot
     private static TwitchClient twitchClient = null;
     private static boolean isRunning = false;
 
-    private static final WebSocketClient webUiWsClient = WebUiWsClient.builder()
+    private static final CredentialManager credentialManager =
+            new CredentialManager(new TwitchBotCredentialStorage(), new AuthenticationController()
+    {
+        @Override
+        public void startOAuth2AuthorizationCodeGrantType(OAuth2IdentityProvider oAuth2IdentityProvider,
+                                                          String redirectUrl,
+                                                          List<Object> scopes)
+        {
+            LOGGER.info("Autorization");
+        }
+    });
+
+    private static final WebUiWsClient webUiWsClient = WebUiWsClient.builder()
             .withHost("127.0.0.1")
             .withPort(8812)
             .build();
 
-    public static void initialize(String clientId, String accessToken)
+    public static void initialize()
     {
         LOGGER.info("Initializing...");
 
         twitchClient = TwitchClientBuilder.builder()
-                .withClientId(clientId)
+                .withCredentialManager(credentialManager)
                 .withEnableChat(true)
                 .withEnablePubSub(true)
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
-                .withChatAccount(new OAuth2Credential("twitch", accessToken))
+                .withChatAccount(credentialManager.getOAuth2CredentialByUserId(BotConfigManager.getConfig().getRunningOnChannelId()).orElse(null))
                 .withDefaultEventHandler(ReactorEventHandler.class)
                 .build();
     }
@@ -141,7 +156,8 @@ public class TwitchBot
         return true;
     }
 
-    public static void onRestart()
+    public static WebUiWsClient getWebUiWsClient()
     {
+        return webUiWsClient;
     }
 }

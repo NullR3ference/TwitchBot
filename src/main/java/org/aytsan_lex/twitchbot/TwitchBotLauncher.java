@@ -45,16 +45,7 @@ public class TwitchBotLauncher
         CommandHandler.initialize();
         OllamaModelsManager.initialize();
 
-        if (BotConfigManager.credentialsIsEmpty())
-        {
-            LOGGER.error("Empty credentials! clientId and accessToken is required!");
-            System.exit(1);
-        }
-
-        TwitchBot.initialize(
-                BotConfigManager.getConfig().getClientId(),
-                BotConfigManager.getConfig().getAccessToken()
-        );
+        TwitchBot.initialize();
 
         if (!TwitchBot.isInitialized())
         {

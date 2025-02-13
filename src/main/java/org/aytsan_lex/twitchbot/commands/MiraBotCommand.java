@@ -102,6 +102,14 @@ public class MiraBotCommand extends BotCommandBase
         final String finalMessage = this.buildModelMessage(userName, message);
         this.cooldownExpiresIn = LocalDateTime.now().plusSeconds(super.getCooldown());
 
+        final WebUiWsClient webUiWsClient = TwitchBot.getWebUiWsClient();
+
+        webUiWsClient.beginCommandBatch();
+        webUiWsClient.executeAndPushCommandToBatch(WebUiWsClient.ServerCommands.currentquestion.name(), finalMessage);
+        webUiWsClient.executeAndPushCommandToBatch(WebUiWsClient.ServerCommands.nextquestion.name(), "");
+        webUiWsClient.endCommandBatch();
+        webUiWsClient.sendCommandBatch();
+
         final String response = OllamaModelsManager.getMiraModel()
                 .chatWithModel(finalMessage)
                 .trim()
@@ -115,6 +123,7 @@ public class MiraBotCommand extends BotCommandBase
 
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);
         TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
+        webUiWsClient.sendCommand(WebUiWsClient.ServerCommands.returnedresponse.name(), filteredResponse);
 
         if (!super.isMuted())
         {
