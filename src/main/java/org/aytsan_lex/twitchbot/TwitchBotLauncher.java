@@ -28,7 +28,6 @@ public class TwitchBotLauncher
 
         shutdownSystems();
         initializeOrExitOnFailure();
-
         TwitchBot.start();
 
         START_TIME = Instant.now();

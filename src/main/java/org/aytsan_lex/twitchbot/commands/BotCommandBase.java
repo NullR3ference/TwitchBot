@@ -31,7 +31,7 @@ public class BotCommandBase implements IBotCommand
     @Override
     public boolean isMuted()
     {
-        return BotConfigManager.commandIsMuted(this.getClass().getSimpleName());
+        return BotConfigManager.commandIsMuted(this.getClass());
     }
 
     protected boolean isTimedOutOnChannelOrModify(final String channelName)

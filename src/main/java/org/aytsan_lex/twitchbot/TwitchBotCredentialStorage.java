@@ -33,7 +33,6 @@ class TwitchBotCredentialStorage implements IStorageBackend
     {
         try
         {
-            LOG.info("Loading credentials");
             final FileReader fileReader = new FileReader(credentialsFile);
             final Gson gson = new GsonBuilder().create();
             gson.fromJson(fileReader, new TypeToken<ArrayList<OAuth2Credential>>(){}.getType());
@@ -50,8 +49,6 @@ class TwitchBotCredentialStorage implements IStorageBackend
     {
         try
         {
-            LOG.info("Saving credentials");
-
             final PrintWriter printWriter = new PrintWriter(new FileWriter(credentialsFile));
             final Gson gson = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create();
 

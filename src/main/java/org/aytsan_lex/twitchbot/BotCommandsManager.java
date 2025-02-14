@@ -33,9 +33,9 @@ public class BotCommandsManager
         return commandAliases.get(name);
     }
 
-    public static void setCommandIsMuted(final String commandName, boolean isMuted)
+    public static void setCommandIsMuted(Class<?> botCommandClass, boolean isMuted)
     {
-        BotConfigManager.setCommandIsMuted(commandName, isMuted);
+        BotConfigManager.setCommandIsMuted(botCommandClass, isMuted);
         BotConfigManager.saveConfig();
     }
 }

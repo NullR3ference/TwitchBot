@@ -40,7 +40,7 @@ public class MiraOllamaModel implements IOllamaModel
             synchronized (chatSync)
             {
                 LOGGER.info("Message to model: '{}'", message.formatedMessage());
-                this.putQuestionInHistory(message.getUserName(), message.getOriginalMessage());
+                this.putQuestionInHistory(message.userName(), message.originalMessage());
 
                 chatResult = OllamaModelsManager.getAPI().chat(
                         this.ollamaChatRequestBuilder

@@ -26,6 +26,7 @@ public class RestartBotCommand extends BotCommandBase
             if (!args.isEmpty())
             {
                 final String subCommand = args.get(0);
+
                 switch (SubCommand.valueOf(subCommand.toUpperCase()))
                 {
                     case UPDATE -> System.exit(10);

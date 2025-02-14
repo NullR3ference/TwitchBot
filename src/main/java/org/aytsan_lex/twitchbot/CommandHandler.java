@@ -248,14 +248,12 @@ public class CommandHandler
                 {
                     if (miraCommandQueue.size() < MIRA_COMMANDS_QUEUE_SIZE)
                     {
-                        LOGGER.info("Putting context into Mira command queue");
                         miraCommandQueue.put(commandContext);
                         commandAccepted = true;
                     }
                 }
                 else if (botCommandQueue.size() < BOT_COMMAND_QUEUE_SIZE)
                 {
-                    LOGGER.info("Putting context into bot command queue");
                     botCommandQueue.put(commandContext);
                     commandAccepted = true;
                 }

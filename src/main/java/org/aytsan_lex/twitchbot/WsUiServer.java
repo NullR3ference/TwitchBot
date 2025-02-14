@@ -4,12 +4,18 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import org.aytsan_lex.twitchbot.commands.RestartBotCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+
+import org.aytsan_lex.twitchbot.commands.BenBotCommand;
+import org.aytsan_lex.twitchbot.commands.IqBotCommand;
+import org.aytsan_lex.twitchbot.commands.MiraBotCommand;
 
 public class WsUiServer extends WebSocketServer
 {
@@ -44,11 +50,16 @@ public class WsUiServer extends WebSocketServer
         requestfilters,
         requestmodelmessages,
         requestmodelmessageshistory,
+        requestmutestate,
 
         // Block of client to server commands to accept data
         // syntax: ///<command>###<data>
         updatefilters,
-        updateconfig
+        updateconfig,
+        miramute,
+        benmute,
+        iqmute,
+        restart
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(WsUiServer.class);
@@ -78,8 +89,6 @@ public class WsUiServer extends WebSocketServer
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.info("Client connected: {}:{}", addrInfo.getHostString(), addrInfo.getPort());
-
-        this.currentClient = webSocket;
     }
 
     @Override
@@ -87,27 +96,19 @@ public class WsUiServer extends WebSocketServer
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.info("Client disconnected: {}", addrInfo.getHostString());
-
-        if (this.currentClient != null)
-        {
-            if (this.currentClient.getRemoteSocketAddress().getHostString().equals(addrInfo.getHostString()))
-            {
-                this.currentClient = null;
-            }
-        }
     }
 
     @Override
     public void onMessage(WebSocket webSocket, String message)
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
-        LOG.info("[{}] Message received: {}", addrInfo.getHostString(), message);
+        LOG.info("Handling command from: {}", addrInfo.getHostString());
 
         if (message.startsWith("#"))
         {
             this.handleRequestCommand(webSocket, message);
         }
-        else if (message.startsWith("///"))
+        else if (message.startsWith("/"))
         {
             this.handleDataCommand(message);
         }
@@ -128,61 +129,54 @@ public class WsUiServer extends WebSocketServer
 
     private void handleRequestCommand(WebSocket webSocket, final String message)
     {
-        final ArrayList<String> response = new ArrayList<>();
-        final ArrayList<String> commandBatch = new ArrayList<>(Arrays.asList(message.split(":")));
+        final String command = message.substring(1);
 
-        for (String command : commandBatch)
+        try
         {
-            command = command.substring(1);
-
-            try
+            switch (Commands.valueOf(command))
             {
-                switch (Commands.valueOf(command))
+                case requestconfig ->
                 {
-                    case requestconfig ->
-                    {
-                        try { response.add(BotConfigManager.readConfigAdString()); }
-                        catch (IOException e) { LOG.error("Failed to read config: {}", e.getMessage()); }
-                    }
-
-                    case requestfilters ->
-                    {
-                        try { response.add(FiltersManager.readFiltersAsString()); }
-                        catch (IOException e) { LOG.error("Failed to read filters: {}", e.getMessage()); }
-                    }
-
-                    case requestmodelmessages -> { }
-
-                    case requestmodelmessageshistory ->
-                    {
-                        final ArrayList<String> history = OllamaModelsManager.getMiraModel().getQuestionsHistory();
-                        commandBatch.add(String.join("\n", history));
-                    }
-
-                    default -> {  }
+                    try { webSocket.send(BotConfigManager.readConfigAdString()); }
+                    catch (IOException e) { LOG.error("Failed to read config: {}", e.getMessage()); }
                 }
-            }
-            catch (IllegalArgumentException e)
-            {
-                LOG.warn("Invalid request command: '{}', ignored", command);
-            }
 
-            response.add("///");
+                case requestfilters ->
+                {
+                    try { webSocket.send(FiltersManager.readFiltersAsString()); }
+                    catch (IOException e) { LOG.error("Failed to read filters: {}", e.getMessage()); }
+                }
+
+                case requestmodelmessages -> { }
+
+                case requestmodelmessageshistory ->
+                {
+                    final ArrayList<String> history = OllamaModelsManager.getMiraModel().getQuestionsHistory();
+                    webSocket.send(String.join("\n", history));
+                }
+
+                case requestmutestate ->
+                {
+                    final boolean miraIsMuted = BotConfigManager.commandIsMuted(MiraBotCommand.class);
+                    final boolean benIsMuted = BotConfigManager.commandIsMuted(BenBotCommand.class);
+                    final boolean iqIsMuted = BotConfigManager.commandIsMuted(IqBotCommand.class);
+                    final String data = "%b///%b///%b".formatted(miraIsMuted, benIsMuted, iqIsMuted);
+                    webSocket.send(data);
+                }
+
+                default -> {  }
+            }
         }
-
-        webSocket.send(String.join("", response));
+        catch (IllegalArgumentException e)
+        {
+            LOG.warn("Invalid request command: '{}', ignored", command);
+        }
     }
 
     private void handleDataCommand(final String message)
     {
         final String[] data = message.split("###");
-        final String command = data[0].substring(3);
-
-        if (data.length < 2)
-        {
-            LOG.error("Invalid data command, received data is empty!");
-            return;
-        }
+        final String command = data[0].replaceFirst("^/", "");
 
         try
         {
@@ -190,9 +184,16 @@ public class WsUiServer extends WebSocketServer
             {
                 case updateconfig ->
                 {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
                     try
                     {
                         BotConfigManager.writeConfig(data[1]);
+                        BotConfigManager.readConfig();
                     }
                     catch (IOException e)
                     {
@@ -202,14 +203,62 @@ public class WsUiServer extends WebSocketServer
 
                 case updatefilters ->
                 {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
                     try
                     {
                         FiltersManager.saveFilters(data[1]);
+                        FiltersManager.readFilters();
                     }
                     catch (IOException e)
                     {
                         LOG.error("Failed to save filters: {}", e.getMessage());
                     }
+                }
+
+                case miramute ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final boolean isMuted = Boolean.parseBoolean(data[1]);
+                    BotCommandsManager.setCommandIsMuted(MiraBotCommand.class, isMuted);
+                }
+
+                case benmute ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final boolean isMuted = Boolean.parseBoolean(data[1]);
+                    BotCommandsManager.setCommandIsMuted(BenBotCommand.class, isMuted);
+                }
+
+                case iqmute ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final boolean isMuted = Boolean.parseBoolean(data[1]);
+                    BotCommandsManager.setCommandIsMuted(IqBotCommand.class, isMuted);
+                }
+
+                case restart ->
+                {
+                    new RestartBotCommand().execute(null, new ArrayList<>(List.of("update")));
                 }
 
                 default -> { }

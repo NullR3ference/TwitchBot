@@ -24,7 +24,7 @@ public class BenMuteBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotCommandsManager.setCommandIsMuted(BenBotCommand.class.getSimpleName(), isMuted);
+            BotCommandsManager.setCommandIsMuted(BenBotCommand.class, isMuted);
             TwitchBot.LOGGER.info("Ben command muted = {}", isMuted);
         }
         else

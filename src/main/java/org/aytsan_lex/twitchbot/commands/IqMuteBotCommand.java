@@ -24,7 +24,7 @@ public class IqMuteBotCommand extends BotCommandBase
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotCommandsManager.setCommandIsMuted(IqMuteBotCommand.class.getSimpleName(), isMuted);
+            BotCommandsManager.setCommandIsMuted(IqBotCommand.class, isMuted);
             TwitchBot.LOGGER.info("IQ command muted = {}", isMuted);
         }
         else

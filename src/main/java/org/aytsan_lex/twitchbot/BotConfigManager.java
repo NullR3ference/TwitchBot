@@ -140,23 +140,25 @@ public class BotConfigManager
         return index != -1;
     }
 
-    public static boolean commandIsMuted(String cmd)
+    public static boolean commandIsMuted(Class<?> botCommandClass)
     {
-        return config.getMutedCommands().contains(cmd);
+        return config.getMutedCommands().contains(botCommandClass.getSimpleName());
     }
 
-    public static void setCommandIsMuted(String cmd, boolean isMuted)
+    public static void setCommandIsMuted(Class<?> botCommandClass, boolean isMuted)
     {
+        final String commandName = botCommandClass.getSimpleName();
+
         if (isMuted)
         {
-            if (!config.getMutedCommands().contains(cmd))
+            if (!config.getMutedCommands().contains(commandName))
             {
-                config.getMutedCommands().add(cmd);
+                config.getMutedCommands().add(commandName);
             }
         }
         else
         {
-            config.getMutedCommands().removeIf(c -> Objects.equals(c, cmd));
+            config.getMutedCommands().removeIf(c -> c.equals(commandName));
         }
     }
 
