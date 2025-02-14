@@ -42,7 +42,7 @@ public class TwitchBot
     });
 
     private static final WsUiServer wsUiServer = WsUiServer.builder()
-            .withHost("127.0.0.1")
+            .withHost("0.0.0.0")
             .withPort(8811)
             .build();
 

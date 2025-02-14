@@ -3,10 +3,7 @@ package org.aytsan_lex.twitchbot;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import org.aytsan_lex.twitchbot.commands.RestartBotCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.java_websocket.WebSocket;
@@ -258,7 +255,7 @@ public class WsUiServer extends WebSocketServer
 
                 case restart ->
                 {
-                    new RestartBotCommand().execute(null, new ArrayList<>(List.of("update")));
+                    System.exit(10);
                 }
 
                 default -> { }
