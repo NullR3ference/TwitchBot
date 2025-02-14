@@ -1,9 +1,13 @@
 package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.github.twitch4j.eventsub.events.StreamOfflineEvent;
+import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
+import com.github.twitch4j.helix.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
@@ -65,18 +69,29 @@ public class TwitchBot
     {
         if (!isRunning)
         {
-            twitchClient.getEventManager()
-                    .getEventHandler(ReactorEventHandler.class)
+            twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
                     .onEvent(IRCMessageEvent.class, IrcMessageHandler::handleIrcMessage);
+
+            twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
+                    .onEvent(StreamOnlineEvent.class, ChannelEventHandler::onStreamOnline);
+
+            twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
+                    .onEvent(StreamOfflineEvent.class, ChannelEventHandler::onStreamOffline);
 
             final ArrayList<String> channels = BotConfigManager.getConfig().getChannels();
             final ArrayList<String> owners = BotConfigManager.getConfig().getOwners();
 
             LOGGER.info("Connecting to owners channels: {}", owners);
-            owners.forEach(TwitchBot::joinToChat);
+            owners.forEach(channel -> {
+                TwitchBot.joinToChat(channel);
+                twitchClient.getClientHelper().enableStreamEventListener(channel);
+            });
 
             LOGGER.info("Connecting to channels: {}", channels);
-            channels.forEach(TwitchBot::joinToChat);
+            channels.forEach(channel -> {
+                TwitchBot.joinToChat(channel);
+                twitchClient.getClientHelper().enableStreamEventListener(channel);
+            });
 
             wsUiServer.start();
 
@@ -157,7 +172,16 @@ public class TwitchBot
 
     public static boolean channelExists(String channelName)
     {
-        // TODO: Implement channel exist checking
-        return true;
+        final List<User> users = twitchClient.getHelix()
+                .getUsers(null, null, Collections.singletonList(channelName))
+                .execute()
+                .getUsers();
+
+        return (users != null && users.size() == 1);
+    }
+
+    public static WsUiServer getWsUiServer()
+    {
+        return wsUiServer;
     }
 }

@@ -36,7 +36,23 @@ public class WsUiServer extends WebSocketServer
         }
     }
 
+    private enum Commands
+    {
+        // Block of client to server commands to request data
+        // syntax: #<command> or #<command_1>:#<command_2>... (as batch)
+        requestconfig,
+        requestfilters,
+        requestmodelmessages,
+        requestmodelmessageshistory,
+
+        // Block of client to server commands to accept data
+        // syntax: ///<command>###<data>
+        updatefilters,
+        updateconfig
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(WsUiServer.class);
+    private WebSocket currentClient = null;
 
     private WsUiServer(String host, int port)
     {
@@ -48,11 +64,22 @@ public class WsUiServer extends WebSocketServer
         return new Builder();
     }
 
+    public void sendMessage(final String message)
+    {
+        if (this.currentClient != null)
+        {
+            LOG.info("Sending message to client: {}", message);
+            this.currentClient.send(message);
+        }
+    }
+
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake)
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.info("Client connected: {}:{}", addrInfo.getHostString(), addrInfo.getPort());
+
+        this.currentClient = webSocket;
     }
 
     @Override
@@ -60,6 +87,14 @@ public class WsUiServer extends WebSocketServer
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.info("Client disconnected: {}", addrInfo.getHostString());
+
+        if (this.currentClient != null)
+        {
+            if (this.currentClient.getRemoteSocketAddress().getHostString().equals(addrInfo.getHostString()))
+            {
+                this.currentClient = null;
+            }
+        }
     }
 
     @Override
@@ -68,38 +103,14 @@ public class WsUiServer extends WebSocketServer
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.info("[{}] Message received: {}", addrInfo.getHostString(), message);
 
-        final ArrayList<String> commands = new ArrayList<>(Arrays.asList(message.split(":")));
-        final ArrayList<String> response = new ArrayList<>();
-
-        for (final String command : commands)
+        if (message.startsWith("#"))
         {
-            if (command.equals("#requestconfig"))
-            {
-                try
-                {
-                    response.add(BotConfigManager.readConfigAdString());
-                }
-                catch (IOException e)
-                {
-                    LOG.error("Failed to read config: {}", e.getMessage());
-                }
-            }
-            else if (command.equals("#requestfilters"))
-            {
-                try
-                {
-                    response.add(FiltersManager.readFiltersAsString());
-                }
-                catch (IOException e)
-                {
-                    LOG.error("Failed to read filters: {}", e.getMessage());
-                }
-            }
-
-            response.add("///");
+            this.handleRequestCommand(webSocket, message);
         }
-
-        webSocket.send(String.join("", response));
+        else if (message.startsWith("///"))
+        {
+            this.handleDataCommand(message);
+        }
     }
 
     @Override
@@ -113,5 +124,100 @@ public class WsUiServer extends WebSocketServer
     public void onStart()
     {
         LOG.info("Started on: {}:{}", super.getAddress().getHostString(), super.getPort());
+    }
+
+    private void handleRequestCommand(WebSocket webSocket, final String message)
+    {
+        final ArrayList<String> response = new ArrayList<>();
+        final ArrayList<String> commandBatch = new ArrayList<>(Arrays.asList(message.split(":")));
+
+        for (String command : commandBatch)
+        {
+            command = command.substring(1);
+
+            try
+            {
+                switch (Commands.valueOf(command))
+                {
+                    case requestconfig ->
+                    {
+                        try { response.add(BotConfigManager.readConfigAdString()); }
+                        catch (IOException e) { LOG.error("Failed to read config: {}", e.getMessage()); }
+                    }
+
+                    case requestfilters ->
+                    {
+                        try { response.add(FiltersManager.readFiltersAsString()); }
+                        catch (IOException e) { LOG.error("Failed to read filters: {}", e.getMessage()); }
+                    }
+
+                    case requestmodelmessages -> { }
+
+                    case requestmodelmessageshistory ->
+                    {
+                        final ArrayList<String> history = OllamaModelsManager.getMiraModel().getQuestionsHistory();
+                        commandBatch.add(String.join("\n", history));
+                    }
+
+                    default -> {  }
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                LOG.warn("Invalid request command: '{}', ignored", command);
+            }
+
+            response.add("///");
+        }
+
+        webSocket.send(String.join("", response));
+    }
+
+    private void handleDataCommand(final String message)
+    {
+        final String[] data = message.split("###");
+        final String command = data[0].substring(3);
+
+        if (data.length < 2)
+        {
+            LOG.error("Invalid data command, received data is empty!");
+            return;
+        }
+
+        try
+        {
+            switch (Commands.valueOf(command))
+            {
+                case updateconfig ->
+                {
+                    try
+                    {
+                        BotConfigManager.writeConfig(data[1]);
+                    }
+                    catch (IOException e)
+                    {
+                        LOG.error("Failed to save config: {}", e.getMessage());
+                    }
+                }
+
+                case updatefilters ->
+                {
+                    try
+                    {
+                        FiltersManager.saveFilters(data[1]);
+                    }
+                    catch (IOException e)
+                    {
+                        LOG.error("Failed to save filters: {}", e.getMessage());
+                    }
+                }
+
+                default -> { }
+            }
+        }
+        catch (IllegalArgumentException e)
+        {
+            LOG.warn("Invalid data command: '{}', ignored", command);
+        }
     }
 }

@@ -67,7 +67,7 @@ public class IrcMessageHandler
             if (targetUserId.equals(BotConfigManager.getConfig().getRunningOnChannelId()))
             {
                 BotConfigManager.setTimedOutOnChannel(channelName, LocalDateTime.now().plusSeconds(banDuration));
-                BotConfigManager.writeConfig();
+                BotConfigManager.saveConfig();
                 LOGGER.warn("[{}] You`ve been timed out for {} seconds", channelName, banDuration);
             }
         }

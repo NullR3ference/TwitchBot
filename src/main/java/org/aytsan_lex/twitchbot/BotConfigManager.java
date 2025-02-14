@@ -1,7 +1,6 @@
 package org.aytsan_lex.twitchbot;
 
 import java.util.Objects;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,8 +12,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.FormattingStyle;
 
 // TODO: Implement auto-update config when file has been changed
 
@@ -57,7 +54,14 @@ public class BotConfigManager
         return Files.readString(configFile.toPath());
     }
 
-    public static synchronized void readConfig()
+    public static synchronized void writeConfig(final String configString) throws IOException
+    {
+        final FileWriter fileWriter = new FileWriter(configFile);
+        fileWriter.write(configString);
+        fileWriter.close();
+    }
+
+    public static void readConfig()
     {
         try
         {
@@ -70,14 +74,12 @@ public class BotConfigManager
         }
     }
 
-    public static synchronized void writeConfig()
+    public static void saveConfig()
     {
         try
         {
             final String jsonData = config.asJson();
-            final FileWriter fileWriter = new FileWriter(configFile);
-            fileWriter.write(jsonData);
-            fileWriter.close();
+            writeConfig(jsonData);
         }
         catch (IOException e)
         {

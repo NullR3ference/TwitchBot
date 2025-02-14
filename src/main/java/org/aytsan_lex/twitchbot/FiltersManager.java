@@ -2,7 +2,6 @@ package org.aytsan_lex.twitchbot;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,9 +46,16 @@ public class FiltersManager
         }
     }
 
-    public static String readFiltersAsString() throws IOException
+    public static synchronized String readFiltersAsString() throws IOException
     {
         return Files.readString(miraFiltersFile.toPath());
+    }
+
+    public static synchronized void saveFilters(final String data) throws IOException
+    {
+        final FileWriter fileWriter = new FileWriter(miraFiltersFile);
+        fileWriter.write(data);
+        fileWriter.close();
     }
 
     public static void readFilters()
@@ -101,9 +107,7 @@ public class FiltersManager
                 }
                 """;
 
-            FileWriter fileWriter = new FileWriter(miraFiltersFile);
-            fileWriter.write(template);
-            fileWriter.close();
+            saveFilters(template);
         }
         catch (IOException e)
         {

@@ -1,7 +1,7 @@
 package org.aytsan_lex.twitchbot;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.concurrent.BlockingQueue;
@@ -176,8 +176,6 @@ public class CommandHandler
     private static Thread botCommandExecutorThread = null;
     private static Thread miraCommandExecutorThread = null;
 
-
-
     public static void initialize()
     {
         LOGGER.info("Initializing...");
@@ -193,6 +191,7 @@ public class CommandHandler
     {
         botCommandExecutorThread.interrupt();
         miraCommandExecutorThread.interrupt();
+
         botCommandQueue.clear();
         miraCommandQueue.clear();
     }

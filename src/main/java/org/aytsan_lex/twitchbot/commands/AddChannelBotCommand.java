@@ -29,7 +29,7 @@ public class AddChannelBotCommand extends BotCommandBase
                 {
                     TwitchBot.joinToChat(targetChannelName);
                     BotConfigManager.addChannel(targetChannelName);
-                    BotConfigManager.writeConfig();
+                    BotConfigManager.saveConfig();
 
                     TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);
 

@@ -56,7 +56,7 @@ public class MsgDelayBotCommand extends BotCommandBase
                 {
                     final int value = Integer.parseInt(String.valueOf(args.get(0)));
                     BotConfigManager.setDelayBetweenMessages(value);
-                    BotConfigManager.writeConfig();
+                    BotConfigManager.saveConfig();
 
                     TwitchBot.LOGGER.info("Delay between messages set: {} ms", value);
 

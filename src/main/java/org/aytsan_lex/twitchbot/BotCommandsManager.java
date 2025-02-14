@@ -36,6 +36,6 @@ public class BotCommandsManager
     public static void setCommandIsMuted(final String commandName, boolean isMuted)
     {
         BotConfigManager.setCommandIsMuted(commandName, isMuted);
-        BotConfigManager.writeConfig();
+        BotConfigManager.saveConfig();
     }
 }

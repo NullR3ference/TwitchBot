@@ -36,7 +36,7 @@ public class RemoveChannelBotCommand extends BotCommandBase
 
                         TwitchBot.leaveFromChat(targetChannelName);
                         BotConfigManager.removeChannel(targetChannelName);
-                        BotConfigManager.writeConfig();
+                        BotConfigManager.saveConfig();
 
                         TwitchBot.LOGGER.info("Channel removed: [{}]", targetChannelName);
                     }

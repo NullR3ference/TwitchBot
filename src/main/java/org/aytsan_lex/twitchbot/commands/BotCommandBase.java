@@ -44,7 +44,7 @@ public class BotCommandBase implements IBotCommand
             if (now.isBefore(timeoutEndsAt)) { return true; }
 
             BotConfigManager.removeTimedOutOnChannel(channelName);
-            BotConfigManager.writeConfig();
+            BotConfigManager.saveConfig();
         }
         return false;
     }

@@ -2,6 +2,7 @@ package org.aytsan_lex.twitchbot.ollama;
 
 import java.time.Instant;
 import java.time.Duration;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,13 @@ import org.aytsan_lex.twitchbot.OllamaModelsManager;
 
 public class MiraOllamaModel implements IOllamaModel
 {
+    private static final int MAX_USER_QUESTIONS_HISTORY = 10;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MiraOllamaModel.class);
     private static final Object chatSync = new Object();
+
     private final OllamaChatRequestBuilder ollamaChatRequestBuilder;
+    private final ArrayList<String> userQuestionsHistory = new ArrayList<>(MAX_USER_QUESTIONS_HISTORY);
 
     public MiraOllamaModel()
     {
@@ -25,7 +30,7 @@ public class MiraOllamaModel implements IOllamaModel
     }
 
     @Override
-    public String chatWithModel(final String message)
+    public String chatWithModel(final ModelMessage message)
     {
         try
         {
@@ -34,10 +39,12 @@ public class MiraOllamaModel implements IOllamaModel
 
             synchronized (chatSync)
             {
-                LOGGER.info("Sending message to model:\n'{}'", message);
+                LOGGER.info("Message to model: '{}'", message.formatedMessage());
+                this.putQuestionInHistory(message.getUserName(), message.getOriginalMessage());
+
                 chatResult = OllamaModelsManager.getAPI().chat(
                         this.ollamaChatRequestBuilder
-                                .withMessage(OllamaChatMessageRole.USER, message)
+                                .withMessage(OllamaChatMessageRole.USER, message.formatedMessage())
                                 .build()
                 );
             }
@@ -53,5 +60,22 @@ public class MiraOllamaModel implements IOllamaModel
         }
 
         return "";
+    }
+
+    @Override
+    public ArrayList<String> getQuestionsHistory()
+    {
+        return this.userQuestionsHistory;
+    }
+
+    private void putQuestionInHistory(final String userName, final String question)
+    {
+        if (this.userQuestionsHistory.size() < MAX_USER_QUESTIONS_HISTORY)
+        {
+            this.userQuestionsHistory.add("%s: %s".formatted(userName, question));
+        }
+        else
+        {
+        }
     }
 }

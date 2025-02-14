@@ -8,8 +8,12 @@ import java.util.regex.Pattern;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.*;
+import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.aytsan_lex.twitchbot.FiltersManager;
+import org.aytsan_lex.twitchbot.OllamaModelsManager;
+import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.filters.MiraFilters;
+import org.aytsan_lex.twitchbot.ollama.ModelMessage;
 
 public class MiraBotCommand extends BotCommandBase
 {
@@ -103,7 +107,7 @@ public class MiraBotCommand extends BotCommandBase
         this.cooldownExpiresIn = LocalDateTime.now().plusSeconds(super.getCooldown());
 
         final String response = OllamaModelsManager.getMiraModel()
-                .chatWithModel(finalMessage)
+                .chatWithModel(new ModelMessage(userName, message, finalMessage))
                 .trim()
                 .replaceAll("\\s{2,}", " ")
                 .replaceAll("—+", "-");

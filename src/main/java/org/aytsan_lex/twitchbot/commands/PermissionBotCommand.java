@@ -99,7 +99,7 @@ public class PermissionBotCommand extends BotCommandBase
                     if (!targetUserName.equals(senderUserName) && !BotConfigManager.getConfig().getRunningOnChannelId().equals(targetUserId))
                     {
                         BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
-                        BotConfigManager.writeConfig();
+                        BotConfigManager.saveConfig();
 
                         TwitchBot.replyToMessage(
                                 channelName,
