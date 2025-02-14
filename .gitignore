@@ -6,6 +6,8 @@ build
 
 .idea
 *.txt
+*.log
 
 config/
-chatlogs/
+filters/
+credentials/
