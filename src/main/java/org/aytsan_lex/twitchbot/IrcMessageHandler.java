@@ -64,7 +64,7 @@ public class IrcMessageHandler
             final String targetUserId = targetUserIdTag.get();
             final int banDuration = Integer.parseInt(banDurationTag.get());
 
-            if (targetUserId.equals(BotConfigManager.getConfig().getRunningOnChannelId()))
+            if (targetUserId.equals(BotCredentialManager.getCredentials().getUserId()))
             {
                 BotConfigManager.setTimedOutOnChannel(channelName, LocalDateTime.now().plusSeconds(banDuration));
                 BotConfigManager.saveConfig();

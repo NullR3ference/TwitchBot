@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.eventsub.events.StreamOfflineEvent;
 import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
 import com.github.twitch4j.helix.domain.User;
@@ -30,17 +31,6 @@ public class TwitchBot
     private static TwitchClient twitchClient = null;
     private static boolean isRunning = false;
 
-    private static final CredentialManager credentialManager =
-            new CredentialManager(new TwitchBotCredentialStorage(), new AuthenticationController()
-    {
-        @Override
-        public void startOAuth2AuthorizationCodeGrantType(OAuth2IdentityProvider oAuth2IdentityProvider,
-                                                          String redirectUrl,
-                                                          List<Object> scopes)
-        {
-        }
-    });
-
     private static final WsUiServer wsUiServer = WsUiServer.builder()
             .withHost("0.0.0.0")
             .withPort(8811)
@@ -51,12 +41,12 @@ public class TwitchBot
         LOGGER.info("Initializing...");
 
         twitchClient = TwitchClientBuilder.builder()
-                .withCredentialManager(credentialManager)
+                .withClientId(BotCredentialManager.getCredentials().getClientId())
                 .withEnableChat(true)
                 .withEnablePubSub(true)
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
-                .withChatAccount(credentialManager.getOAuth2CredentialByUserId(BotConfigManager.getConfig().getRunningOnChannelId()).orElse(null))
+                .withChatAccount(new OAuth2Credential("twitch", BotCredentialManager.getCredentials().getAccessToken()))
                 .withDefaultEventHandler(ReactorEventHandler.class)
                 .build();
     }

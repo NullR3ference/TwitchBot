@@ -96,7 +96,7 @@ public class PermissionBotCommand extends BotCommandBase
                         return;
                     }
 
-                    if (!targetUserName.equals(senderUserName) && !BotConfigManager.getConfig().getRunningOnChannelId().equals(targetUserId))
+                    if (!targetUserName.equals(senderUserName) && !BotCredentialManager.getCredentials().getUserId().equals(targetUserId))
                     {
                         BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
                         BotConfigManager.saveConfig();

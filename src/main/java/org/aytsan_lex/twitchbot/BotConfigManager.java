@@ -17,26 +17,27 @@ import com.google.gson.Gson;
 
 public class BotConfigManager
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BotConfigManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BotConfigManager.class);
     private static final Path CONFIG_PATH = Path.of(Utils.getCurrentWorkingPath() + "/config");
+
     private static final File configFile = new File(CONFIG_PATH + "/config.json");
     private static BotConfig config = BotConfig.empty();
 
     public static void initialize()
     {
-        LOGGER.info("Initializing...");
+        LOG.info("Initializing...");
 
         try
         {
             if (!Files.exists(CONFIG_PATH))
             {
-                LOGGER.info("Creating filters folder");
+                LOG.info("Creating config folder");
                 Files.createDirectories(CONFIG_PATH);
             }
 
             if (!configFile.exists())
             {
-                LOGGER.warn("Config file does`nt exists, creating new, config will be EMPTY!");
+                LOG.warn("Config file does`nt exists, creating new, config will be EMPTY!");
                 configFile.createNewFile();
                 writeConfigTemplate();
             }
@@ -45,7 +46,7 @@ public class BotConfigManager
         }
         catch (Exception e)
         {
-            LOGGER.error("Initialization failed: {}", e.getMessage());
+            LOG.error("Initialization failed: {}", e.getMessage());
         }
     }
 
@@ -70,7 +71,7 @@ public class BotConfigManager
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to read config from file: {}", e.getMessage());
+            LOG.error("Failed to read config from file: {}", e.getMessage());
         }
     }
 
@@ -78,12 +79,11 @@ public class BotConfigManager
     {
         try
         {
-            final String jsonData = config.asJson();
-            writeConfig(jsonData);
+            writeConfig(config.asJson());
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to write config: {}", e.getMessage());
+            LOG.error("Failed to write config: {}", e.getMessage());
         }
     }
 
@@ -99,22 +99,22 @@ public class BotConfigManager
         return 0;
     }
 
-    public static void setPermissionLevel(String userId, int level)
+    public static void setPermissionLevel(String userName, int level)
     {
         if (level == 0)
         {
-            config.getOwners().removeIf(id -> Objects.equals(id, userId));
-            config.getPermissions().remove(userId);
+            config.getOwners().removeIf(name -> Objects.equals(name, userName));
+            config.getPermissions().remove(userName);
         }
         else if (level >= 777)
         {
-            if (!config.getOwners().contains(userId)) { config.getOwners().add(userId); }
-            config.getPermissions().remove(userId);
+            if (!config.getOwners().contains(userName)) { config.getOwners().add(userName); }
+            config.getPermissions().remove(userName);
         }
         else
         {
-            config.getPermissions().put(userId, level);
-            config.getOwners().removeIf(id -> Objects.equals(id, userId));
+            config.getPermissions().put(userName, level);
+            config.getOwners().removeIf(name -> Objects.equals(name, userName));
         }
     }
 
@@ -243,7 +243,7 @@ public class BotConfigManager
                   },
                   "commandCooldowns": {},
                   "mutedCommands": [],
-                  "ollamaHost": "http://localhost:11434",
+                  "ollamaHost": "http://127.0.0.1:11434",
                   "miraModelName": "gemma2-9b-mira1.0",
                   "modelMessageTemplate": "'<username>' говорит: '<message>'",
                   "messageSendingMode": 0,
@@ -257,7 +257,7 @@ public class BotConfigManager
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to write config template: {}", e.getMessage());
+            LOG.error("Failed to write config template: {}", e.getMessage());
         }
     }
 }

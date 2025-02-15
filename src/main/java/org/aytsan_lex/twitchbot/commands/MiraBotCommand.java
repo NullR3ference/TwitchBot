@@ -114,7 +114,7 @@ public class MiraBotCommand extends BotCommandBase
 
         final String filteredResponse = String.join(
                 " ",
-                miraFilters.splitWideWords(miraFilters.runPostFilter(response))
+                miraFilters.splitWideWords(miraFilters.runReplacementFilter(miraFilters.runPostFilter(response)))
         );
 
         TwitchBot.LOGGER.info("Raw model response:\n{}", response);

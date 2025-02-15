@@ -85,7 +85,7 @@ public class CommandHandler
                     final String channelName = currentContext.getEvent().getChannel().getName();
                     final String userName = currentContext.getEvent().getUser().getName();
 
-                    LOGGER.error(
+                    LOG.error(
                             "[{}] [{}] '{}': Error: {}",
                             channelName, userName, currentContext.getCommandObject().getClass().getSimpleName(), e.getMessage()
                     );
@@ -111,7 +111,7 @@ public class CommandHandler
                 {
                     final CommandContext commandContext = botCommandQueue.take();
 
-                    LOGGER.info(
+                    LOG.info(
                             "Executing '{}' with priority: {}; in queue: {}",
                             commandContext.getCommandObject().getClass().getSimpleName(),
                             commandContext.getPriority(),
@@ -141,7 +141,7 @@ public class CommandHandler
                 {
                     final CommandContext commandContext = miraCommandQueue.take();
 
-                    LOGGER.info(
+                    LOG.info(
                             "Executing Mira command with priority: {}; in queue: {}",
                             commandContext.getPriority(),
                             miraCommandQueue.size()
@@ -159,7 +159,7 @@ public class CommandHandler
         }
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommandHandler.class);
 
     private static final int BOT_COMMAND_QUEUE_SIZE = 10;
     private static final int MIRA_COMMANDS_QUEUE_SIZE = 5;
@@ -178,7 +178,7 @@ public class CommandHandler
 
     public static void initialize()
     {
-        LOGGER.info("Initializing...");
+        LOG.info("Initializing...");
 
         botCommandExecutorThread = new Thread(new BotCommandExecutor(), "BotCommandExecutor");
         miraCommandExecutorThread = new Thread(new MiraCommandExecutor(), "MiraCommandExecutor");
@@ -237,7 +237,7 @@ public class CommandHandler
 
         if (command != null)
         {
-            LOGGER.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
+            LOG.info("[{}] [{}]: Command: '{}', args: {}", channelName, userName, cmd, cmdArgs);
             final CommandContext commandContext = new CommandContext(command, event, cmdArgs);
 
             try
@@ -260,17 +260,17 @@ public class CommandHandler
 
                 if (!commandAccepted)
                 {
-                    LOGGER.warn("Command rejected: queue is full");
+                    LOG.warn("Command rejected: queue is full");
                 }
             }
             catch (InterruptedException e)
             {
-                LOGGER.warn("[{}] [{}]: Command: '{}': {}", channelName, userName, cmd, e.getMessage());
+                LOG.warn("[{}] [{}]: Command: '{}': {}", channelName, userName, cmd, e.getMessage());
             }
         }
         else
         {
-            LOGGER.warn("[{}] [{}]: Invalid command: '{}'", channelName, userName, cmd);
+            LOG.warn("[{}] [{}]: Invalid command: '{}'", channelName, userName, cmd);
         }
     }
 }

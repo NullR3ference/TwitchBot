@@ -38,6 +38,9 @@ public class TwitchBotLauncher
         BotConfigManager.initialize();
         FiltersManager.initialize();
 
+        BotCredentialManager.initialize();
+        BotCredentialManager.readCredentials();
+
         BotConfigManager.readConfig();
         FiltersManager.readFilters();
 

@@ -16,19 +16,20 @@ import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
 public class FiltersManager
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FiltersManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FiltersManager.class);
     private static final Path FILTERS_PATH = Path.of(Utils.getCurrentWorkingPath() + "/filters");
+
     private static final File miraFiltersFile = new File(FILTERS_PATH + "/mira_filters.json");
     private static MiraFilters miraFilters = MiraFilters.empty();
 
     public static void initialize()
     {
-        LOGGER.info("Initializing...");
+        LOG.info("Initializing...");
         try
         {
             if (!Files.exists(FILTERS_PATH))
             {
-                LOGGER.info("Creating filters folder");
+                LOG.info("Creating filters folder");
                 Files.createDirectories(FILTERS_PATH);
             }
 
@@ -37,12 +38,12 @@ public class FiltersManager
                 miraFilters = MiraFilters.empty();
                 miraFiltersFile.createNewFile();
                 writeFiltersTemplate();
-                LOGGER.warn("Mira filters file does`nt exists, creating new, filters will be EMPTY");
+                LOG.warn("Mira filters file does`nt exists, creating new, filters will be EMPTY");
             }
         }
         catch (IOException e)
         {
-            LOGGER.error("Initialization failed: {}", e.getMessage());
+            LOG.error("Initialization failed: {}", e.getMessage());
         }
     }
 
@@ -64,27 +65,11 @@ public class FiltersManager
         {
             final String data = readFiltersAsString();
             final MiraFilters.Adapter miraFiltersAdapter = new Gson().fromJson(data, MiraFilters.Adapter.class);
-
-            if (miraFiltersAdapter.preFilterValues.isEmpty())
-            {
-                LOGGER.warn("Mira pre-filter is empty");
-            }
-
-            if (miraFiltersAdapter.postFilterValues.isEmpty())
-            {
-                LOGGER.warn("Mira post-filter is empty");
-            }
-
-            miraFilters = MiraFilters.of(
-                    miraFiltersAdapter.preFilterValues,
-                    miraFiltersAdapter.postFilterValues,
-                    miraFiltersAdapter.lengthFilterValue,
-                    miraFiltersAdapter.wordLengthFilterValue
-            );
+            miraFilters = MiraFilters.fromAdapter(miraFiltersAdapter);
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to read filters from file: {}", e.getMessage());
+            LOG.error("Failed to read filters from file: {}", e.getMessage());
         }
     }
 
@@ -101,7 +86,7 @@ public class FiltersManager
                 {
                   "preFilterValues": [],
                   "postFilterValues": [],
-                  "possibleMuteCommandsFilter": [],
+                  "replacementFilterValues": {},
                   "lengthFilterValue": 0,
                   "wordLengthFilterValue": 0
                 }
@@ -111,7 +96,7 @@ public class FiltersManager
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to write filters template: {}", e.getMessage());
+            LOG.error("Failed to write filters template: {}", e.getMessage());
         }
     }
 }

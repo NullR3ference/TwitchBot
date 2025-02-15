@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig
 {
-    private String runningOnChannelId;
     private ArrayList<String> channels;
     private HashMap<String, String> timedOutOnChannels;
     private ArrayList<String> owners;
@@ -25,11 +24,6 @@ public class BotConfig
     public static BotConfig empty()
     {
         return new BotConfig();
-    }
-
-    public String getRunningOnChannelId()
-    {
-        return this.runningOnChannelId;
     }
 
     public ArrayList<String> getChannels()

@@ -2,7 +2,6 @@ package org.aytsan_lex.twitchbot.filters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -18,6 +17,7 @@ public class MiraFilters
     {
         public ArrayList<String> preFilterValues;
         public ArrayList<String> postFilterValues;
+        public HashMap<String, String> replacementFilterValues;
         public int lengthFilterValue;
         public int wordLengthFilterValue;
 
@@ -35,6 +35,12 @@ public class MiraFilters
                     .map(Pattern::pattern)
                     .collect(Collectors.toCollection(ArrayList::new));
 
+            adapter.replacementFilterValues = new HashMap<>(filters.replacementFilter.size());
+
+            filters.replacementFilter.forEach(((pattern, replacement) -> {
+                adapter.replacementFilterValues.put(pattern.pattern(), replacement);
+            }));
+
             adapter.lengthFilterValue = filters.messageLengthFilter;
             adapter.wordLengthFilterValue = filters.wordLengthFilter;
 
@@ -47,51 +53,9 @@ public class MiraFilters
     private static final int DEFAULT_MESSAGE_LEN_FILTER = 300;
     private static final int DEFAULT_WORD_LEN_FILTER = 16;
 
-    // TODO: Move this patterns to config
-    private static final HashMap<Pattern, String> ageDetectionFilter = new HashMap<>(){{
-        put(Pattern.compile(
-                "мне \\d+ лет",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "мне ** лет");
-
-        put(Pattern.compile(
-                "мне \\d+",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "мне **");
-
-        put(Pattern.compile(
-                "\\d+ лет мне",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "** лет мне");
-
-        put(Pattern.compile(
-                "\\d+ мне лет",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "** мне лет");
-
-        put(Pattern.compile(
-                "im \\d+ years",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "im ** years");
-
-        put(Pattern.compile(
-                "im \\d+",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "im **");
-
-        put(Pattern.compile(
-                "im \\d+ y. o.",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "im ** y. o.");
-
-        put(Pattern.compile(
-                "i \\d+ years",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-        ), "i ** years");
-    }};
-
     private final ArrayList<Pattern> preFilter;
     private final ArrayList<Pattern> postFilter;
+    private final HashMap<Pattern, String> replacementFilter;
 
     private int messageLengthFilter = DEFAULT_MESSAGE_LEN_FILTER;
     private int wordLengthFilter = DEFAULT_WORD_LEN_FILTER;
@@ -100,15 +64,18 @@ public class MiraFilters
     {
         this.preFilter = new ArrayList<>();
         this.postFilter = new ArrayList<>();
+        this.replacementFilter = new HashMap<>();
     }
 
-    private MiraFilters(ArrayList<String> preFilter,
-                        ArrayList<String> postFilter,
-                        int lenFilter,
-                        int wordLengthFilter)
+    private MiraFilters(final ArrayList<String> preFilter,
+                        final ArrayList<String> postFilter,
+                        final HashMap<String, String> replacementFilter,
+                        final int lenFilter,
+                        final int wordLengthFilter)
     {
         this.preFilter = new ArrayList<>(preFilter.size());
         this.postFilter = new ArrayList<>(postFilter.size());
+        this.replacementFilter = new HashMap<>(replacementFilter.size());
 
         if (lenFilter > 0)
         {
@@ -133,14 +100,25 @@ public class MiraFilters
                         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
                 ))
         );
+
+        replacementFilter.forEach((pattern, replacement) ->
+            this.replacementFilter.put(Pattern.compile(
+                    pattern,
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
+                    replacement
+            )
+        );
     }
 
-    public static MiraFilters of(final ArrayList<String> preFilter,
-                                 final ArrayList<String> postFilter,
-                                 final int lenFilter,
-                                 final int wordLengthFilter)
+    public static MiraFilters fromAdapter(final Adapter adapter)
     {
-        return new MiraFilters(preFilter, postFilter, lenFilter, wordLengthFilter);
+        return new MiraFilters(
+                adapter.preFilterValues,
+                adapter.postFilterValues,
+                adapter.replacementFilterValues,
+                adapter.lengthFilterValue,
+                adapter.wordLengthFilterValue
+        );
     }
 
     public static MiraFilters empty()
@@ -195,19 +173,27 @@ public class MiraFilters
             }
         }
 
-        for (final Map.Entry<Pattern, String> entry : ageDetectionFilter.entrySet())
+        return postFiltered;
+    }
+
+    public String runReplacementFilter(final String postFiltered)
+    {
+        String result = postFiltered;
+
+        for (var elem : this.replacementFilter.entrySet())
         {
-            final Matcher matcher = entry.getKey().matcher(postFiltered);
-            final String replacement = entry.getValue();
+            final Pattern pattern = elem.getKey();
+            final Matcher matcher = pattern.matcher(result);
 
             if (matcher.find())
             {
-                postFiltered = matcher.replaceAll(replacement);
-                LOGGER.warn("Mira age detection filter triggered: '{}'", matcher.pattern());
+                final String replacement = elem.getValue();
+                result = matcher.replaceAll(replacement);
+                LOGGER.warn("Replacement filter triggered: '{}' -> '{}'", matcher.pattern(), replacement);
             }
         }
 
-        return postFiltered;
+        return result;
     }
 
     public String truncateLength(final String response)
@@ -233,12 +219,6 @@ public class MiraFilters
         }
 
         return result;
-    }
-
-    public String asJson()
-    {
-        final Adapter adapter = Adapter.fromPatterns(this);
-        return new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(adapter);
     }
 
     private ArrayList<String> splitByMaxLen(final String str, final int maxLen)

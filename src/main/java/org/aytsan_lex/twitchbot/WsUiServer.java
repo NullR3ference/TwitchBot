@@ -3,6 +3,7 @@ package org.aytsan_lex.twitchbot;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class WsUiServer extends WebSocketServer
     private enum Commands
     {
         // Block of client to server commands to request data
-        // syntax: #<command> or #<command_1>:#<command_2>... (as batch)
+        // syntax: #<command> or #<command_1>///#<command_2>... (as batch)
         requestconfig,
         requestfilters,
         requestmodelmessages,
@@ -50,7 +51,7 @@ public class WsUiServer extends WebSocketServer
         requestmutestate,
 
         // Block of client to server commands to accept data
-        // syntax: ///<command>###<data>
+        // syntax: /<command>###<data>
         updatefilters,
         updateconfig,
         miramute,
@@ -126,48 +127,61 @@ public class WsUiServer extends WebSocketServer
 
     private void handleRequestCommand(WebSocket webSocket, final String message)
     {
-        final String command = message.substring(1);
+        final ArrayList<String> batch = new ArrayList<>(List.of(message.split("///")));
 
-        try
+        if (batch.size() >= 2)
         {
-            switch (Commands.valueOf(command))
+            this.handleRequestCommandBatched(batch, webSocket);
+        }
+        else
+        {
+            final String command = batch.get(0).substring(1);
+
+            try
             {
-                case requestconfig ->
+                switch (Commands.valueOf(command))
                 {
-                    try { webSocket.send(BotConfigManager.readConfigAdString()); }
-                    catch (IOException e) { LOG.error("Failed to read config: {}", e.getMessage()); }
+                    case requestconfig ->
+                    {
+                        try { webSocket.send(BotConfigManager.readConfigAdString()); }
+                        catch (IOException e) { LOG.error("Failed to read config: {}", e.getMessage()); }
+                    }
+
+                    case requestfilters ->
+                    {
+                        try { webSocket.send(FiltersManager.readFiltersAsString()); }
+                        catch (IOException e) { LOG.error("Failed to read filters: {}", e.getMessage()); }
+                    }
+
+                    case requestmodelmessages -> { }
+
+                    case requestmodelmessageshistory ->
+                    {
+                        final ArrayList<String> history = OllamaModelsManager.getMiraModel().getQuestionsHistory();
+                        webSocket.send(String.join("\n", history));
+                    }
+
+                    case requestmutestate ->
+                    {
+                        final boolean miraIsMuted = BotConfigManager.commandIsMuted(MiraBotCommand.class);
+                        final boolean benIsMuted = BotConfigManager.commandIsMuted(BenBotCommand.class);
+                        final boolean iqIsMuted = BotConfigManager.commandIsMuted(IqBotCommand.class);
+                        final String data = "%b///%b///%b".formatted(miraIsMuted, benIsMuted, iqIsMuted);
+                        webSocket.send(data);
+                    }
+
+                    default -> {  }
                 }
-
-                case requestfilters ->
-                {
-                    try { webSocket.send(FiltersManager.readFiltersAsString()); }
-                    catch (IOException e) { LOG.error("Failed to read filters: {}", e.getMessage()); }
-                }
-
-                case requestmodelmessages -> { }
-
-                case requestmodelmessageshistory ->
-                {
-                    final ArrayList<String> history = OllamaModelsManager.getMiraModel().getQuestionsHistory();
-                    webSocket.send(String.join("\n", history));
-                }
-
-                case requestmutestate ->
-                {
-                    final boolean miraIsMuted = BotConfigManager.commandIsMuted(MiraBotCommand.class);
-                    final boolean benIsMuted = BotConfigManager.commandIsMuted(BenBotCommand.class);
-                    final boolean iqIsMuted = BotConfigManager.commandIsMuted(IqBotCommand.class);
-                    final String data = "%b///%b///%b".formatted(miraIsMuted, benIsMuted, iqIsMuted);
-                    webSocket.send(data);
-                }
-
-                default -> {  }
+            }
+            catch (IllegalArgumentException e)
+            {
+                LOG.warn("Invalid request command: '{}', ignored", command);
             }
         }
-        catch (IllegalArgumentException e)
-        {
-            LOG.warn("Invalid request command: '{}', ignored", command);
-        }
+    }
+
+    private void handleRequestCommandBatched(final ArrayList<String> commandBatch, WebSocket webSocket)
+    {
     }
 
     private void handleDataCommand(final String message)

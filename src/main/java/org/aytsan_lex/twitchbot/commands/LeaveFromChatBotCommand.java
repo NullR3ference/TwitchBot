@@ -6,6 +6,7 @@ import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.aytsan_lex.twitchbot.BotCredentialManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class LeaveFromChatBotCommand extends BotCommandBase
@@ -23,7 +24,7 @@ public class LeaveFromChatBotCommand extends BotCommandBase
             final String targetChannelName = (args.isEmpty()) ? event.getChannel().getName() : args.get(0);
             final String targetChannelId = chat.getChannelNameToChannelId().get(targetChannelName);
 
-            if (!BotConfigManager.getConfig().getRunningOnChannelId().equals(targetChannelId))
+            if (!BotCredentialManager.getCredentials().getUserId().equals(targetChannelId))
             {
                 TwitchBot.replyToMessage(
                         channelName,
