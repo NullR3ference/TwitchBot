@@ -59,6 +59,8 @@ public class WsUiServer extends WebSocketServer
         iqmute,
         addchannel,
         rmchannel,
+        join,
+        leave,
         restart
     }
 
@@ -294,6 +296,30 @@ public class WsUiServer extends WebSocketServer
                     final String channelName = data[1].toLowerCase().trim();
                     BotConfigManager.removeChannel(channelName);
                     BotConfigManager.saveConfig();
+                }
+
+                case join ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final String channelName = data[1].toLowerCase().trim();
+                    TwitchBot.joinToChat(channelName);
+                }
+
+                case leave ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final String channelName = data[1].toLowerCase().trim();
+                    TwitchBot.leaveFromChat(channelName);
                 }
 
                 case restart ->
