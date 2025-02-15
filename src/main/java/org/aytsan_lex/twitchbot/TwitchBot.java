@@ -1,27 +1,17 @@
 package org.aytsan_lex.twitchbot;
 
-import java.net.BindException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
-import com.github.twitch4j.eventsub.events.StreamOfflineEvent;
-import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
-import com.github.twitch4j.helix.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import com.github.twitch4j.eventsub.events.StreamOfflineEvent;
+import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
 import com.github.philippheuer.events4j.reactor.ReactorEventHandler;
-import com.github.philippheuer.credentialmanager.CredentialManager;
-import com.github.philippheuer.credentialmanager.domain.AuthenticationController;
-import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
-
-// TODO: Implement WebSocket client to interact with frontend
-// https://github.com/TooTallNate/Java-WebSocket
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 
 public class TwitchBot
 {
@@ -41,11 +31,11 @@ public class TwitchBot
         LOGGER.info("Initializing...");
 
         twitchClient = TwitchClientBuilder.builder()
-                .withClientId(BotCredentialManager.getCredentials().getClientId())
                 .withEnableChat(true)
                 .withEnablePubSub(true)
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
+                .withClientId(BotCredentialManager.getCredentials().getClientId())
                 .withChatAccount(new OAuth2Credential("twitch", BotCredentialManager.getCredentials().getAccessToken()))
                 .withDefaultEventHandler(ReactorEventHandler.class)
                 .build();
@@ -90,10 +80,6 @@ public class TwitchBot
             isRunning = true;
             LOGGER.info("Started");
         }
-        else
-        {
-            LOGGER.warn("Cannot start, already running!");
-        }
     }
 
     public static void stop()
@@ -102,11 +88,9 @@ public class TwitchBot
         {
             try { wsUiServer.stop(); }
             catch (InterruptedException ignored) { }
+
             isRunning = false;
-        }
-        else
-        {
-            LOGGER.warn("Cannot stop, already stopped!");
+            LOGGER.info("Stopped");
         }
     }
 
@@ -163,12 +147,7 @@ public class TwitchBot
 
     public static boolean channelExists(String channelName)
     {
-        final List<User> users = twitchClient.getHelix()
-                .getUsers(null, null, Collections.singletonList(channelName))
-                .execute()
-                .getUsers();
-
-        return (users != null && users.size() == 1);
+        return true;
     }
 
     public static WsUiServer getWsUiServer()

@@ -57,6 +57,8 @@ public class WsUiServer extends WebSocketServer
         miramute,
         benmute,
         iqmute,
+        addchannel,
+        rmchannel,
         restart
     }
 
@@ -182,6 +184,7 @@ public class WsUiServer extends WebSocketServer
 
     private void handleRequestCommandBatched(final ArrayList<String> commandBatch, WebSocket webSocket)
     {
+        // TODO: Handle batch of commands
     }
 
     private void handleDataCommand(final String message)
@@ -265,6 +268,32 @@ public class WsUiServer extends WebSocketServer
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
                     BotCommandsManager.setCommandIsMuted(IqBotCommand.class, isMuted);
+                }
+
+                case addchannel ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final String channelName = data[1].toLowerCase().trim();
+                    BotConfigManager.addChannel(channelName);
+                    BotConfigManager.saveConfig();
+                }
+
+                case rmchannel ->
+                {
+                    if (data.length < 2)
+                    {
+                        LOG.error("Received data for '{}' command is empty!", command);
+                        return;
+                    }
+
+                    final String channelName = data[1].toLowerCase().trim();
+                    BotConfigManager.removeChannel(channelName);
+                    BotConfigManager.saveConfig();
                 }
 
                 case restart ->
