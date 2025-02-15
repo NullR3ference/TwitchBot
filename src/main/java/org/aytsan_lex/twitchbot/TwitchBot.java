@@ -44,7 +44,6 @@ public class TwitchBot
                 .withClientId(BotCredentialManager.getCredentials().getClientId())
                 .withEnableChat(true)
                 .withEnablePubSub(true)
-                .withEnableHelix(true)
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
                 .withChatAccount(new OAuth2Credential("twitch", BotCredentialManager.getCredentials().getAccessToken()))
@@ -76,13 +75,13 @@ public class TwitchBot
             LOGGER.info("Connecting to owners channels: {}", owners);
             owners.forEach(channel -> {
                 TwitchBot.joinToChat(channel);
-                twitchClient.getClientHelper().enableStreamEventListener(channel);
+//                twitchClient.getClientHelper().enableStreamEventListener(channel);
             });
 
             LOGGER.info("Connecting to channels: {}", channels);
             channels.forEach(channel -> {
                 TwitchBot.joinToChat(channel);
-                twitchClient.getClientHelper().enableStreamEventListener(channel);
+//                twitchClient.getClientHelper().enableStreamEventListener(channel);
             });
 
             wsUiServer.setReuseAddr(true);
