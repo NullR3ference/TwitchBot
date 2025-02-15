@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.BotConfigManager;
 
 public class MsgDelayBotCommand extends BotCommandBase
 {
@@ -18,7 +17,7 @@ public class MsgDelayBotCommand extends BotCommandBase
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
@@ -29,7 +28,7 @@ public class MsgDelayBotCommand extends BotCommandBase
             }
             else
             {
-                final int delayValue = BotConfigManager.getConfig().getDelayBetweenMessages();
+                final int delayValue = TwitchBot.getConfigManager().getConfig().getDelayBetweenMessages();
                 TwitchBot.replyToMessageWithDelay(
                         event.getChannel().getName(),
                         event.getMessageId().get(),
@@ -40,7 +39,7 @@ public class MsgDelayBotCommand extends BotCommandBase
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 
@@ -55,10 +54,10 @@ public class MsgDelayBotCommand extends BotCommandBase
                 case SET ->
                 {
                     final int value = Integer.parseInt(String.valueOf(args.get(0)));
-                    BotConfigManager.setDelayBetweenMessages(value);
-                    BotConfigManager.saveConfig();
+                    TwitchBot.getConfigManager().setDelayBetweenMessages(value);
+                    TwitchBot.getConfigManager().saveFile();
 
-                    TwitchBot.LOGGER.info("Delay between messages set: {} ms", value);
+                    TwitchBot.LOG.info("Delay between messages set: {} ms", value);
 
                     TwitchBot.replyToMessageWithDelay(
                             event.getChannel().getName(),
@@ -71,7 +70,7 @@ public class MsgDelayBotCommand extends BotCommandBase
         }
         catch (IllegalArgumentException e)
         {
-            TwitchBot.LOGGER.warn("Invalid sub-command for '{}': '{}'", this.getClass().getSimpleName(), cmd);
+            TwitchBot.LOG.warn("Invalid sub-command for '{}': '{}'", this.getClass().getSimpleName(), cmd);
         }
     }
 }

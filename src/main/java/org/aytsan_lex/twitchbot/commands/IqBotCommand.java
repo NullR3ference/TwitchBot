@@ -14,7 +14,13 @@ public class IqBotCommand extends BotCommandBase
     {
         if (!super.isMuted() && !super.isTimedOutOnChannelOrModify(event.getChannel().getName()))
         {
+            // TODO: Add args support: < > <= >= != ==
+            // Message: %iq < 10: get value between 0 and 10
+            // Message: %iq > 100: get value between 100 and 250
+            // Etc...
+
             final int iqValue = new Random().nextInt(0, 250);
+
             TwitchBot.replyToMessage(
                     event.getChannel().getName(),
                     event.getMessageId().get(),

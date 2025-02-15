@@ -4,9 +4,7 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.FiltersManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.BotConfigManager;
 
 public class UpdateFiltersBotCommand extends BotCommandBase
 {
@@ -14,11 +12,12 @@ public class UpdateFiltersBotCommand extends BotCommandBase
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            FiltersManager.readFilters();
+            TwitchBot.getFiltersManager().readFile();
+
             TwitchBot.replyToMessage(
                     event.getChannel().getName(),
                     event.getMessageId().get(),
@@ -27,7 +26,7 @@ public class UpdateFiltersBotCommand extends BotCommandBase
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

@@ -6,4 +6,5 @@ public interface IOllamaModel
 {
     String chatWithModel(final ModelMessage message);
     ArrayList<String> getQuestionsHistory();
+    void clearQuestionsHistory();
 }

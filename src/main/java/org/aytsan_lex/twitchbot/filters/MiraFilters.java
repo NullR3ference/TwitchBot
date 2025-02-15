@@ -6,10 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.gson.FormattingStyle;
 import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MiraFilters
 {
@@ -48,7 +48,7 @@ public class MiraFilters
         }
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MiraFilters.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MiraFilters.class);
 
     private static final int DEFAULT_MESSAGE_LEN_FILTER = 300;
     private static final int DEFAULT_WORD_LEN_FILTER = 16;
@@ -152,7 +152,7 @@ public class MiraFilters
         {
             if (pattern.matcher(response).find())
             {
-                LOGGER.warn("Mira pre-filter failed: {}", response);
+                LOG.warn("Mira pre-filter failed: {}", response);
                 return false;
             }
         }
@@ -169,7 +169,7 @@ public class MiraFilters
             if (matcher.find())
             {
                 postFiltered = matcher.replaceAll(" * ");
-                LOGGER.warn("Mira post-filter triggered: '{}'", matcher.pattern());
+                LOG.warn("Mira post-filter triggered: '{}'", matcher.pattern());
             }
         }
 
@@ -189,7 +189,7 @@ public class MiraFilters
             {
                 final String replacement = elem.getValue();
                 result = matcher.replaceAll(replacement);
-                LOGGER.warn("Replacement filter triggered: '{}' -> '{}'", matcher.pattern(), replacement);
+                LOG.warn("Replacement filter triggered: '{}' -> '{}'", matcher.pattern(), replacement);
             }
         }
 
@@ -236,5 +236,11 @@ public class MiraFilters
         }
 
         return result;
+    }
+
+    public String toJsonString()
+    {
+        final Adapter adapter = Adapter.fromPatterns(this);
+        return new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(adapter);
     }
 }

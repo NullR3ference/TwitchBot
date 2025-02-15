@@ -1,9 +1,8 @@
 package org.aytsan_lex.twitchbot;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +69,7 @@ public class WsUiServer extends WebSocketServer
     private WsUiServer(String host, int port)
     {
         super(new InetSocketAddress(host, port));
+        setReuseAddr(true);
     }
 
     public static Builder builder()
@@ -145,31 +145,22 @@ public class WsUiServer extends WebSocketServer
             {
                 switch (Commands.valueOf(command))
                 {
-                    case requestconfig ->
-                    {
-                        try { webSocket.send(BotConfigManager.readConfigAdString()); }
-                        catch (IOException e) { LOG.error("Failed to read config: {}", e.getMessage()); }
-                    }
-
-                    case requestfilters ->
-                    {
-                        try { webSocket.send(FiltersManager.readFiltersAsString()); }
-                        catch (IOException e) { LOG.error("Failed to read filters: {}", e.getMessage()); }
-                    }
+                    case requestconfig -> webSocket.send(TwitchBot.getConfigManager().getConfig().toJsonString());
+                    case requestfilters -> webSocket.send(TwitchBot.getFiltersManager().getMiraFilters().toJsonString());
 
                     case requestmodelmessages -> { }
 
                     case requestmodelmessageshistory ->
                     {
-                        final ArrayList<String> history = OllamaModelsManager.getMiraModel().getQuestionsHistory();
+                        final ArrayList<String> history = TwitchBot.getOllamaModelsManager().getMiraModel().getQuestionsHistory();
                         webSocket.send(String.join("\n", history));
                     }
 
                     case requestmutestate ->
                     {
-                        final boolean miraIsMuted = BotConfigManager.commandIsMuted(MiraBotCommand.class);
-                        final boolean benIsMuted = BotConfigManager.commandIsMuted(BenBotCommand.class);
-                        final boolean iqIsMuted = BotConfigManager.commandIsMuted(IqBotCommand.class);
+                        final boolean miraIsMuted = TwitchBot.getConfigManager().commandIsMuted(MiraBotCommand.class);
+                        final boolean benIsMuted = TwitchBot.getConfigManager().commandIsMuted(BenBotCommand.class);
+                        final boolean iqIsMuted = TwitchBot.getConfigManager().commandIsMuted(IqBotCommand.class);
                         final String data = "%b///%b///%b".formatted(miraIsMuted, benIsMuted, iqIsMuted);
                         webSocket.send(data);
                     }
@@ -206,15 +197,8 @@ public class WsUiServer extends WebSocketServer
                         return;
                     }
 
-                    try
-                    {
-                        BotConfigManager.writeConfig(data[1]);
-                        BotConfigManager.readConfig();
-                    }
-                    catch (IOException e)
-                    {
-                        LOG.error("Failed to save config: {}", e.getMessage());
-                    }
+                    TwitchBot.getConfigManager().writeData(data[1]);
+                    TwitchBot.getConfigManager().readFile();
                 }
 
                 case updatefilters ->
@@ -225,15 +209,8 @@ public class WsUiServer extends WebSocketServer
                         return;
                     }
 
-                    try
-                    {
-                        FiltersManager.saveFilters(data[1]);
-                        FiltersManager.readFilters();
-                    }
-                    catch (IOException e)
-                    {
-                        LOG.error("Failed to save filters: {}", e.getMessage());
-                    }
+                    TwitchBot.getFiltersManager().writeData(data[1]);
+                    TwitchBot.getFiltersManager().readFile();
                 }
 
                 case miramute ->
@@ -245,7 +222,7 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
-                    BotCommandsManager.setCommandIsMuted(MiraBotCommand.class, isMuted);
+                    TwitchBot.getCommandsManager().setCommandIsMuted(MiraBotCommand.class, isMuted);
                 }
 
                 case benmute ->
@@ -257,7 +234,7 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
-                    BotCommandsManager.setCommandIsMuted(BenBotCommand.class, isMuted);
+                    TwitchBot.getCommandsManager().setCommandIsMuted(BenBotCommand.class, isMuted);
                 }
 
                 case iqmute ->
@@ -269,7 +246,7 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
-                    BotCommandsManager.setCommandIsMuted(IqBotCommand.class, isMuted);
+                    TwitchBot.getCommandsManager().setCommandIsMuted(IqBotCommand.class, isMuted);
                 }
 
                 case addchannel ->
@@ -281,8 +258,8 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final String channelName = data[1].toLowerCase().trim();
-                    BotConfigManager.addChannel(channelName);
-                    BotConfigManager.saveConfig();
+                    TwitchBot.getConfigManager().addChannel(channelName);
+                    TwitchBot.getConfigManager().saveFile();
                 }
 
                 case rmchannel ->
@@ -294,8 +271,8 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final String channelName = data[1].toLowerCase().trim();
-                    BotConfigManager.removeChannel(channelName);
-                    BotConfigManager.saveConfig();
+                    TwitchBot.getConfigManager().removeChannel(channelName);
+                    TwitchBot.getConfigManager().saveFile();
                 }
 
                 case join ->

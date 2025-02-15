@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.BotConfigManager;
+import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class BotCommandBase implements IBotCommand
 {
@@ -19,32 +19,32 @@ public class BotCommandBase implements IBotCommand
     @Override
     public int getRequiredPermissionLevel()
     {
-        return BotConfigManager.getCommandRequiredPermissionLevel(this.getClass().getSimpleName());
+        return TwitchBot.getConfigManager().getRequiredPermissionLevel(this.getClass());
     }
 
     @Override
     public int getCooldown()
     {
-        return BotConfigManager.getCommandCooldown(this.getClass().getSimpleName());
+        return TwitchBot.getConfigManager().getCommandCooldown(this.getClass());
     }
 
     @Override
     public boolean isMuted()
     {
-        return BotConfigManager.commandIsMuted(this.getClass());
+        return TwitchBot.getConfigManager().commandIsMuted(this.getClass());
     }
 
     protected boolean isTimedOutOnChannelOrModify(final String channelName)
     {
-        if (BotConfigManager.isTimedOutOnChannel(channelName))
+        if (TwitchBot.getConfigManager().isTimedOutOnChannel(channelName))
         {
             final LocalDateTime now = LocalDateTime.now();
-            final LocalDateTime timeoutEndsAt = BotConfigManager.getTimeoutEndsAt(channelName);
+            final LocalDateTime timeoutEndsAt = TwitchBot.getConfigManager().getTimeoutEndsAt(channelName);
 
             if (now.isBefore(timeoutEndsAt)) { return true; }
 
-            BotConfigManager.removeTimedOutOnChannel(channelName);
-            BotConfigManager.saveConfig();
+            TwitchBot.getConfigManager().removeTimedOutOnChannel(channelName);
+            TwitchBot.getConfigManager().saveFile();
         }
         return false;
     }

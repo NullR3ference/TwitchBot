@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.BotConfigManager;
-import org.aytsan_lex.twitchbot.OllamaModelsManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.TwitchBotLauncher;
 
@@ -19,7 +17,7 @@ public class StatusBotCommand extends BotCommandBase
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
@@ -31,7 +29,7 @@ public class StatusBotCommand extends BotCommandBase
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 
@@ -42,14 +40,14 @@ public class StatusBotCommand extends BotCommandBase
         final float heapUsedMib = (float)memMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
         final float heapMaxMib = (float)memMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024);
 
-        return "%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d | Ollama connection: %s".formatted(
+        return "%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d | Ollama access: %s".formatted(
                 uptime.toHoursPart(),
                 uptime.toMinutesPart(),
                 uptime.toSecondsPart(),
                 heapUsedMib,
                 heapMaxMib,
-                BotConfigManager.getConfig().getChannels().size(),
-                (OllamaModelsManager.checkConnection()) ? "✅" : "❌"
+                TwitchBot.getConfigManager().getConfig().getChannels().size(),
+                (TwitchBot.getOllamaModelsManager().checkConnection()) ? "✅" : "❌"
         );
     }
 }

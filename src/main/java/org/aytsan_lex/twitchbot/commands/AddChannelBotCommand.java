@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.BotConfigManager;
 
 public class AddChannelBotCommand extends BotCommandBase
 {
@@ -18,20 +17,21 @@ public class AddChannelBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
-        final String targetChannelName = args.get(0);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
+            final String targetChannelName = args.get(0);
+
             if (TwitchBot.channelExists(targetChannelName))
             {
-                if (BotConfigManager.addChannel(targetChannelName))
+                if (TwitchBot.getConfigManager().addChannel(targetChannelName))
                 {
                     TwitchBot.joinToChat(targetChannelName);
-                    BotConfigManager.addChannel(targetChannelName);
-                    BotConfigManager.saveConfig();
+                    TwitchBot.getConfigManager().addChannel(targetChannelName);
+                    TwitchBot.getConfigManager().saveFile();
 
-                    TwitchBot.LOGGER.info("Channel added: [{}]", targetChannelName);
+                    TwitchBot.LOG.info("Channel added: [{}]", targetChannelName);
 
                     TwitchBot.replyToMessage(
                             event.getChannel().getName(),
@@ -43,7 +43,7 @@ public class AddChannelBotCommand extends BotCommandBase
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

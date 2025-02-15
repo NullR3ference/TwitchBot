@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class TwitchBotLauncher
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchBotLauncher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TwitchBotLauncher.class);
     private static Instant START_TIME = null;
 
     public static void main(String[] args)
@@ -24,7 +24,8 @@ public class TwitchBotLauncher
 
     public static void onRestart()
     {
-        LOGGER.info("Restarting....");
+        // FIXME: Probably deadlock or something else after restart command
+        LOG.info("Restarting....");
 
         shutdownSystems();
         initializeOrExitOnFailure();
@@ -35,30 +36,15 @@ public class TwitchBotLauncher
 
     private static void initializeOrExitOnFailure()
     {
-        BotConfigManager.initialize();
-        FiltersManager.initialize();
-
-        BotCredentialManager.initialize();
-        BotCredentialManager.readCredentials();
-
-        BotConfigManager.readConfig();
-        FiltersManager.readFilters();
-
-        CommandHandler.initialize();
-        OllamaModelsManager.initialize();
-
-        TwitchBot.initialize();
-
-        if (!TwitchBot.isInitialized())
+        if (!TwitchBot.initialize())
         {
-            LOGGER.error("TwitchBot initialization failed");
+            LOG.error("TwitchBot initialization failed!");
             System.exit(1);
         }
     }
 
     private static void shutdownSystems()
     {
-        CommandHandler.shutdown();
         TwitchBot.stop();
         TwitchBot.shutdown();
     }

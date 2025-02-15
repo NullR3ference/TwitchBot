@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class JoinToChatBotCommand extends BotCommandBase
@@ -19,13 +18,14 @@ public class JoinToChatBotCommand extends BotCommandBase
 
         final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
-        final String targetChannelName = args.get(0);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
+            final String targetChannelName = args.get(0);
+
             TwitchBot.joinToChat(targetChannelName);
-            TwitchBot.LOGGER.info("Joined to: [{}]", targetChannelName);
+            TwitchBot.LOG.info("Joined to: [{}]", targetChannelName);
 
             TwitchBot.replyToMessage(
                     channelName,
@@ -35,7 +35,7 @@ public class JoinToChatBotCommand extends BotCommandBase
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

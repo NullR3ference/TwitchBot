@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.BotCommandsManager;
-import org.aytsan_lex.twitchbot.BotConfigManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class BenMuteBotCommand extends BotCommandBase
@@ -19,17 +17,17 @@ public class BenMuteBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
-        final boolean isMuted = Boolean.parseBoolean(args.get(0));
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            BotCommandsManager.setCommandIsMuted(BenBotCommand.class, isMuted);
-            TwitchBot.LOGGER.info("Ben command muted = {}", isMuted);
+            final boolean isMuted = Boolean.parseBoolean(args.get(0));
+            TwitchBot.getCommandsManager().setCommandIsMuted(BenBotCommand.class, isMuted);
+            TwitchBot.LOG.info("Ben command muted = {}", isMuted);
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 }

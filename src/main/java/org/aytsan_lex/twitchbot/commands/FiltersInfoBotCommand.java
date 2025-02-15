@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.BotConfigManager;
-import org.aytsan_lex.twitchbot.FiltersManager;
 import org.aytsan_lex.twitchbot.filters.MiraFilters;
 
 public class FiltersInfoBotCommand extends BotCommandBase
@@ -14,27 +12,26 @@ public class FiltersInfoBotCommand extends BotCommandBase
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
-        final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
             TwitchBot.replyToMessage(
-                    channelName,
+                    event.getChannel().getName(),
                     event.getMessageId().get(),
                     this.createInfoMessage()
             );
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 
     private String createInfoMessage()
     {
-        final MiraFilters filters = FiltersManager.getMiraFilters();
+        final MiraFilters filters = TwitchBot.getFiltersManager().getMiraFilters();
 
         return "Pre-filter: %d | Post-filter: %d | MsgLen: %d | WordLen: %d"
                 .formatted(

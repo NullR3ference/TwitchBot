@@ -10,7 +10,7 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 public class IrcMessageHandler
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IrcMessageHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IrcMessageHandler.class);
 
     private enum IrcCommandType
     {
@@ -64,11 +64,15 @@ public class IrcMessageHandler
             final String targetUserId = targetUserIdTag.get();
             final int banDuration = Integer.parseInt(banDurationTag.get());
 
-            if (targetUserId.equals(BotCredentialManager.getCredentials().getUserId()))
+            if (targetUserId.equals(TwitchBot.getCredentialsManager().getCredentials().userId()))
             {
-                BotConfigManager.setTimedOutOnChannel(channelName, LocalDateTime.now().plusSeconds(banDuration));
-                BotConfigManager.saveConfig();
-                LOGGER.warn("[{}] You`ve been timed out for {} seconds", channelName, banDuration);
+                TwitchBot.getConfigManager().setIsTimedOutOnChannel(
+                        channelName,
+                        LocalDateTime.now().plusSeconds(banDuration)
+                );
+                TwitchBot.getConfigManager().saveFile();
+
+                LOG.warn("[{}] You`ve been timed out for {} seconds", channelName, banDuration);
             }
         }
     }

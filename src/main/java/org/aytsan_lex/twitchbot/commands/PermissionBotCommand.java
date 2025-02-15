@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.*;
+import org.aytsan_lex.twitchbot.TwitchBot;
 
 public class PermissionBotCommand extends BotCommandBase
 {
@@ -23,7 +23,7 @@ public class PermissionBotCommand extends BotCommandBase
         }
 
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
@@ -32,7 +32,7 @@ public class PermissionBotCommand extends BotCommandBase
         }
         else
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
         }
     }
 
@@ -42,7 +42,7 @@ public class PermissionBotCommand extends BotCommandBase
     {
         final String channelName = event.getChannel().getName();
         final String senderUserName = event.getUser().getName();
-        final int senderPermissionLevel = BotConfigManager.getPermissionLevel(senderUserName);
+        final int senderPermissionLevel = TwitchBot.getConfigManager().getPermissionLevel(senderUserName);
 
         try
         {
@@ -56,7 +56,7 @@ public class PermissionBotCommand extends BotCommandBase
                     }
 
                     final String targetUserName = args.get(0).toLowerCase();
-                    final int permissionLevel = BotConfigManager.getPermissionLevel(targetUserName);
+                    final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(targetUserName);
 
                     TwitchBot.replyToMessage(
                             channelName,
@@ -75,11 +75,11 @@ public class PermissionBotCommand extends BotCommandBase
                     final String targetUserName = args.get(0).toLowerCase();
                     final String targetUserId = event.getTwitchChat().getChannelNameToChannelId().get(targetUserName);
                     final int targetLevel = Integer.parseInt(args.get(1));
-                    final int targetUserCurrentLevel = BotConfigManager.getPermissionLevel(targetUserName);
+                    final int targetUserCurrentLevel = TwitchBot.getConfigManager().getPermissionLevel(targetUserName);
 
                     if (senderPermissionLevel < targetUserCurrentLevel)
                     {
-                        TwitchBot.LOGGER.warn(
+                        TwitchBot.LOG.warn(
                                 "{}: cannot set permission for '{}' with higher level then you: {} vs {}",
                                 senderUserName,
                                 targetUserName,
@@ -96,10 +96,10 @@ public class PermissionBotCommand extends BotCommandBase
                         return;
                     }
 
-                    if (!targetUserName.equals(senderUserName) && !BotCredentialManager.getCredentials().getUserId().equals(targetUserId))
+                    if (!targetUserName.equals(senderUserName) && !TwitchBot.getCredentialsManager().getCredentials().userId().equals(targetUserId))
                     {
-                        BotConfigManager.setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
-                        BotConfigManager.saveConfig();
+                        TwitchBot.getConfigManager().setPermissionLevel(targetUserName.toLowerCase(), targetLevel);
+                        TwitchBot.getConfigManager().saveFile();
 
                         TwitchBot.replyToMessage(
                                 channelName,
@@ -107,14 +107,14 @@ public class PermissionBotCommand extends BotCommandBase
                                 "Уровень доступа установлен '%s' -> %d".formatted(targetUserName, targetLevel)
                         );
 
-                        TwitchBot.LOGGER.info("Permission level '{}' -> {}", targetUserName, targetLevel);
+                        TwitchBot.LOG.info("Permission level '{}' -> {}", targetUserName, targetLevel);
                     }
                 }
             }
         }
         catch (IllegalArgumentException e)
         {
-            TwitchBot.LOGGER.warn("Invalid sub-command for '{}': '{}'", this.getClass().getSimpleName(), subCmd);
+            TwitchBot.LOG.warn("Invalid sub-command for '{}': '{}'", this.getClass().getSimpleName(), subCmd);
         }
     }
 }

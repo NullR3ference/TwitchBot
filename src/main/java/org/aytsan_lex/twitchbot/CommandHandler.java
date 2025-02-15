@@ -54,7 +54,7 @@ public class CommandHandler
 
         public int getPriority()
         {
-            return BotConfigManager.getPermissionLevel(this.event.getUser().getName());
+            return TwitchBot.getConfigManager().getPermissionLevel(this.event.getUser().getName());
         }
     }
 
@@ -189,6 +189,8 @@ public class CommandHandler
 
     public static void shutdown()
     {
+        LOG.info("Shutting down...");
+
         botCommandExecutorThread.interrupt();
         miraCommandExecutorThread.interrupt();
 
@@ -233,7 +235,7 @@ public class CommandHandler
     {
         final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
-        final IBotCommand command = BotCommandsManager.getCommandByName(cmd);
+        final IBotCommand command = TwitchBot.getCommandsManager().getCommandByName(cmd);
 
         if (command != null)
         {

@@ -8,9 +8,6 @@ import java.util.regex.Pattern;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.BotConfigManager;
-import org.aytsan_lex.twitchbot.FiltersManager;
-import org.aytsan_lex.twitchbot.OllamaModelsManager;
 import org.aytsan_lex.twitchbot.TwitchBot;
 import org.aytsan_lex.twitchbot.filters.MiraFilters;
 import org.aytsan_lex.twitchbot.ollama.ModelMessage;
@@ -55,43 +52,43 @@ public class MiraBotCommand extends BotCommandBase
 
         final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
-        final int permissionLevel = BotConfigManager.getPermissionLevel(userName);
+        final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel < this.getRequiredPermissionLevel())
         {
-            TwitchBot.LOGGER.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
             return;
         }
 
         if (super.isTimedOutOnChannelOrModify(channelName))
         {
-            TwitchBot.LOGGER.warn("Command will not execute: you are timed out");
+            TwitchBot.LOG.warn("Command will not execute: you are timed out");
             return;
         }
 
         if (super.isMuted())
         {
-            TwitchBot.LOGGER.warn("Command will not execute: command is muted!");
+            TwitchBot.LOG.warn("Command will not execute: command is muted!");
             return;
         }
 
-        if (!OllamaModelsManager.checkConnection())
+        if (!TwitchBot.getOllamaModelsManager().checkConnection())
         {
-            TwitchBot.LOGGER.warn("Ollama connection failed: {}", BotConfigManager.getConfig().getOllamaHost());
+            TwitchBot.LOG.warn("Ollama connection failed: {}", TwitchBot.getConfigManager().getConfig().getOllamaHost());
             return;
         }
 
         if (this.cooldownExpiresIn != null && LocalDateTime.now().isBefore(this.cooldownExpiresIn))
         {
-            if (!BotConfigManager.isOwner(userName))
+            if (!TwitchBot.getConfigManager().isOwner(userName))
             {
-                TwitchBot.LOGGER.warn("Command will not execute: cooldown");
+                TwitchBot.LOG.warn("Command will not execute: cooldown");
                 return;
             }
         }
 
         final String message = String.join(" ", args);
-        final MiraFilters miraFilters = FiltersManager.getMiraFilters();
+        final MiraFilters miraFilters = TwitchBot.getFiltersManager().getMiraFilters();
 
         if (!miraFilters.testPreFilter(message))
         {
@@ -106,7 +103,7 @@ public class MiraBotCommand extends BotCommandBase
         final String finalMessage = this.buildModelMessage(userName, message);
         this.cooldownExpiresIn = LocalDateTime.now().plusSeconds(super.getCooldown());
 
-        final String response = OllamaModelsManager.getMiraModel()
+        final String response = TwitchBot.getOllamaModelsManager().getMiraModel()
                 .chatWithModel(new ModelMessage(userName, message, finalMessage))
                 .trim()
                 .replaceAll("\\s{2,}", " ")
@@ -117,8 +114,8 @@ public class MiraBotCommand extends BotCommandBase
                 miraFilters.splitWideWords(miraFilters.runReplacementFilter(miraFilters.runPostFilter(response)))
         );
 
-        TwitchBot.LOGGER.info("Raw model response:\n{}", response);
-        TwitchBot.LOGGER.info("Filtered model response:\n{}", filteredResponse);
+        TwitchBot.LOG.info("Raw model response:\n{}", response);
+        TwitchBot.LOG.info("Filtered model response:\n{}", filteredResponse);
 
         if (!super.isMuted())
         {
@@ -130,12 +127,12 @@ public class MiraBotCommand extends BotCommandBase
             {
                 targetChannelName = matcher.group(1);
                 finalResponseMessage = finalResponseMessage.replaceAll(forwardToChatPattern.pattern(), "");
-                TwitchBot.LOGGER.info("Forward to chat pattern triggered: {}", targetChannelName);
+                TwitchBot.LOG.info("Forward to chat pattern triggered: {}", targetChannelName);
             }
 
             if (TwitchBot.isConnectedToChat(targetChannelName))
             {
-                switch (MessageSendingMode.ofIntValue(BotConfigManager.getConfig().getMessageSendingMode()))
+                switch (MessageSendingMode.ofIntValue(TwitchBot.getConfigManager().getConfig().getMessageSendingMode()))
                 {
                     case MSG_SINGLE -> TwitchBot.sendMessage(targetChannelName, miraFilters.truncateLength(finalResponseMessage));
                     case MSG_BLOCKS -> this.sendBlocks(targetChannelName, finalResponseMessage);
@@ -143,32 +140,32 @@ public class MiraBotCommand extends BotCommandBase
             }
             else
             {
-                TwitchBot.LOGGER.warn("Message will not send: not connected to chat of '{}'", targetChannelName);
+                TwitchBot.LOG.warn("Message will not send: not connected to chat of '{}'", targetChannelName);
             }
         }
         else
         {
-            TwitchBot.LOGGER.warn("Message will not send: command is muted!");
+            TwitchBot.LOG.warn("Message will not send: command is muted!");
         }
     }
 
     private void sendBlocks(final String channelName, final String response)
     {
-        final ArrayList<String> messageBlocks = FiltersManager.getMiraFilters().splitMessageByBlocks(response);
+        final ArrayList<String> messageBlocks = TwitchBot.getFiltersManager().getMiraFilters().splitMessageByBlocks(response);
 
-        TwitchBot.LOGGER.info("Sending {} message block(s)...", messageBlocks.size());
+        TwitchBot.LOG.info("Sending {} message block(s)...", messageBlocks.size());
         messageBlocks.forEach(msg -> TwitchBot.sendMessage(channelName, msg));
-        TwitchBot.LOGGER.info("Message block(s) was sent");
+        TwitchBot.LOG.info("Message block(s) was sent");
     }
 
     private String buildModelMessage(final String userName, final String message)
     {
-        String finalMessage = BotConfigManager.getConfig().getModelMessageTemplate();
+        String finalMessage = TwitchBot.getConfigManager().getConfig().getModelMessageTemplate();
 
         final String dateTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         finalMessage = finalMessage.replaceAll("(<)datetime(>)", dateTimeStr);
         finalMessage = finalMessage.replaceAll("(<)username(>)", userName);
-        finalMessage = finalMessage.replaceAll("(<)permlvl(>)", Integer.toString(BotConfigManager.getPermissionLevel(userName)));
+        finalMessage = finalMessage.replaceAll("(<)permlvl(>)", Integer.toString(TwitchBot.getConfigManager().getPermissionLevel(userName)));
         finalMessage = finalMessage.replaceAll("(<)message(>)", message.trim().replaceAll("\\s{2,}", " "));
 
         return finalMessage.trim();
