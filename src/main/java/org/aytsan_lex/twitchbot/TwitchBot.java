@@ -44,6 +44,7 @@ public class TwitchBot
                 .withClientId(BotCredentialManager.getCredentials().getClientId())
                 .withEnableChat(true)
                 .withEnablePubSub(true)
+                .withEnableHelix(true)
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
                 .withChatAccount(new OAuth2Credential("twitch", BotCredentialManager.getCredentials().getAccessToken()))
