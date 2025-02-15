@@ -75,15 +75,16 @@ public class TwitchBot
             LOGGER.info("Connecting to owners channels: {}", owners);
             owners.forEach(channel -> {
                 TwitchBot.joinToChat(channel);
-//                twitchClient.getClientHelper().enableStreamEventListener(channel);
+                twitchClient.getClientHelper().enableStreamEventListener(channel);
             });
 
             LOGGER.info("Connecting to channels: {}", channels);
             channels.forEach(channel -> {
                 TwitchBot.joinToChat(channel);
-//                twitchClient.getClientHelper().enableStreamEventListener(channel);
+                twitchClient.getClientHelper().enableStreamEventListener(channel);
             });
 
+            wsUiServer.setReuseAddr(true);
             wsUiServer.start();
 
             isRunning = true;
