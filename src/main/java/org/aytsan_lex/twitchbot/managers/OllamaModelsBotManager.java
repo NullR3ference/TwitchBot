@@ -14,18 +14,18 @@ public class OllamaModelsBotManager implements IBotManager
     private static final Logger LOG = LoggerFactory.getLogger(OllamaModelsBotManager.class);
     private static final int REQUEST_TIMEOUT = 600;
 
-    private static OllamaAPI API = null;
-    private static IOllamaModel miraModel = new MiraOllamaModel();
+    private OllamaAPI API = null;
+    private IOllamaModel miraModel = null;
 
     public OllamaAPI getAPI()
     {
-        return API;
+        return this.API;
     }
 
     public boolean checkConnection()
     {
         boolean result = false;
-        try { result = API.ping(); }
+        try { result = this.API.ping(); }
         catch (RuntimeException ignored) {  }
         return result;
     }
@@ -40,15 +40,16 @@ public class OllamaModelsBotManager implements IBotManager
     {
         LOG.info("Initializing...");
 
-        API = new OllamaAPI(TwitchBot.getConfigManager().getConfig().getOllamaHost());
-        API.setRequestTimeoutSeconds(REQUEST_TIMEOUT);
-        API.setVerbose(false);
+        this.API = new OllamaAPI(TwitchBot.getConfigManager().getConfig().getOllamaHost());
+        this.API.setRequestTimeoutSeconds(REQUEST_TIMEOUT);
+        this.API.setVerbose(false);
 
         if (!checkConnection())
         {
             LOG.warn("Failed to connect Ollama on: {}", TwitchBot.getConfigManager().getConfig().getOllamaHost());
         }
 
+        this.miraModel = new MiraOllamaModel();
         return true;
     }
 
@@ -56,10 +57,6 @@ public class OllamaModelsBotManager implements IBotManager
     public void shutdown()
     {
         LOG.info("Shutting down...");
-
-        miraModel.clearQuestionsHistory();
-        miraModel = null;
-
-        API = null;
+        this.miraModel.clearQuestionsHistory();
     }
 }

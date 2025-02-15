@@ -109,6 +109,11 @@ public class MiraBotCommand extends BotCommandBase
                 .replaceAll("\\s{2,}", " ")
                 .replaceAll("—+", "-");
 
+        if (response.isEmpty())
+        {
+            return;
+        }
+
         final String filteredResponse = String.join(
                 " ",
                 miraFilters.splitWideWords(miraFilters.runReplacementFilter(miraFilters.runPostFilter(response)))
