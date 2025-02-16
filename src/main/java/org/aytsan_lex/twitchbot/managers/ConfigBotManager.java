@@ -25,7 +25,7 @@ public class ConfigBotManager extends ConfigFileBasedBotManager
     private static final Object FILE_ACCESS_SYNC = new Object();
 
     private static final File configFile = new File(CONFIG_BASE_PATH + "/config.json");
-    private static BotConfig config = BotConfig.empty();
+    private BotConfig config = BotConfig.empty();
 
     public BotConfig getConfig()
     {

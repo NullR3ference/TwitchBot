@@ -1,5 +1,9 @@
 package org.aytsan_lex.twitchbot;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.net.InetSocketAddress;
@@ -48,6 +52,7 @@ public class WsUiServer extends WebSocketServer
         requestmodelmessages,
         requestmodelmessageshistory,
         requestmutestate,
+        requeststatus,
 
         // Block of client to server commands to accept data
         // syntax: /<command>###<data>
@@ -90,21 +95,21 @@ public class WsUiServer extends WebSocketServer
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake)
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
-        LOG.info("Client connected: {}:{}", addrInfo.getHostString(), addrInfo.getPort());
+        LOG.debug("Client connected: {}:{}", addrInfo.getHostString(), addrInfo.getPort());
     }
 
     @Override
     public void onClose(WebSocket webSocket, int i, String s, boolean b)
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
-        LOG.info("Client disconnected: {}", addrInfo.getHostString());
+        LOG.debug("Client disconnected: {}", addrInfo.getHostString());
     }
 
     @Override
     public void onMessage(WebSocket webSocket, String message)
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
-        LOG.info("Handling command from: {}", addrInfo.getHostString());
+        LOG.debug("Handling command from: {}", addrInfo.getHostString());
 
         if (message.startsWith("#"))
         {
@@ -163,6 +168,27 @@ public class WsUiServer extends WebSocketServer
                         final boolean iqIsMuted = TwitchBot.getConfigManager().commandIsMuted(IqBotCommand.class);
                         final String data = "%b///%b///%b".formatted(miraIsMuted, benIsMuted, iqIsMuted);
                         webSocket.send(data);
+                    }
+
+                    case requeststatus ->
+                    {
+                        final MemoryMXBean memMXBean = ManagementFactory.getMemoryMXBean();
+                        final Duration uptime = Duration.between(TwitchBotLauncher.getStartTime(), Instant.now());
+                        final float heapUsedMib = (float)memMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
+                        final float heapMaxMib = (float)memMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024);
+
+                        final String response =
+                                "#status///%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d | Ollama access: %s".formatted(
+                                uptime.toHoursPart(),
+                                uptime.toMinutesPart(),
+                                uptime.toSecondsPart(),
+                                heapUsedMib,
+                                heapMaxMib,
+                                TwitchBot.getConfigManager().getConfig().getChannels().size(),
+                                (TwitchBot.getOllamaModelsManager().checkConnection()) ? "✅" : "❌"
+                        );
+
+                        webSocket.send(response);
                     }
 
                     default -> {  }
@@ -299,10 +325,7 @@ public class WsUiServer extends WebSocketServer
                     TwitchBot.leaveFromChat(channelName);
                 }
 
-                case restart ->
-                {
-                    System.exit(10);
-                }
+                case restart -> System.exit(10);
 
                 default -> { }
             }
