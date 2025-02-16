@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration scan="true">
+<configuration scan="false">
 	<logger name="com.github.twitch4j" level="ERROR"/>
-	<logger name="io.javalin.Javalin" level="WARN"/>
+	<logger name="io.github.xanthic.cache" level="WARN"/>
 	<logger name="org.aytsan_lex.twitchbot" level="INFO"/>
 
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -23,6 +23,8 @@
 			<MaxFileSize>10MB</MaxFileSize>
 		</triggeringPolicy>
 	</appender>
+
+	<!-- Add a network appender which writes into socket -->
 
 	<root level="info">
 		<appender-ref ref="CONSOLE"/>

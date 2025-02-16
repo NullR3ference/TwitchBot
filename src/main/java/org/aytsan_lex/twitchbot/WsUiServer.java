@@ -172,22 +172,7 @@ public class WsUiServer extends WebSocketServer
 
                     case requeststatus ->
                     {
-                        final MemoryMXBean memMXBean = ManagementFactory.getMemoryMXBean();
-                        final Duration uptime = Duration.between(TwitchBotLauncher.getStartTime(), Instant.now());
-                        final float heapUsedMib = (float)memMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
-                        final float heapMaxMib = (float)memMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024);
-
-                        final String response =
-                                "#status///%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d | Ollama access: %s".formatted(
-                                uptime.toHoursPart(),
-                                uptime.toMinutesPart(),
-                                uptime.toSecondsPart(),
-                                heapUsedMib,
-                                heapMaxMib,
-                                TwitchBot.getConfigManager().getConfig().getChannels().size(),
-                                (TwitchBot.getOllamaModelsManager().checkConnection()) ? "✅" : "❌"
-                        );
-
+                        final String response = Utils.buildStatusMessage();
                         webSocket.send(response);
                     }
 

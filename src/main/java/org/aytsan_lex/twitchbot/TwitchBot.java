@@ -1,7 +1,10 @@
 package org.aytsan_lex.twitchbot;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,11 @@ public class TwitchBot
     private static WsUiServer wsUiServer = null;
     private static boolean isRunning = false;
 
+    /**
+     * Initialize Twitch bot and all sub-systems
+     *
+     * @return true if initialization was successful, otherwise - false
+     */
     public static boolean initialize()
     {
         LOG.info("Initializing...");
@@ -49,6 +57,7 @@ public class TwitchBot
 
         CommandHandler.initialize();
 
+        LOG.info("Building TwitchClient...");
         twitchClient = TwitchClientBuilder.builder()
                 .withEnableChat(true)
                 .withEnablePubSub(true)
@@ -68,6 +77,7 @@ public class TwitchBot
         twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
                 .onEvent(StreamOfflineEvent.class, ChannelEventHandler::onStreamOffline);
 
+        LOG.info("Building WebSocket server...");
         wsUiServer = WsUiServer.builder().withHost("0.0.0.0").withPort(8811).build();
 
         return true;
@@ -86,36 +96,49 @@ public class TwitchBot
         twitchClient.close();
     }
 
+    /**
+     * Start TwitchBot
+     * <p>
+     * Connect to all channels within arrays "channels" and "owners"
+     * start Websocket Server
+     * <p>
+     */
     public static void start()
     {
         if (!isRunning)
         {
+            LOG.info("Starting WebSocket server...");
             wsUiServer.start();
 
-            final ArrayList<String> channels = getConfigManager().getConfig().getChannels();
-            final ArrayList<String> owners = getConfigManager().getConfig().getOwners();
-
-            LOG.info("Connecting to owners channels: {}", owners);
-            owners.forEach(channel -> {
-                TwitchBot.joinToChat(channel);
-//                twitchClient.getClientHelper().enableStreamEventListener(channel);
-            });
+            final ArrayList<String> channels = Stream.of(
+                    getConfigManager().getConfig().getOwners(),
+                    getConfigManager().getConfig().getChannels()
+            ).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
 
             LOG.info("Connecting to channels: {}", channels);
-            channels.forEach(channel -> {
-                TwitchBot.joinToChat(channel);
-//                twitchClient.getClientHelper().enableStreamEventListener(channel);
-            });
+            channels.forEach(TwitchBot::joinToChat);
 
             isRunning = true;
             LOG.info("Started");
         }
     }
 
+    /**
+     * Stop TwitchBot
+     * <p>
+     * Disconnect from all channels within arrays "channels" and "owners"
+     * Stop WebSocket server
+     * <p>
+     */
     public static void stop()
     {
         if (isRunning)
         {
+            LOG.info("Disconnecting from all channels...");
+            getConfigManager().getConfig().getOwners().forEach(TwitchBot::joinToChat);
+            getConfigManager().getConfig().getChannels().forEach(TwitchBot::joinToChat);
+
+            LOG.info("Stopping WebSocket server...");
             try { wsUiServer.stop(1000); }
             catch (InterruptedException ignored) { }
 
