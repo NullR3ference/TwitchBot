@@ -24,7 +24,7 @@ public class Utils
         final float heapUsedMib = (float) memMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
         final float heapMaxMib = (float) memMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024);
 
-        return "#status///%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d | Ollama access: %s".formatted(
+        return "%02d:%02d:%02d | %.2f MiB / %.2f MiB | Channels: %d | Ollama access: %s".formatted(
                 uptime.toHoursPart(),
                 uptime.toMinutesPart(),
                 uptime.toSecondsPart(),

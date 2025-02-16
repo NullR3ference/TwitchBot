@@ -1,33 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
 
 <configuration scan="false">
+	<import class="ch.qos.logback.core.ConsoleAppender"/>
+	<import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+	<import class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy"/>
+	<import class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
+	<import class="org.aytsan_lex.twitchbot.logback_appenders.WebSocketAppender"/>
+
 	<logger name="com.github.twitch4j" level="ERROR"/>
-	<logger name="io.github.xanthic.cache" level="WARN"/>
+	<logger name="io.github.xanthic.cache" level="ERROR"/>
 	<logger name="org.aytsan_lex.twitchbot" level="INFO"/>
 
-	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+	<appender name="CONSOLE" class="ConsoleAppender">
 		<encoder>
-			<pattern>%d{HH:mm:ss.SSS} [%thread] %highlight([%-5level]) %logger{25} - %msg%n</pattern>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %highlight([%-5level]) %logger{26} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="FILE" class="RollingFileAppender">
 		<encoder>
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{42} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{48} - %msg%n</pattern>
 		</encoder>
 		<file>TwitchBot.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+		<rollingPolicy class="FixedWindowRollingPolicy">
 			<fileNamePattern>TwitchBot.%i.log</fileNamePattern>
 		</rollingPolicy>
-		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+		<triggeringPolicy class="SizeBasedTriggeringPolicy">
 			<MaxFileSize>10MB</MaxFileSize>
 		</triggeringPolicy>
 	</appender>
 
-	<!-- Add a network appender which writes into socket -->
+	<!-- https://logback.qos.ch/manual/appenders.html -->
+	<appender name="WEBSOCKET" class="WebSocketAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{26} - %msg%n</pattern>
+		</encoder>
+	</appender>
 
 	<root level="info">
 		<appender-ref ref="CONSOLE"/>
 		<appender-ref ref="FILE"/>
+		<appender-ref ref="WEBSOCKET"/>
 	</root>
 </configuration>

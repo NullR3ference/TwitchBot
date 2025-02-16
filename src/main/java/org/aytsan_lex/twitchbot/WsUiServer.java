@@ -86,9 +86,22 @@ public class WsUiServer extends WebSocketServer
     {
         if (this.currentClient != null)
         {
-            LOG.info("Sending message to client: {}", message);
+            LOG.debug("Sending message to client: {}", message);
             this.currentClient.send(message);
         }
+    }
+
+    public void sendBytes(final byte[] bytes)
+    {
+        if (this.currentClient != null)
+        {
+            this.currentClient.send(bytes);
+        }
+    }
+
+    public boolean clientIsConnected()
+    {
+        return this.currentClient != null;
     }
 
     @Override
@@ -96,6 +109,7 @@ public class WsUiServer extends WebSocketServer
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.debug("Client connected: {}:{}", addrInfo.getHostString(), addrInfo.getPort());
+        this.currentClient = webSocket;
     }
 
     @Override
@@ -103,6 +117,7 @@ public class WsUiServer extends WebSocketServer
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.debug("Client disconnected: {}", addrInfo.getHostString());
+        this.currentClient = null;
     }
 
     @Override
@@ -126,6 +141,7 @@ public class WsUiServer extends WebSocketServer
     {
         final InetSocketAddress addrInfo = webSocket.getRemoteSocketAddress();
         LOG.error("[{}] Error: {}", addrInfo.getHostString(), e.getMessage());
+        this.currentClient = null;
     }
 
     @Override
@@ -172,7 +188,7 @@ public class WsUiServer extends WebSocketServer
 
                     case requeststatus ->
                     {
-                        final String response = Utils.buildStatusMessage();
+                        final String response = "#status///%s".formatted(Utils.buildStatusMessage());
                         webSocket.send(response);
                     }
 
