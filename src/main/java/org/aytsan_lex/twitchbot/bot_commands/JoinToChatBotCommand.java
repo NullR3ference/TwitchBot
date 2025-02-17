@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.commands;
+package org.aytsan_lex.twitchbot.bot_commands;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
 
-public class IqMuteBotCommand extends BotCommandBase
+public class JoinToChatBotCommand extends BotCommandBase
 {
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
@@ -16,14 +16,22 @@ public class IqMuteBotCommand extends BotCommandBase
             throw new BotCommandError("Args are required for this command!");
         }
 
+        final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
         final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            final boolean isMuted = Boolean.parseBoolean(args.get(0));
-            TwitchBot.getCommandsManager().setCommandIsMuted(IqBotCommand.class, isMuted);
-            TwitchBot.LOG.info("IQ command muted = {}", isMuted);
+            final String targetChannelName = args.get(0);
+
+            TwitchBot.joinToChat(targetChannelName);
+            TwitchBot.LOG.info("Joined to: [{}]", targetChannelName);
+
+            TwitchBot.replyToMessage(
+                    channelName,
+                    event.getMessageId().get(),
+                    "Подключен к: [%s]".formatted(targetChannelName)
+            );
         }
         else
         {

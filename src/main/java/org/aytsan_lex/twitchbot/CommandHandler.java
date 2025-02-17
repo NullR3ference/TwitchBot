@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
-import org.aytsan_lex.twitchbot.commands.IBotCommand;
-import org.aytsan_lex.twitchbot.commands.MiraBotCommand;
-import org.aytsan_lex.twitchbot.commands.BotCommandError;
+import org.aytsan_lex.twitchbot.bot_commands.IBotCommand;
+import org.aytsan_lex.twitchbot.bot_commands.MiraBotCommand;
+import org.aytsan_lex.twitchbot.bot_commands.BotCommandError;
 
 public class CommandHandler
 {

@@ -1,9 +1,5 @@
 package org.aytsan_lex.twitchbot;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.net.InetSocketAddress;
@@ -14,9 +10,9 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import org.aytsan_lex.twitchbot.commands.BenBotCommand;
-import org.aytsan_lex.twitchbot.commands.IqBotCommand;
-import org.aytsan_lex.twitchbot.commands.MiraBotCommand;
+import org.aytsan_lex.twitchbot.bot_commands.BenBotCommand;
+import org.aytsan_lex.twitchbot.bot_commands.IqBotCommand;
+import org.aytsan_lex.twitchbot.bot_commands.MiraBotCommand;
 
 public class WsUiServer extends WebSocketServer
 {

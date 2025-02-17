@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.commands;
+package org.aytsan_lex.twitchbot.bot_commands;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
 
-public class BenMuteBotCommand extends BotCommandBase
+public class IqMuteBotCommand extends BotCommandBase
 {
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
@@ -22,8 +22,8 @@ public class BenMuteBotCommand extends BotCommandBase
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             final boolean isMuted = Boolean.parseBoolean(args.get(0));
-            TwitchBot.getCommandsManager().setCommandIsMuted(BenBotCommand.class, isMuted);
-            TwitchBot.LOG.info("Ben command muted = {}", isMuted);
+            TwitchBot.getCommandsManager().setCommandIsMuted(IqBotCommand.class, isMuted);
+            TwitchBot.LOG.info("IQ command muted = {}", isMuted);
         }
         else
         {

@@ -1,14 +1,19 @@
-package org.aytsan_lex.twitchbot.commands;
+package org.aytsan_lex.twitchbot.bot_commands;
 
 import java.util.ArrayList;
 
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.Utils;
+import org.aytsan_lex.twitchbot.TwitchBotLauncher;
 
-public class StatusBotCommand extends BotCommandBase
+public class RestartBotCommand extends BotCommandBase
 {
+    private enum SubCommand
+    {
+        UPDATE
+    }
+
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
@@ -17,11 +22,19 @@ public class StatusBotCommand extends BotCommandBase
 
         if (permissionLevel >= this.getRequiredPermissionLevel())
         {
-            TwitchBot.replyToMessage(
-                    event.getChannel().getName(),
-                    event.getMessageId().get(),
-                    Utils.buildStatusMessage()
-            );
+            if (!args.isEmpty())
+            {
+                final String subCommand = args.get(0);
+
+                switch (SubCommand.valueOf(subCommand.toUpperCase()))
+                {
+                    case UPDATE -> System.exit(10);
+                }
+            }
+            else
+            {
+                TwitchBotLauncher.onRestart();
+            }
         }
         else
         {

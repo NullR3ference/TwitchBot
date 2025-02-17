@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.commands;
+package org.aytsan_lex.twitchbot.bot_commands;
 
 import java.util.ArrayList;
 
@@ -6,23 +6,24 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
 
-public class UpdateFiltersBotCommand extends BotCommandBase
+public class MiraMuteBotCommand extends BotCommandBase
 {
     @Override
     public void execute(final IRCMessageEvent event, final ArrayList<String> args)
     {
+        if (args.isEmpty())
+        {
+            throw new BotCommandError("Args are required for this command!");
+        }
+
         final String userName = event.getUser().getName();
         final int permissionLevel = TwitchBot.getConfigManager().getPermissionLevel(userName);
 
-        if (permissionLevel >= this.getRequiredPermissionLevel())
+        if (permissionLevel >= super.getRequiredPermissionLevel())
         {
-            TwitchBot.getFiltersManager().readFile();
-
-            TwitchBot.replyToMessage(
-                    event.getChannel().getName(),
-                    event.getMessageId().get(),
-                    "Фильтры обновлены"
-            );
+            final boolean isMuted = Boolean.parseBoolean(args.get(0));
+            TwitchBot.getCommandsManager().setCommandIsMuted(MiraBotCommand.class, isMuted);
+            TwitchBot.LOG.info("Mira command muted = {}", isMuted);
         }
         else
         {

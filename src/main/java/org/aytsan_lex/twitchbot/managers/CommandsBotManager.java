@@ -3,7 +3,7 @@ package org.aytsan_lex.twitchbot.managers;
 import java.util.HashMap;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
-import org.aytsan_lex.twitchbot.commands.*;
+import org.aytsan_lex.twitchbot.bot_commands.*;
 
 public class CommandsBotManager implements IBotManager
 {

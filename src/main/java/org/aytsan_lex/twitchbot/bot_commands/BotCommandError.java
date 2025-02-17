@@ -1,4 +1,4 @@
-package org.aytsan_lex.twitchbot.commands;
+package org.aytsan_lex.twitchbot.bot_commands;
 
 public class BotCommandError extends RuntimeException
 {
