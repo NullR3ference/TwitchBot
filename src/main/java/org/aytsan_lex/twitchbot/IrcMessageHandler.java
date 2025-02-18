@@ -48,7 +48,7 @@ public class IrcMessageHandler
             final String message = eventMessage.get();
             if (message.startsWith("%"))
             {
-                CommandHandler.handleCommand(message, event);
+                BotCommandHandler.handleCommand(message, event);
             }
         }
     }

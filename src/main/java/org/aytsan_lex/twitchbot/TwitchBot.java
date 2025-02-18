@@ -23,11 +23,12 @@ public class TwitchBot
     public static final Logger LOG = LoggerFactory.getLogger(TwitchBot.class);
     private static final Object CHAT_MESSAGE_SYNC = new Object();
 
-    private static final IBotManager configBotManager = new ConfigBotManager();
-    private static final IBotManager credentialsBotManager = new CredentialsBotManager();
-    private static final IBotManager filtersBotManager = new FiltersBotManager();
-    private static final IBotManager commandsBotManager = new CommandsBotManager();
-    private static final IBotManager ollamaModelsBotManager = new OllamaModelsBotManager();
+    private static final IManager configManager = new ConfigManager();
+    private static final IManager credentialsManager = new CredentialsManager();
+    private static final IManager filtersManager = new FiltersManager();
+    private static final IManager commandsManager = new BotCommandsManager();
+    private static final IManager ollamaModelsManager = new OllamaModelsManager();
+    private static final IManager uiCommandsManager = new UiCommandsManager();
 
     private static TwitchClient twitchClient = null;
     private static WsUiServer wsUiServer = null;
@@ -43,19 +44,20 @@ public class TwitchBot
         LOG.info("Initializing...");
 
         boolean managersIsInitialized = true;
-        managersIsInitialized &= configBotManager.initialize();
-        managersIsInitialized &= credentialsBotManager.initialize();
-        managersIsInitialized &= commandsBotManager.initialize();
+        managersIsInitialized &= configManager.initialize();
+        managersIsInitialized &= credentialsManager.initialize();
+        managersIsInitialized &= commandsManager.initialize();
 
-        filtersBotManager.initialize();
-        ollamaModelsBotManager.initialize();
+        filtersManager.initialize();
+        ollamaModelsManager.initialize();
+        uiCommandsManager.initialize();
 
         if (!managersIsInitialized)
         {
             return false;
         }
 
-        CommandHandler.initialize();
+        BotCommandHandler.initialize();
 
         LOG.info("Building TwitchClient...");
         twitchClient = TwitchClientBuilder.builder()
@@ -85,13 +87,14 @@ public class TwitchBot
 
     public static void shutdown()
     {
-        CommandHandler.shutdown();
+        BotCommandHandler.shutdown();
 
-        configBotManager.shutdown();
-        filtersBotManager.shutdown();
-        credentialsBotManager.shutdown();
-        commandsBotManager.shutdown();
-        ollamaModelsBotManager.shutdown();
+        configManager.shutdown();
+        filtersManager.shutdown();
+        credentialsManager.shutdown();
+        commandsManager.shutdown();
+        ollamaModelsManager.shutdown();
+        uiCommandsManager.shutdown();
 
         twitchClient.close();
     }
@@ -198,29 +201,29 @@ public class TwitchBot
         return true;
     }
 
-    public static ConfigBotManager getConfigManager()
+    public static ConfigManager getConfigManager()
     {
-        return (ConfigBotManager) configBotManager;
+        return (ConfigManager) configManager;
     }
 
-    public static CredentialsBotManager getCredentialsManager()
+    public static CredentialsManager getCredentialsManager()
     {
-        return (CredentialsBotManager) credentialsBotManager;
+        return (CredentialsManager) credentialsManager;
     }
 
-    public static FiltersBotManager getFiltersManager()
+    public static FiltersManager getFiltersManager()
     {
-        return (FiltersBotManager) filtersBotManager;
+        return (FiltersManager) filtersManager;
     }
 
-    public static CommandsBotManager getCommandsManager()
+    public static BotCommandsManager getCommandsManager()
     {
-        return (CommandsBotManager) commandsBotManager;
+        return (BotCommandsManager) commandsManager;
     }
 
-    public static OllamaModelsBotManager getOllamaModelsManager()
+    public static OllamaModelsManager getOllamaModelsManager()
     {
-        return (OllamaModelsBotManager) ollamaModelsBotManager;
+        return (OllamaModelsManager) ollamaModelsManager;
     }
 
     public static WsUiServer getWsUiServer()

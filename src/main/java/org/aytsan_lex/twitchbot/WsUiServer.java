@@ -52,8 +52,8 @@ public class WsUiServer extends WebSocketServer
 
         // Block of client to server commands to accept data
         // syntax: /<command>###<data>
-        updatefilters,
         updateconfig,
+        updatefilters,
         miramute,
         benmute,
         iqmute,
