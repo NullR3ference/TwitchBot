@@ -8,18 +8,18 @@ public class UiCommandsManager implements IManager
 {
     private static final HashMap<String, IUiCommand> commandAliases = new HashMap<>()
     {{
-        put("requestconfig", new UiRequestConfigCommand());
-        put("requestfilters", new UiRequestFiltersCommand());
+        put("requestconfig",    new UiRequestConfigCommand());
+        put("requestfilters",   new UiRequestFiltersCommand());
         put("requestmutestate", new UiRequestMuteStateCommand());
-        put("requeststatus", new UiRequestStatusCommand());
-        put("updateconfig", new UiUpdateConfigCommand());
-        put("updatefilters", new UiUpdateFiltersCommand());
-        put("mute", new UiMuteCommand());
-        put("addchannel", new UiAddChannelCommand());
-        put("rmchannel", new UiRemoveChannelCommand());
-        put("join", new UiJoinChannelCommand());
-        put("leave", new UiLeaveChannelCommand());
-        put("restart", new UiRestartCommand());
+        put("requeststatus",    new UiRequestStatusCommand());
+        put("updateconfig",     new UiUpdateConfigCommand());
+        put("updatefilters",    new UiUpdateFiltersCommand());
+        put("mute",             new UiMuteCommand());
+        put("addchannel",       new UiAddChannelCommand());
+        put("rmchannel",        new UiRemoveChannelCommand());
+        put("join",             new UiJoinChannelCommand());
+        put("leave",            new UiLeaveChannelCommand());
+        put("restart",          new UiRestartCommand());
     }};
 
     public IUiCommand getCommandByName(final String command)

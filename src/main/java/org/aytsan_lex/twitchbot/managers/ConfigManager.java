@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.FormattingStyle;
 
 import org.aytsan_lex.twitchbot.Utils;
+import org.aytsan_lex.twitchbot.bot_commands.BotCommandBase;
 
 public class ConfigManager extends ConfigFileBasedManager
 {
@@ -85,7 +86,7 @@ public class ConfigManager extends ConfigFileBasedManager
         return config.getMutedCommands().contains(botCommandClass.getSimpleName());
     }
 
-    public void setCommandIsMuted(Class<?> botCommandClass, final boolean isMuted)
+    public void setCommandIsMuted(Class<? extends BotCommandBase> botCommandClass, final boolean isMuted)
     {
         final String commandName = botCommandClass.getSimpleName();
 

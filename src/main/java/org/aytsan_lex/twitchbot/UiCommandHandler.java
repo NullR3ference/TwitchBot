@@ -14,9 +14,9 @@ import org.aytsan_lex.twitchbot.ui_commands.IUiCommand;
 
 public class UiCommandHandler
 {
-    private record UiCommandContext(IUiCommand command, ArrayList<String> args, WebSocket webSocket)
+    private record UiCommandContext(IUiCommand commandObject, ArrayList<String> args, WebSocket webSocket)
     {
-        public void execute() { this.command.execute(this.args, this.webSocket); }
+        public void execute() { this.commandObject.execute(this.args, this.webSocket); }
     }
 
     private static class UiCommandsExecutor implements Runnable
@@ -28,7 +28,9 @@ public class UiCommandHandler
             {
                 try
                 {
-                    uiCommandsQueue.take().execute();
+                    final UiCommandContext context = uiCommandsQueue.take();
+                    LOG.debug("Executing command: '{}'", context.commandObject.getClass().getSimpleName());
+                    context.execute();
                 }
                 catch (Exception e)
                 {
@@ -78,6 +80,7 @@ public class UiCommandHandler
 
             try
             {
+                LOG.debug("Command: '{}', args: {}", cmd, args);
                 uiCommandsQueue.put(new UiCommandContext(command, args, webSocketFrom));
             }
             catch (Exception e)
