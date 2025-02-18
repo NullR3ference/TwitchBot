@@ -58,6 +58,7 @@ public class TwitchBot
         }
 
         BotCommandHandler.initialize();
+        UiCommandHandler.initialize();
 
         LOG.info("Building TwitchClient...");
         twitchClient = TwitchClientBuilder.builder()
@@ -88,6 +89,7 @@ public class TwitchBot
     public static void shutdown()
     {
         BotCommandHandler.shutdown();
+        UiCommandHandler.shutdown();
 
         configManager.shutdown();
         filtersManager.shutdown();
