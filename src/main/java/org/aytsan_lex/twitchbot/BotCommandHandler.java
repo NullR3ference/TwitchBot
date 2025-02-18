@@ -235,7 +235,7 @@ public class BotCommandHandler
     {
         final String channelName = event.getChannel().getName();
         final String userName = event.getUser().getName();
-        final IBotCommand command = TwitchBot.getCommandsManager().getCommandByName(cmd);
+        final IBotCommand command = TwitchBot.getBotCommandsManager().getCommandByName(cmd);
 
         if (command != null)
         {

@@ -216,7 +216,7 @@ public class TwitchBot
         return (FiltersManager) filtersManager;
     }
 
-    public static BotCommandsManager getCommandsManager()
+    public static BotCommandsManager getBotCommandsManager()
     {
         return (BotCommandsManager) commandsManager;
     }
@@ -224,6 +224,11 @@ public class TwitchBot
     public static OllamaModelsManager getOllamaModelsManager()
     {
         return (OllamaModelsManager) ollamaModelsManager;
+    }
+
+    public static UiCommandsManager getUiCommandsManager()
+    {
+        return (UiCommandsManager) uiCommandsManager;
     }
 
     public static WsUiServer getWsUiServer()

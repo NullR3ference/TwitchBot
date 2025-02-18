@@ -22,7 +22,7 @@ public class MiraMuteBotCommand extends BotCommandBase
         if (permissionLevel >= super.getRequiredPermissionLevel())
         {
             final boolean isMuted = Boolean.parseBoolean(args.get(0));
-            TwitchBot.getCommandsManager().setCommandIsMuted(MiraBotCommand.class, isMuted);
+            TwitchBot.getBotCommandsManager().setCommandIsMuted(MiraBotCommand.class, isMuted);
             TwitchBot.LOG.info("Mira command muted = {}", isMuted);
         }
         else

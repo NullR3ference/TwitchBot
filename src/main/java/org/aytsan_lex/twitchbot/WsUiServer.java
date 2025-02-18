@@ -245,7 +245,7 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
-                    TwitchBot.getCommandsManager().setCommandIsMuted(MiraBotCommand.class, isMuted);
+                    TwitchBot.getBotCommandsManager().setCommandIsMuted(MiraBotCommand.class, isMuted);
                 }
 
                 case benmute ->
@@ -257,7 +257,7 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
-                    TwitchBot.getCommandsManager().setCommandIsMuted(BenBotCommand.class, isMuted);
+                    TwitchBot.getBotCommandsManager().setCommandIsMuted(BenBotCommand.class, isMuted);
                 }
 
                 case iqmute ->
@@ -269,7 +269,7 @@ public class WsUiServer extends WebSocketServer
                     }
 
                     final boolean isMuted = Boolean.parseBoolean(data[1]);
-                    TwitchBot.getCommandsManager().setCommandIsMuted(IqBotCommand.class, isMuted);
+                    TwitchBot.getBotCommandsManager().setCommandIsMuted(IqBotCommand.class, isMuted);
                 }
 
                 case addchannel ->
