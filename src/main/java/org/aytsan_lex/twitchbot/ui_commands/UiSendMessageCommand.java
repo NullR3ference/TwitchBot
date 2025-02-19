@@ -2,6 +2,7 @@ package org.aytsan_lex.twitchbot.ui_commands;
 
 import java.util.ArrayList;
 
+import org.aytsan_lex.twitchbot.TwitchBot;
 import org.java_websocket.WebSocket;
 
 public class UiSendMessageCommand implements IUiCommand
@@ -14,7 +15,12 @@ public class UiSendMessageCommand implements IUiCommand
             return;
         }
 
-        final String channelName = args.get(0);
-        final String message = args.get(1);
+        final String channelName = args.get(0).trim();
+        final String message = args.get(1).trim();
+
+        if (TwitchBot.isConnectedToChat(channelName))
+        {
+            TwitchBot.sendMessage(channelName, message);
+        }
     }
 }

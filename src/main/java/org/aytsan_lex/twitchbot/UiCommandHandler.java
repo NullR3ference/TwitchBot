@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.java_websocket.WebSocket;
 
+import org.aytsan_lex.twitchbot.ui_commands.UiRequestStatusCommand;
+
 import org.aytsan_lex.twitchbot.ui_commands.IUiCommand;
 
 public class UiCommandHandler
@@ -29,7 +31,13 @@ public class UiCommandHandler
                 try
                 {
                     final UiCommandContext context = uiCommandsQueue.take();
-                    LOG.debug("Executing command: '{}'", context.commandObject.getClass().getSimpleName());
+
+                    if (!(context.commandObject instanceof UiRequestStatusCommand))
+                    {
+                        // Skip log for repeating commands
+                        LOG.info("Executing command: '{}'", context.commandObject.getClass().getSimpleName());
+                    }
+
                     context.execute();
                 }
                 catch (InterruptedException e)

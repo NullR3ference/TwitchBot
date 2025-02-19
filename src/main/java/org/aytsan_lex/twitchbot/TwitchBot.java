@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.github.twitch4j.chat.TwitchChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
@@ -196,6 +197,11 @@ public class TwitchBot
     public static boolean channelExists(String channelName)
     {
         return true;
+    }
+
+    public static TwitchChat getTwitchChat()
+    {
+        return twitchClient.getChat();
     }
 
     public static ConfigManager getConfigManager()
