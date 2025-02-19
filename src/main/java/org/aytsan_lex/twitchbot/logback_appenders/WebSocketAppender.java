@@ -26,12 +26,12 @@ public class WebSocketAppender extends AppenderBase<ILoggingEvent>
     @Override
     public void append(final ILoggingEvent loggingEvent)
     {
-        if (TwitchBot.getWsUiServer().clientIsConnected())
-        {
-            final byte[] encodedData = this.encoder.encode(loggingEvent);
-            final String line = "#logline///" + new String(encodedData);
-            TwitchBot.getWsUiServer().sendMessage(line);
-        }
+//        if (TwitchBot.getWsUiServer().clientIsConnected())
+//        {
+//            final byte[] encodedData = this.encoder.encode(loggingEvent);
+//            final String line = "#logline///" + new String(encodedData);
+//            TwitchBot.getWsUiServer().sendMessage(line);
+//        }
     }
 
     public PatternLayoutEncoder getEncoder()

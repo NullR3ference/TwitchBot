@@ -11,10 +11,7 @@ public class UiRequestFiltersCommand implements IUiCommand
     @Override
     public void execute(ArrayList<String> args, WebSocket client)
     {
-        if (client.isOpen())
-        {
-            final String filtersData = "#filters///" + TwitchBot.getFiltersManager().getMiraFilters().toJsonString();
-            client.send(filtersData);
-        }
+        final String filtersData = "#filters///" + TwitchBot.getFiltersManager().getMiraFilters().toJsonString();
+        client.send(filtersData);
     }
 }
