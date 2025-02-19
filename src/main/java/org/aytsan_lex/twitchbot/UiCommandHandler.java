@@ -32,9 +32,8 @@ public class UiCommandHandler
                     LOG.debug("Executing command: '{}'", context.commandObject.getClass().getSimpleName());
                     context.execute();
                 }
-                catch (Exception e)
+                catch (InterruptedException e)
                 {
-                    LOG.error("Error: {}", e.getMessage());
                     Thread.currentThread().interrupt();
                     break;
                 }

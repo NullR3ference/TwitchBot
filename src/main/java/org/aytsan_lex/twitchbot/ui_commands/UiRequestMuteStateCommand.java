@@ -13,7 +13,7 @@ public class UiRequestMuteStateCommand implements IUiCommand
     @Override
     public void execute(ArrayList<String> args, WebSocket client)
     {
-        final String muteStateData = "%b///%b///%b".formatted(
+        final String muteStateData = "#mutestate///%b///%b///%b".formatted(
                 TwitchBot.getConfigManager().commandIsMuted(MiraBotCommand.class),
                 TwitchBot.getConfigManager().commandIsMuted(BenBotCommand.class),
                 TwitchBot.getConfigManager().commandIsMuted(IqBotCommand.class)

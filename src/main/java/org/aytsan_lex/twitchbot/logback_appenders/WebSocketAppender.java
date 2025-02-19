@@ -29,7 +29,8 @@ public class WebSocketAppender extends AppenderBase<ILoggingEvent>
         if (TwitchBot.getWsUiServer().clientIsConnected())
         {
             final byte[] encodedData = this.encoder.encode(loggingEvent);
-            TwitchBot.getWsUiServer().sendBytes(encodedData);
+            final String line = "#logline///" + new String(encodedData);
+            TwitchBot.getWsUiServer().sendMessage(line);
         }
     }
 

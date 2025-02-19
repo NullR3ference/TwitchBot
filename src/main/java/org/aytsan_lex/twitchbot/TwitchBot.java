@@ -31,8 +31,8 @@ public class TwitchBot
     private static final IManager uiCommandsManager = new UiCommandsManager();
 
     private static TwitchClient twitchClient = null;
-    private static WsUiServer wsUiServer = null;
     private static boolean isRunning = false;
+    private static final WsUiServer wsUiServer = WsUiServer.builder().withHost("0.0.0.0").withPort(8811).build();
 
     /**
      * Initialize Twitch bot and all sub-systems
@@ -42,9 +42,12 @@ public class TwitchBot
     public static boolean initialize()
     {
         LOG.info("Initializing...");
+        if (!configManager.initialize())
+        {
+            return false;
+        }
 
         boolean managersIsInitialized = true;
-        managersIsInitialized &= configManager.initialize();
         managersIsInitialized &= credentialsManager.initialize();
         managersIsInitialized &= commandsManager.initialize();
 
@@ -52,13 +55,11 @@ public class TwitchBot
         ollamaModelsManager.initialize();
         uiCommandsManager.initialize();
 
-        if (!managersIsInitialized)
-        {
-            return false;
-        }
-
-        BotCommandHandler.initialize();
         UiCommandHandler.initialize();
+        BotCommandHandler.initialize();
+
+        LOG.info("Starting WebSocket server...");
+        wsUiServer.start();
 
         LOG.info("Building TwitchClient...");
         twitchClient = TwitchClientBuilder.builder()
@@ -80,9 +81,6 @@ public class TwitchBot
         twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
                 .onEvent(StreamOfflineEvent.class, ChannelEventHandler::onStreamOffline);
 
-        LOG.info("Building WebSocket server...");
-        wsUiServer = WsUiServer.builder().withHost("0.0.0.0").withPort(8811).build();
-
         return true;
     }
 
@@ -99,6 +97,10 @@ public class TwitchBot
         uiCommandsManager.shutdown();
 
         twitchClient.close();
+
+        LOG.info("Stopping WebSocket server...");
+        try { wsUiServer.stop(1000); }
+        catch (InterruptedException ignored) { }
     }
 
     /**
@@ -112,9 +114,6 @@ public class TwitchBot
     {
         if (!isRunning)
         {
-            LOG.info("Starting WebSocket server...");
-            wsUiServer.start();
-
             final ArrayList<String> channels = Stream.of(
                     getConfigManager().getConfig().getOwners(),
                     getConfigManager().getConfig().getChannels()
@@ -142,10 +141,6 @@ public class TwitchBot
             LOG.info("Disconnecting from all channels...");
             getConfigManager().getConfig().getOwners().forEach(TwitchBot::joinToChat);
             getConfigManager().getConfig().getChannels().forEach(TwitchBot::joinToChat);
-
-            LOG.info("Stopping WebSocket server...");
-            try { wsUiServer.stop(1000); }
-            catch (InterruptedException ignored) { }
 
             isRunning = false;
             LOG.info("Stopped");
