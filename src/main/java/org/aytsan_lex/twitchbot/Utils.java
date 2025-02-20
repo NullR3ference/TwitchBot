@@ -20,7 +20,7 @@ public class Utils
     public static String buildStatusMessage()
     {
         final MemoryMXBean memMXBean = ManagementFactory.getMemoryMXBean();
-        final Duration uptime = Duration.between(TwitchBotLauncher.getStartTime(), Instant.now());
+        final Duration uptime = Duration.between(TwitchBot.getTimeSinceInitialize(), Instant.now());
         final float heapUsedMib = (float) memMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
         final float heapMaxMib = (float) memMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024);
 

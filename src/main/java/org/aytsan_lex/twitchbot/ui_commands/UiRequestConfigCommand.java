@@ -11,7 +11,10 @@ public class UiRequestConfigCommand implements IUiCommand
     @Override
     public void execute(ArrayList<String> args, WebSocket client)
     {
-        final String configData = TwitchBot.getConfigManager().getConfig().toJsonString();
-        client.send(configData);
+        if (client.isOpen())
+        {
+            final String configData = TwitchBot.getConfigManager().getConfig().toJsonString();
+            client.send(configData);
+        }
     }
 }

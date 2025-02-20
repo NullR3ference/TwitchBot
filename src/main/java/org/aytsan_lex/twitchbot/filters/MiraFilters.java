@@ -6,10 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.gson.FormattingStyle;
-import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.gson.FormattingStyle;
+import com.google.gson.GsonBuilder;
 
 public class MiraFilters
 {
@@ -21,7 +21,7 @@ public class MiraFilters
         public int lengthFilterValue;
         public int wordLengthFilterValue;
 
-        public static Adapter fromPatterns(MiraFilters filters)
+        public static Adapter fromPatterns(final MiraFilters filters)
         {
             Adapter adapter = new Adapter();
 
@@ -37,9 +37,9 @@ public class MiraFilters
 
             adapter.replacementFilterValues = new HashMap<>(filters.replacementFilter.size());
 
-            filters.replacementFilter.forEach(((pattern, replacement) -> {
-                adapter.replacementFilterValues.put(pattern.pattern(), replacement);
-            }));
+            filters.replacementFilter.forEach(((pattern, replacement) ->
+                adapter.replacementFilterValues.put(pattern.pattern(), replacement)
+            ));
 
             adapter.lengthFilterValue = filters.messageLengthFilter;
             adapter.wordLengthFilterValue = filters.wordLengthFilter;
@@ -73,9 +73,30 @@ public class MiraFilters
                         final int lenFilter,
                         final int wordLengthFilter)
     {
-        this.preFilter = new ArrayList<>(preFilter.size());
-        this.postFilter = new ArrayList<>(postFilter.size());
+        this.preFilter = preFilter.stream()
+                .map(pattern -> Pattern.compile(
+                        pattern,
+                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+                ))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        this.postFilter = postFilter.stream()
+                .map(pattern -> Pattern.compile(
+                        pattern,
+                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+                ))
+                .collect(Collectors.toCollection(ArrayList::new));
+
         this.replacementFilter = new HashMap<>(replacementFilter.size());
+
+        replacementFilter.forEach((pattern, replacement) ->
+                this.replacementFilter.put(
+                        Pattern.compile(
+                                pattern,
+                                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
+                        ),
+                        replacement
+                ));
 
         if (lenFilter > 0)
         {
@@ -86,28 +107,6 @@ public class MiraFilters
         {
             this.wordLengthFilter = wordLengthFilter;
         }
-
-        preFilter.forEach(str ->
-                this.preFilter.add(Pattern.compile(
-                        str,
-                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-                ))
-        );
-
-        postFilter.forEach(str ->
-                this.postFilter.add(Pattern.compile(
-                        str,
-                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE
-                ))
-        );
-
-        replacementFilter.forEach((pattern, replacement) ->
-            this.replacementFilter.put(Pattern.compile(
-                    pattern,
-                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.UNICODE_CASE),
-                    replacement
-            )
-        );
     }
 
     public static MiraFilters fromAdapter(final Adapter adapter)

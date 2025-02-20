@@ -56,14 +56,6 @@ public class WsUiServer extends WebSocketServer
         }
     }
 
-    public void sendBytes(final byte[] bytes)
-    {
-        if (this.currentClient != null)
-        {
-            this.currentClient.send(bytes);
-        }
-    }
-
     public boolean clientIsConnected()
     {
         return this.currentClient != null;

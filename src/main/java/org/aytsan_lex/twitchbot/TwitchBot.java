@@ -1,16 +1,17 @@
 package org.aytsan_lex.twitchbot;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.github.twitch4j.chat.TwitchChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.eventsub.events.StreamOfflineEvent;
 import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
@@ -27,12 +28,14 @@ public class TwitchBot
     private static final IManager configManager = new ConfigManager();
     private static final IManager credentialsManager = new CredentialsManager();
     private static final IManager filtersManager = new FiltersManager();
-    private static final IManager commandsManager = new BotCommandsManager();
+    private static final IManager botCommandsManager = new BotCommandsManager();
     private static final IManager ollamaModelsManager = new OllamaModelsManager();
     private static final IManager uiCommandsManager = new UiCommandsManager();
 
+    private static Instant timeSinceInitialize = null;
     private static TwitchClient twitchClient = null;
     private static boolean isRunning = false;
+
     private static final WsUiServer wsUiServer = WsUiServer.builder().withHost("0.0.0.0").withPort(8811).build();
 
     /**
@@ -43,14 +46,16 @@ public class TwitchBot
     public static boolean initialize()
     {
         LOG.info("Initializing...");
-        if (!configManager.initialize())
+
+        boolean managersIsInitialized = true;
+        managersIsInitialized &= configManager.initialize();
+        managersIsInitialized &= credentialsManager.initialize();
+        managersIsInitialized &= botCommandsManager.initialize();
+
+        if (!managersIsInitialized)
         {
             return false;
         }
-
-        boolean managersIsInitialized = true;
-        managersIsInitialized &= credentialsManager.initialize();
-        managersIsInitialized &= commandsManager.initialize();
 
         filtersManager.initialize();
         ollamaModelsManager.initialize();
@@ -59,9 +64,6 @@ public class TwitchBot
         UiCommandHandler.initialize();
         BotCommandHandler.initialize();
 
-        LOG.info("Starting WebSocket server...");
-        wsUiServer.start();
-
         LOG.info("Building TwitchClient...");
         twitchClient = TwitchClientBuilder.builder()
                 .withEnableChat(true)
@@ -69,7 +71,10 @@ public class TwitchBot
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
                 .withClientId(getCredentialsManager().getCredentials().clientId())
-                .withChatAccount(new OAuth2Credential("twitch", getCredentialsManager().getCredentials().accessToken()))
+                .withChatAccount(new OAuth2Credential(
+                        "twitch",
+                        getCredentialsManager().getCredentials().accessToken()
+                ))
                 .withDefaultEventHandler(ReactorEventHandler.class)
                 .build();
 
@@ -82,6 +87,7 @@ public class TwitchBot
         twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
                 .onEvent(StreamOfflineEvent.class, ChannelEventHandler::onStreamOffline);
 
+        timeSinceInitialize = Instant.now();
         return true;
     }
 
@@ -93,15 +99,11 @@ public class TwitchBot
         configManager.shutdown();
         filtersManager.shutdown();
         credentialsManager.shutdown();
-        commandsManager.shutdown();
+        botCommandsManager.shutdown();
         ollamaModelsManager.shutdown();
         uiCommandsManager.shutdown();
 
         twitchClient.close();
-
-        LOG.info("Stopping WebSocket server...");
-        try { wsUiServer.stop(1000); }
-        catch (InterruptedException ignored) { }
     }
 
     /**
@@ -115,6 +117,9 @@ public class TwitchBot
     {
         if (!isRunning)
         {
+            LOG.info("Starting WebSocket server...");
+            wsUiServer.start();
+
             final ArrayList<String> channels = Stream.of(
                     getConfigManager().getConfig().getOwners(),
                     getConfigManager().getConfig().getChannels()
@@ -139,9 +144,13 @@ public class TwitchBot
     {
         if (isRunning)
         {
+            LOG.info("Stopping WebSocket server...");
+            try { wsUiServer.stop(1000); }
+            catch (InterruptedException ignored) { }
+
             LOG.info("Disconnecting from all channels...");
-            getConfigManager().getConfig().getOwners().forEach(TwitchBot::joinToChat);
-            getConfigManager().getConfig().getChannels().forEach(TwitchBot::joinToChat);
+            getConfigManager().getConfig().getOwners().forEach(TwitchBot::leaveFromChat);
+            getConfigManager().getConfig().getChannels().forEach(TwitchBot::leaveFromChat);
 
             isRunning = false;
             LOG.info("Stopped");
@@ -199,6 +208,11 @@ public class TwitchBot
         return true;
     }
 
+    public static Instant getTimeSinceInitialize()
+    {
+        return timeSinceInitialize;
+    }
+
     public static TwitchChat getTwitchChat()
     {
         return twitchClient.getChat();
@@ -221,7 +235,7 @@ public class TwitchBot
 
     public static BotCommandsManager getBotCommandsManager()
     {
-        return (BotCommandsManager) commandsManager;
+        return (BotCommandsManager) botCommandsManager;
     }
 
     public static OllamaModelsManager getOllamaModelsManager()

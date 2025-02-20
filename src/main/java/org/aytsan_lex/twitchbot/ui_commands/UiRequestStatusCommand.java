@@ -11,7 +11,10 @@ public class UiRequestStatusCommand implements IUiCommand
     @Override
     public void execute(ArrayList<String> args, WebSocket client)
     {
-        final String statusMessage =  "#status///" + Utils.buildStatusMessage();
-        client.send(statusMessage);
+        if (client.isOpen())
+        {
+            final String statusMessage =  "#status///" + Utils.buildStatusMessage();
+            client.send(statusMessage);
+        }
     }
 }
