@@ -14,9 +14,9 @@ public class UiLeaveChannelCommand implements IUiCommand
         if (!args.isEmpty())
         {
             final String targetChannel = args.get(0);
-            if (TwitchBot.channelExists(targetChannel) && !TwitchBot.isConnectedToChat(targetChannel))
+            if (TwitchBot.channelExists(targetChannel) && TwitchBot.isConnectedToChat(targetChannel))
             {
-                TwitchBot.joinToChat(targetChannel);
+                TwitchBot.leaveFromChat(targetChannel);
             }
         }
     }

@@ -14,9 +14,9 @@ public class UiJoinChannelCommand implements IUiCommand
         if (!args.isEmpty())
         {
             final String targetChannel = args.get(0);
-            if (TwitchBot.isConnectedToChat(targetChannel))
+            if (TwitchBot.channelExists(targetChannel) && !TwitchBot.isConnectedToChat(targetChannel))
             {
-                TwitchBot.leaveFromChat(targetChannel);
+                TwitchBot.joinToChat(targetChannel);
             }
         }
     }
