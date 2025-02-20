@@ -15,6 +15,7 @@ public class UiUpdateConfigCommand implements IUiCommand
         {
             final String configData = args.get(0);
             TwitchBot.getConfigManager().writeData(configData);
+            TwitchBot.getConfigManager().readFile();
         }
     }
 }

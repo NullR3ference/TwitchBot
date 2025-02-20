@@ -1,5 +1,6 @@
 package org.aytsan_lex.twitchbot;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,7 @@ public class TwitchBot
     private static final IManager ollamaModelsManager = new OllamaModelsManager();
     private static final IManager uiCommandsManager = new UiCommandsManager();
 
+    private static Instant timeSinceInitialize = null;
     private static TwitchClient twitchClient = null;
     private static boolean isRunning = false;
     private static final WsUiServer wsUiServer = WsUiServer.builder().withHost("0.0.0.0").withPort(8811).build();
@@ -81,6 +83,7 @@ public class TwitchBot
         twitchClient.getEventManager().getEventHandler(ReactorEventHandler.class)
                 .onEvent(StreamOfflineEvent.class, ChannelEventHandler::onStreamOffline);
 
+        timeSinceInitialize = Instant.now();
         return true;
     }
 
@@ -177,7 +180,6 @@ public class TwitchBot
 
     public static void sendMessageWithDelay(String channelName, String message, int delay)
     {
-        // TODO: Handle identical message timeout, prevent this
         synchronized (CHAT_MESSAGE_SYNC)
         {
             try { TimeUnit.MILLISECONDS.sleep(delay); }
@@ -194,6 +196,11 @@ public class TwitchBot
             catch (InterruptedException ignored) {}
         }
         twitchClient.getChat().sendMessage(channelName, message, null, messageId);
+    }
+
+    public static Instant getTimeSinceInitialize()
+    {
+        return timeSinceInitialize;
     }
 
     public static boolean channelExists(String channelName)

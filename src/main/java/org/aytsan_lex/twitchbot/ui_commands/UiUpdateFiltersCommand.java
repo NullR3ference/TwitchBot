@@ -15,6 +15,7 @@ public class UiUpdateFiltersCommand implements IUiCommand
         {
             final String filtersData = args.get(0);
             TwitchBot.getFiltersManager().writeData(filtersData);
+            TwitchBot.getFiltersManager().readFile();
         }
     }
 }
