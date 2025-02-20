@@ -13,7 +13,7 @@ public class UiRequestFiltersCommand implements IUiCommand
     {
         if (client.isOpen())
         {
-            final String filtersData = TwitchBot.getFiltersManager().getMiraFilters().toJsonString();
+            final String filtersData = "#filters///" + TwitchBot.getFiltersManager().getMiraFilters().toJsonString();
             client.send(filtersData);
         }
     }

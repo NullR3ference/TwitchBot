@@ -13,7 +13,7 @@ public class UiRequestConfigCommand implements IUiCommand
     {
         if (client.isOpen())
         {
-            final String configData = TwitchBot.getConfigManager().getConfig().toJsonString();
+            final String configData = "#config///" + TwitchBot.getConfigManager().getConfig().toJsonString();
             client.send(configData);
         }
     }
