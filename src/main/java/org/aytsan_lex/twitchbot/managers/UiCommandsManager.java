@@ -20,6 +20,7 @@ public class UiCommandsManager implements IManager
         put("join",             new UiJoinChannelCommand());
         put("leave",            new UiLeaveChannelCommand());
         put("sendmessage",      new UiSendMessageCommand());
+        put("setpermission",    new UiSetPermissionCommand());
         put("restart",          new UiRestartCommand());
     }};
 
