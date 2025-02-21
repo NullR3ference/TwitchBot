@@ -116,7 +116,8 @@ public class FiltersManager extends ConfigFileBasedManager
         synchronized (FILE_ACCESS_SYNC)
         {
             final FileWriter fileWriter = new FileWriter(miraFiltersFile);
-            final String jsonData = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(miraFilters);
+            final MiraFilters.Adapter adapter = MiraFilters.Adapter.fromPatterns(this.miraFilters);
+            final String jsonData = new GsonBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(adapter);
             fileWriter.write(jsonData);
             fileWriter.close();
         }
