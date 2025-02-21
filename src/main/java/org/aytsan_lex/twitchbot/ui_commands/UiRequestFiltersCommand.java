@@ -9,9 +9,12 @@ import org.aytsan_lex.twitchbot.TwitchBot;
 public class UiRequestFiltersCommand implements IUiCommand
 {
     @Override
-    public void execute(ArrayList<String> args, WebSocket client)
+    public void execute(ArrayList<String> args, WebSocket client) throws UiCommandError
     {
-        final String filtersData = "#filters///" + TwitchBot.getFiltersManager().getMiraFilters().toJsonString();
-        client.send(filtersData);
+        if (client.isOpen())
+        {
+            final String filtersData = "#filters///" + TwitchBot.getFiltersManager().getMiraFilters().toJsonString();
+            client.send(filtersData);
+        }
     }
 }

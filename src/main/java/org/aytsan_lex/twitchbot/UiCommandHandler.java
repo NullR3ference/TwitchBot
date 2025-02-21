@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.java_websocket.WebSocket;
 
-import org.aytsan_lex.twitchbot.ui_commands.UiRequestStatusCommand;
-
 import org.aytsan_lex.twitchbot.ui_commands.IUiCommand;
+import org.aytsan_lex.twitchbot.ui_commands.UiCommandError;
+import org.aytsan_lex.twitchbot.ui_commands.UiRequestStatusCommand;
 
 public class UiCommandHandler
 {
@@ -45,6 +44,14 @@ public class UiCommandHandler
                 {
                     Thread.currentThread().interrupt();
                     break;
+                }
+                catch (UiCommandError e)
+                {
+                    LOG.error("Ui command error: {}", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    LOG.error("Error: {}", e.getMessage());
                 }
             }
         }
@@ -91,10 +98,7 @@ public class UiCommandHandler
                 LOG.debug("Command: '{}', args: {}", cmd, args);
                 uiCommandsQueue.put(new UiCommandContext(command, args, webSocketFrom));
             }
-            catch (Exception e)
-            {
-                LOG.error("Error: {}", e.getMessage());
-            }
+            catch (InterruptedException ignored) { }
         }
         else
         {

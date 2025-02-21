@@ -30,18 +30,10 @@ public class FiltersManager extends ConfigFileBasedManager
         return miraFilters;
     }
 
-    public void writeData(final String data)
+    public void writeAndUpdate(final MiraFilters newMiraFilters)
     {
-        try
-        {
-            final FileWriter fileWriter = new FileWriter(miraFiltersFile);
-            fileWriter.write(data);
-            fileWriter.close();
-        }
-        catch (IOException e)
-        {
-            LOG.error("Failed to write data: {}", e.getMessage());
-        }
+        this.miraFilters = newMiraFilters;
+        this.saveFile();
     }
 
     @Override

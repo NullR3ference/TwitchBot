@@ -6,5 +6,5 @@ import org.java_websocket.WebSocket;
 
 public interface IUiCommand
 {
-    void execute(ArrayList<String> args, WebSocket client);
+    void execute(ArrayList<String> args, WebSocket client) throws UiCommandError;
 }

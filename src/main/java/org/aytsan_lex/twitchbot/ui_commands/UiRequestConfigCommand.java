@@ -9,9 +9,12 @@ import org.aytsan_lex.twitchbot.TwitchBot;
 public class UiRequestConfigCommand implements IUiCommand
 {
     @Override
-    public void execute(ArrayList<String> args, WebSocket client)
+    public void execute(ArrayList<String> args, WebSocket client) throws UiCommandError
     {
-        final String configData = "#config///" + TwitchBot.getConfigManager().getConfig().toJsonString();
-        client.send(configData);
+        if (client.isOpen())
+        {
+            final String configData = "#config///" + TwitchBot.getConfigManager().getConfig().toJsonString();
+            client.send(configData);
+        }
     }
 }

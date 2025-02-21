@@ -7,7 +7,7 @@ import org.java_websocket.WebSocket;
 public class UiRestartCommand implements IUiCommand
 {
     @Override
-    public void execute(ArrayList<String> args, WebSocket client)
+    public void execute(ArrayList<String> args, WebSocket client) throws UiCommandError
     {
         System.exit(10);
     }

@@ -159,18 +159,10 @@ public class ConfigManager extends ConfigFileBasedManager
         config.setDelayBetweenMessages(delay);
     }
 
-    public void writeData(final String data)
+    public void writeAndUpdate(final BotConfig newConfig)
     {
-        try
-        {
-            final FileWriter fileWriter = new FileWriter(configFile);
-            fileWriter.write(data);
-            fileWriter.close();
-        }
-        catch (IOException e)
-        {
-            LOG.error("Failed to write data: {}", e.getMessage());
-        }
+        this.config = newConfig;
+        this.saveFile();
     }
 
     @Override

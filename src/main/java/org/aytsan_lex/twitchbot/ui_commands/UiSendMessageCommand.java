@@ -8,11 +8,11 @@ import org.java_websocket.WebSocket;
 public class UiSendMessageCommand implements IUiCommand
 {
     @Override
-    public void execute(final ArrayList<String> args, final WebSocket client)
+    public void execute(final ArrayList<String> args, final WebSocket client) throws UiCommandError
     {
         if (args.size() < 2)
         {
-            return;
+            throw new UiCommandError("Args are required!");
         }
 
         final String channelName = args.get(0).trim();

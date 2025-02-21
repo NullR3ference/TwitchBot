@@ -9,7 +9,7 @@ import org.aytsan_lex.twitchbot.TwitchBot;
 public class UiJoinChannelCommand implements IUiCommand
 {
     @Override
-    public void execute(ArrayList<String> args, WebSocket client)
+    public void execute(ArrayList<String> args, WebSocket client) throws UiCommandError
     {
         if (!args.isEmpty())
         {
@@ -18,6 +18,10 @@ public class UiJoinChannelCommand implements IUiCommand
             {
                 TwitchBot.joinToChat(targetChannel);
             }
+        }
+        else
+        {
+            throw new UiCommandError("Args are required!");
         }
     }
 }

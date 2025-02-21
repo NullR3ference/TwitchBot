@@ -9,7 +9,7 @@ import org.aytsan_lex.twitchbot.TwitchBot;
 public class UiRemoveChannelCommand implements IUiCommand
 {
     @Override
-    public void execute(ArrayList<String> args, WebSocket client)
+    public void execute(ArrayList<String> args, WebSocket client) throws UiCommandError
     {
         if (!args.isEmpty())
         {
@@ -26,6 +26,10 @@ public class UiRemoveChannelCommand implements IUiCommand
                     TwitchBot.getConfigManager().saveFile();
                 }
             }
+        }
+        else
+        {
+            throw new UiCommandError("Args are required!");
         }
     }
 }

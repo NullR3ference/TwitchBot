@@ -9,11 +9,11 @@ import org.aytsan_lex.twitchbot.TwitchBot;
 public class UiMuteCommand implements IUiCommand
 {
     @Override
-    public void execute(ArrayList<String> args, WebSocket client)
+    public void execute(ArrayList<String> args, WebSocket client) throws UiCommandError
     {
         if (args.size() < 2)
         {
-            return;
+            throw new UiCommandError("Args are required!");
         }
 
         final String commandToMute = args.get(0);
