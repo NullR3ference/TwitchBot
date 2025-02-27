@@ -275,6 +275,7 @@ public class ConfigManager extends ConfigFileBasedManager
                     "RestartBotCommand": 777,
                     "SetPermissionBotCommand": 777,
                     "StatusBotCommand": 777,
+                    "MiraInfoBotCommand": 777,
                     "UpdateFiltersBotCommand": 777
                   },
                   "commandCooldowns": {},
