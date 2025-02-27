@@ -66,7 +66,6 @@ public class TwitchBot
         LOG.info("Building TwitchClient...");
         twitchClient = TwitchClientBuilder.builder()
                 .withEnableChat(true)
-                .withEnablePubSub(true)
                 .withTimeout(1000)
                 .withChatMaxJoinRetries(2)
                 .withClientId(getCredentialsManager().getCredentials().clientId())

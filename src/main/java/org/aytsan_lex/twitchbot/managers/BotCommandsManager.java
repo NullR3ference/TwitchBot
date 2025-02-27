@@ -22,7 +22,7 @@ public class BotCommandsManager implements IManager
             }
             catch (Exception ignored)
             {
-                    return null;
+                return null;
             }
 
             return new BotCommandAlias(commandObject, classObject);
@@ -48,6 +48,7 @@ public class BotCommandsManager implements IManager
         put("updatefilters",    BotCommandAlias.of(UpdateFiltersBotCommand.class));
         put("filterinfo",       BotCommandAlias.of(FiltersInfoBotCommand.class));
         put("setcd",            BotCommandAlias.of(SetCooldownBotCommand.class));
+        put("mirainfo",         BotCommandAlias.of(MiraInfoBotCommand.class));
         put("msgdelay",         BotCommandAlias.of(MsgDelayBotCommand.class));
     }};
 
