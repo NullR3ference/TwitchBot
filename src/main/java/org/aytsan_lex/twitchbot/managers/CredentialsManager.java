@@ -6,7 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import org.aytsan_lex.twitchbot.bot_commands.BotCommandBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -122,5 +125,14 @@ public class CredentialsManager extends ConfigFileBasedManager
         final FileWriter fileWriter = new FileWriter(credentialsFile);
         fileWriter.write(template);
         fileWriter.close();
+    }
+
+    public static class MiraInfoBotCommand extends BotCommandBase
+    {
+        @Override
+        public void execute(IRCMessageEvent event, ArrayList<String> args)
+        {
+            // TODO: Implement MiraInfoBotCommand
+        }
     }
 }

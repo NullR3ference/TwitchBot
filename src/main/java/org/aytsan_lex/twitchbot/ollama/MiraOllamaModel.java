@@ -1,12 +1,12 @@
 package org.aytsan_lex.twitchbot.ollama;
 
-import java.time.Instant;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.ArrayListMultimap;
 import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 import io.github.ollama4j.models.chat.OllamaChatRequestBuilder;
 import io.github.ollama4j.models.chat.OllamaChatResult;
@@ -21,12 +21,33 @@ public class MiraOllamaModel implements IOllamaModel
 
     private final ArrayList<String> userQuestionsHistory = new ArrayList<>(MAX_USER_QUESTIONS_HISTORY);
     private final OllamaChatRequestBuilder ollamaChatRequestBuilder;
+    private final ArrayListMultimap<String, String> modelParams;
     private int userQuestionCounter;
 
     public MiraOllamaModel()
     {
-        this.ollamaChatRequestBuilder =
-                OllamaChatRequestBuilder.getInstance(TwitchBot.getConfigManager().getConfig().getMiraModelName());
+        final String modelName = TwitchBot.getConfigManager().getConfig().getMiraModelName();
+        this.ollamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(modelName);
+        this.modelParams = ArrayListMultimap.create();
+
+        try
+        {
+            final ArrayList<String> params = new ArrayList<>(List.of(
+                    TwitchBot.getOllamaModelsManager().getAPI().getModelDetails(modelName)
+                            .getParameters().split("\n")
+            ));
+
+            params.forEach(p -> {
+                final String[] entry = p.split("\\s+");
+                this.modelParams.put(entry[0], entry[1]);
+            });
+
+            LOG.debug("Model params: {}", this.modelParams);
+        }
+        catch (Exception e)
+        {
+            LOG.error("Failed to get model details: {}", e.getMessage());
+        }
 
         this.userQuestionCounter = 0;
     }
@@ -53,7 +74,10 @@ public class MiraOllamaModel implements IOllamaModel
                 this.userQuestionCounter++;
             }
 
-            LOG.debug("Response from model took: {} ms", chatResult.getResponseModel().getTotalDuration());
+            LOG.debug(
+                    "Response from model took: {} ms",
+                    Duration.ofNanos(chatResult.getResponseModel().getTotalDuration()).toMillis()
+            );
             return chatResult.getResponseModel().getMessage().getContent();
         }
         catch (Exception e)
@@ -78,9 +102,9 @@ public class MiraOllamaModel implements IOllamaModel
     }
 
     @Override
-    public HashMap<String, String> getParams()
+    public ArrayListMultimap<String, String> getParams()
     {
-        return new HashMap<>();
+        return this.modelParams;
     }
 
     private void putQuestionInHistory(final String userName, final String question)
