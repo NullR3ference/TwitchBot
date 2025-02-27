@@ -7,14 +7,11 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
 
-public class BotCommandBase implements IBotCommand
+public abstract class BotCommandBase implements IBotCommand
 {
     public static final int DEFAULT_MESSAGE_DELAY = 1100; // ms
 
-    @Override
-    public void execute(final IRCMessageEvent event, final ArrayList<String> args)
-    {
-    }
+    public abstract void execute(final IRCMessageEvent event, final ArrayList<String> args);
 
     @Override
     public int getRequiredPermissionLevel()

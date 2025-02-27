@@ -3,6 +3,7 @@ package org.aytsan_lex.twitchbot.ollama;
 import java.time.Instant;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,6 @@ public class MiraOllamaModel implements IOllamaModel
         try
         {
             OllamaChatResult chatResult;
-            final Instant start = Instant.now();
 
             synchronized (API_ACCESS_SYNC)
             {
@@ -49,13 +49,12 @@ public class MiraOllamaModel implements IOllamaModel
                                 .withMessage(OllamaChatMessageRole.USER, message.formatedMessage())
                                 .build()
                 );
+
+                this.userQuestionCounter++;
             }
 
-            final Instant finish = Instant.now();
-            this.userQuestionCounter++;
-
-            LOG.debug("Response from model took: {} ms", Duration.between(start, finish).toMillis());
-            return chatResult.getResponse();
+            LOG.debug("Response from model took: {} ms", chatResult.getResponseModel().getTotalDuration());
+            return chatResult.getResponseModel().getMessage().getContent();
         }
         catch (Exception e)
         {
@@ -76,6 +75,12 @@ public class MiraOllamaModel implements IOllamaModel
     {
         this.userQuestionsHistory.clear();
         this.userQuestionCounter = 0;
+    }
+
+    @Override
+    public HashMap<String, String> getParams()
+    {
+        return new HashMap<>();
     }
 
     private void putQuestionInHistory(final String userName, final String question)
