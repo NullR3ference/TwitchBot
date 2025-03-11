@@ -20,7 +20,7 @@ public class UiSendMessageCommand implements IUiCommand
 
         if (TwitchBot.isConnectedToChat(channelName))
         {
-            TwitchBot.sendMessage(channelName, message);
+            TwitchBot.sendMessageWithDelay(channelName, message, 0);
         }
     }
 }
