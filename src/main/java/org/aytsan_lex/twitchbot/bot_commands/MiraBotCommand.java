@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
@@ -29,6 +31,8 @@ public class MiraBotCommand extends BotCommandBase
             return (val < 1) ? MSG_SINGLE : MSG_BLOCKS;
         }
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(MiraBotCommand.class);
 
     private static final Pattern forwardToChatPattern = Pattern.compile(
             "^#(\\w+):",
@@ -56,25 +60,25 @@ public class MiraBotCommand extends BotCommandBase
 
         if (permissionLevel < this.getRequiredPermissionLevel())
         {
-            TwitchBot.LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
+            LOG.warn("{}: permission denied: {}/{}", userName, permissionLevel, super.getRequiredPermissionLevel());
             return;
         }
 
         if (super.isTimedOutOnChannelOrModify(channelName))
         {
-            TwitchBot.LOG.warn("Command will not execute: you are timed out");
+            LOG.warn("Command will not execute: you are timed out");
             return;
         }
 
         if (super.isMuted())
         {
-            TwitchBot.LOG.warn("Command will not execute: command is muted!");
+            LOG.warn("Command will not execute: command is muted!");
             return;
         }
 
         if (!TwitchBot.getOllamaModelsManager().checkConnection())
         {
-            TwitchBot.LOG.warn("Ollama connection failed: {}", TwitchBot.getConfigManager().getConfig().getOllamaHost());
+            LOG.warn("Ollama connection failed: {}", TwitchBot.getConfigManager().getConfig().getOllamaHost());
             return;
         }
 
@@ -82,7 +86,7 @@ public class MiraBotCommand extends BotCommandBase
         {
             if (!TwitchBot.getConfigManager().isOwner(userName))
             {
-                TwitchBot.LOG.warn("Command will not execute: cooldown");
+                LOG.warn("Command will not execute: cooldown");
                 return;
             }
         }
@@ -111,6 +115,7 @@ public class MiraBotCommand extends BotCommandBase
 
         if (response.isEmpty())
         {
+            LOG.warn("Model returned empty response");
             return;
         }
 
@@ -119,8 +124,8 @@ public class MiraBotCommand extends BotCommandBase
                 miraFilters.splitWideWords(miraFilters.runReplacementFilter(miraFilters.runPostFilter(response)))
         );
 
-        TwitchBot.LOG.info("Raw model response:\n{}", response);
-        TwitchBot.LOG.info("Filtered model response:\n{}", filteredResponse);
+        LOG.info("Raw response: {}", response);
+        LOG.info("Filtered response: {}", filteredResponse);
 
         if (!super.isMuted())
         {
@@ -132,7 +137,7 @@ public class MiraBotCommand extends BotCommandBase
             {
                 targetChannelName = matcher.group(1);
                 finalResponseMessage = finalResponseMessage.replaceAll(forwardToChatPattern.pattern(), "");
-                TwitchBot.LOG.info("Forward to chat pattern triggered: {}", targetChannelName);
+                LOG.info("Forward to chat pattern triggered: {}", targetChannelName);
             }
 
             if (TwitchBot.isConnectedToChat(targetChannelName))
@@ -145,12 +150,12 @@ public class MiraBotCommand extends BotCommandBase
             }
             else
             {
-                TwitchBot.LOG.warn("Message will not send: not connected to chat of '{}'", targetChannelName);
+                LOG.warn("Message will not send: not connected to chat of '{}'", targetChannelName);
             }
         }
         else
         {
-            TwitchBot.LOG.warn("Message will not send: command is muted!");
+            LOG.warn("Message will not send: command is muted!");
         }
     }
 
@@ -158,9 +163,9 @@ public class MiraBotCommand extends BotCommandBase
     {
         final ArrayList<String> messageBlocks = TwitchBot.getFiltersManager().getMiraFilters().splitMessageByBlocks(response);
 
-        TwitchBot.LOG.info("Sending {} message block(s)...", messageBlocks.size());
+        LOG.info("Sending {} message block(s)...", messageBlocks.size());
         messageBlocks.forEach(msg -> TwitchBot.sendMessage(channelName, msg));
-        TwitchBot.LOG.info("Message block(s) was sent");
+        LOG.info("Message block(s) was sent");
     }
 
     private String buildModelMessage(final String userName, final String message)

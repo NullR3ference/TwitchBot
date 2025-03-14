@@ -16,13 +16,10 @@ import org.aytsan_lex.twitchbot.TwitchBot;
 public class MiraOllamaModel implements IOllamaModel
 {
     private static final Logger LOG = LoggerFactory.getLogger(MiraOllamaModel.class);
-    private static final int MAX_USER_QUESTIONS_HISTORY = 10;
     private static final Object API_ACCESS_SYNC = new Object();
 
-    private final ArrayList<String> userQuestionsHistory = new ArrayList<>(MAX_USER_QUESTIONS_HISTORY);
     private final OllamaChatRequestBuilder ollamaChatRequestBuilder;
     private final ArrayListMultimap<String, String> modelParams;
-    private int userQuestionCounter;
 
     public MiraOllamaModel()
     {
@@ -48,8 +45,6 @@ public class MiraOllamaModel implements IOllamaModel
         {
             LOG.error("Failed to get model details: {}", e.getMessage());
         }
-
-        this.userQuestionCounter = 0;
     }
 
     @Override
@@ -62,16 +57,11 @@ public class MiraOllamaModel implements IOllamaModel
             synchronized (API_ACCESS_SYNC)
             {
                 LOG.info("Message to model: '{}'", message.formatedMessage());
-
-                this.putQuestionInHistory(message.userName(), message.originalMessage());
-
                 chatResult = TwitchBot.getOllamaModelsManager().getAPI().chat(
                         this.ollamaChatRequestBuilder
                                 .withMessage(OllamaChatMessageRole.USER, message.formatedMessage())
                                 .build()
                 );
-
-                this.userQuestionCounter++;
             }
 
             LOG.debug(
@@ -83,33 +73,13 @@ public class MiraOllamaModel implements IOllamaModel
         catch (Exception e)
         {
             LOG.error("Error: {}", e.getMessage());
+            return "";
         }
-
-        return "";
-    }
-
-    @Override
-    public ArrayList<String> getQuestionsHistory()
-    {
-        return this.userQuestionsHistory;
-    }
-
-    @Override
-    public void clearQuestionsHistory()
-    {
-        this.userQuestionsHistory.clear();
-        this.userQuestionCounter = 0;
     }
 
     @Override
     public ArrayListMultimap<String, String> getParams()
     {
         return this.modelParams;
-    }
-
-    private void putQuestionInHistory(final String userName, final String question)
-    {
-        final String historyElement = "%s: %s".formatted(userName, question);
-        this.userQuestionsHistory.add(this.userQuestionCounter % MAX_USER_QUESTIONS_HISTORY, historyElement);
     }
 }

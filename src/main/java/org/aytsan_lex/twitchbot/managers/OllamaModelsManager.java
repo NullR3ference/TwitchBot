@@ -2,7 +2,6 @@ package org.aytsan_lex.twitchbot.managers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.github.ollama4j.OllamaAPI;
 
 import org.aytsan_lex.twitchbot.TwitchBot;
@@ -32,7 +31,7 @@ public class OllamaModelsManager implements IManager
 
     public IOllamaModel getMiraModel()
     {
-        return miraModel;
+        return this.miraModel;
     }
 
     @Override
@@ -57,6 +56,5 @@ public class OllamaModelsManager implements IManager
     public void shutdown()
     {
         LOG.info("Shutting down...");
-        this.miraModel.clearQuestionsHistory();
     }
 }

@@ -38,7 +38,10 @@ public abstract class BotCommandBase implements IBotCommand
             final LocalDateTime now = LocalDateTime.now();
             final LocalDateTime timeoutEndsAt = TwitchBot.getConfigManager().getTimeoutEndsAt(channelName);
 
-            if (now.isBefore(timeoutEndsAt)) { return true; }
+            if (now.isBefore(timeoutEndsAt))
+            {
+                return true;
+            }
 
             TwitchBot.getConfigManager().removeTimedOutOnChannel(channelName);
             TwitchBot.getConfigManager().saveFile();

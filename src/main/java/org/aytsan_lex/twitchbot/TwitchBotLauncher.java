@@ -17,7 +17,6 @@ public class TwitchBotLauncher
     {
         // FIXME: Probably deadlock or something else after restart command
         LOG.info("Restarting....");
-
         shutdownSystems();
         initializeOrExitOnFailure();
         TwitchBot.start();
